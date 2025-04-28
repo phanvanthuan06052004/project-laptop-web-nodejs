@@ -1,16 +1,18 @@
+import FeaturedProducts from "~/components/home/FeaturedProducts"
+import BrandShowcase from "~/components/home/BrandShowcase"
+import CallToAction from "~/components/home/CallToAction"
+import HeroBanner from "~/components/home/HeroBanner"
+import Footer from "~/components/layout/Footer"
+import Header from "~/components/layout/Header"
 
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        <HeroBanner />
-        <FeaturedProducts />
-        <BrandShowcase />
-        <CallToAction />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <HeroBanner />
+      <FeaturedProducts />
+      <BrandShowcase />
+      <CallToAction />
+    </>
   )
 }
 

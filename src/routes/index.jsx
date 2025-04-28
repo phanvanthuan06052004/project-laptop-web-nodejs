@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom"
-import { Navigate } from "react-router-dom"
-import { useSelector } from "react-redux"
+// import { Navigate } from "react-router-dom"
+// import { useSelector } from "react-redux"
 import { lazy } from "react"
 
-import { selectCurrentUser } from "~/store/slices/authSlice"
+// import { selectCurrentUser } from "~/store/slices/authSlice"
 import MainLayout from "~/layout/MainLayout"
-import ScrollToTop from "~/components/common/ScrollToTop"
+// import ScrollToTop from "~/components/common/ScrollToTop"
 import publicRoutes from "./publicRoutes"
 import privateRoutes from "./privateRoutes"
 
@@ -16,13 +16,13 @@ const ProductDetail = lazy(() => import("~/pages/ProductDetail"))
 const Cart = lazy(() => import("~/pages/Cart"))
 const Checkout = lazy(() => import("~/pages/Checkout"))
 const OrderConfirmation = lazy(() => import("~/pages/OrderConfirmation"))
-const Login = lazy(() => import("~/pages/Login"))
-const Register = lazy(() => import("~/pages/Register"))
-const Account = lazy(() => import("~/pages/Account"))
-const Blog = lazy(() => import("~/pages/Blog"))
-const BlogPost = lazy(() => import("~/pages/BlogPost"))
-const Categories = lazy(() => import("~/pages/Categories"))
-const Deals = lazy(() => import("~/pages/Deals"))
+const Login = lazy(() => import("~/pages/auth/Login"))
+const Register = lazy(() => import("~/pages/auth/Register"))
+const Account = lazy(() => import("~/pages/account/Account"))
+// const Blog = lazy(() => import("~/pages/Blog"))
+// const BlogPost = lazy(() => import("~/pages/BlogPost"))
+// const Categories = lazy(() => import("~/pages/Categories"))
+// const Deals = lazy(() => import("~/pages/Deals"))
 const NotFound = lazy(() => import("~/pages/NotFound"))
 
 const routeComponents = {
@@ -35,44 +35,44 @@ const routeComponents = {
   "/login": <Login />,
   "/register": <Register />,
   "/account/*": <Account />,
-  "/blog": <Blog />,
-  "/blog/:slug": <BlogPost />,
-  "/categories": <Categories />,
-  "/deals": <Deals />
+  // "/blog": <Blog />,
+  // "/blog/:slug": <BlogPost />,
+  // "/categories": <Categories />,
+  // "/deals": <Deals />
 }
 
 const PublicRoutes = ({ children, restricted }) => {
-  const user = useSelector(selectCurrentUser)
-  const isAuthenticated = !!user
-  const isAdmin = user?.role === "admin"
+  // const user = useSelector(selectCurrentUser)
+  // const isAuthenticated = !!user
+  // const isAdmin = user?.role === "admin"
 
-  if (isAuthenticated && restricted) {
-    return <Navigate to={isAdmin ? "/admin" : "/"} replace />
-  }
+  // if (isAuthenticated && restricted) {
+  //   return <Navigate to={isAdmin ? "/admin" : "/"} replace />
+  // }
   return children
 }
 
 const UserPrivateRoutes = ({ children }) => {
-  const user = useSelector(selectCurrentUser)
-  const isAuthenticated = !!user
+  // const user = useSelector(selectCurrentUser)
+  // const isAuthenticated = !!user
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />
+  // }
   return children
 }
 
 const PrivateRoutes = ({ children }) => {
-  const user = useSelector(selectCurrentUser)
-  const isAuthenticated = !!user
-  const isAdmin = user?.role === "admin"
+  // const user = useSelector(selectCurrentUser)
+  // const isAuthenticated = !!user
+  // const isAdmin = user?.role === "admin"
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
-  if (!isAdmin) {
-    return <Navigate to="/" replace />
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />
+  // }
+  // if (!isAdmin) {
+  //   return <Navigate to="/" replace />
+  // }
   return children
 }
 

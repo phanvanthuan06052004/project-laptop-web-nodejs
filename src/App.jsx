@@ -1,9 +1,12 @@
+import ToastProvider from "./components/ToastProvider/ToastProvider"
+import AppRoutes from "./routes"
 
 function App() {
 
   return (
     <>
-      <h1 className="bg-cyan-200">Hello</h1>
+      <AppRoutes />
+      <ToastProvider />
     </>
   )
 }

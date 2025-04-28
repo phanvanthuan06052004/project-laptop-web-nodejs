@@ -1,31 +1,28 @@
-import Index from "~/pages/Index"
-import ProductListing from "~/pages/ProductListing"
-import ProductDetail from "~/pages/ProductDetail"
+
+import Account from "~/pages/account/Account"
+import Login from "~/pages/auth/Login"
+import Register from "~/pages/auth/Register"
 import Cart from "~/pages/Cart"
 import Checkout from "~/pages/Checkout"
+import Home from "~/pages/Home"
 import OrderConfirmation from "~/pages/OrderConfirmation"
-import Login from "~/pages/Login"
-import SignUp from "~/pages/SignUp"
-import Account from "~/pages/Account"
-import Blog from "~/pages/Blog"
-import BlogPost from "~/pages/BlogPost"
-import Categories from "~/pages/Categories"
-import Deals from "~/pages/Deals"
+import ProductDetail from "~/pages/ProductDetail"
+import ProductListing from "~/pages/ProductListing"
 
 const publicRoutes = [
-  { path: "/", element: <Index /> },
+  { path: "/", element: <Home /> },
   { path: "/products", element: <ProductListing /> },
   { path: "/product/:id", element: <ProductDetail /> },
   { path: "/cart", element: <Cart /> },
   { path: "/checkout", element: <Checkout /> },
   { path: "/order-confirmation", element: <OrderConfirmation /> },
   { path: "/login", element: <Login />, restricted: true },
-  { path: "/signup", element: <SignUp />, restricted: true },
+  { path: "/register", element: <Register />, restricted: true },
   { path: "/account/*", element: <Account /> },
-  { path: "/blog", element: <Blog /> },
-  { path: "/blog/:slug", element: <BlogPost /> },
-  { path: "/categories", element: <Categories /> },
-  { path: "/deals", element: <Deals /> }
+  // { path: "/blog", element: <Blog /> },
+  // { path: "/blog/:slug", element: <BlogPost /> },
+  // { path: "/categories", element: <Categories /> },
+  // { path: "/deals", element: <Deals /> }
 ]
 
 export default publicRoutes
