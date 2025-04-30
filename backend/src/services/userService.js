@@ -2,7 +2,6 @@ import { StatusCodes } from 'http-status-codes'
 import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import bcryptjs from 'bcryptjs'
-import { v4 as uuidv4 } from 'uuid'
 import { mailService } from './mailService'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
@@ -116,7 +115,9 @@ const signIn = async (reqBody, res) => {
       sameSite: 'none',
       maxAge: ms('14 days')
     })
-    delete userWithoutPassword.account
+    delete userWithoutPassword.password
+    delete userWithoutPassword.codeVerify
+    delete userWithoutPassword.codeExpiry
     // delete userWithoutPassword._id
     //trả về kqua cho client
     return {
@@ -181,7 +182,7 @@ const refreshToken = async (refreshToken) => {
       role: verifyToken.role
     }
     //tạo access token gửi về cho client
-    const accessToken = JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, 5)
+    const accessToken = JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, '1h')
     return accessToken
   } catch (error) {
     throw error
