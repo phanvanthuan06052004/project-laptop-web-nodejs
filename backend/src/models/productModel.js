@@ -32,7 +32,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
     isDeleted: Joi.boolean().default(false),
     comments: Joi.array().items(Joi.object()).default([]),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(null)
+    updatedAt: Joi.date().timestamp('javascript').default(null).allow(null)
 })
 
 // Chỉ định những trường không nên update
@@ -63,14 +63,20 @@ const getAllWithPagination = async ({ filter, sort, skip, limit }) => {
         return await GET_DB()
             .collection(PRODUCT_COLLECTION_NAME)
             .find(filter) // Áp dụng bộ lọc
-            .sort(sort) // Sắp xếp
-            .skip(skip) // Bỏ qua số bản ghi
-            .limit(limit) // Giới hạn số bản ghi
-            .toArray()
+            .sort(sort)   // Sắp xếp
+            .skip(skip)   // Bỏ qua số bản ghi
+            .limit(limit)  // Giới hạn số bản ghi
+            .project({     // Thêm projection để loại trừ các trường
+                price: 0,
+                updatedAt: 0,
+                isDeleted: 0,
+                isPublish: 0
+            })
+            .toArray();
     } catch (error) {
-        throw new Error(error)
+        throw new Error(error);
     }
-}
+};
 
 // Đếm tổng số bản ghi phù hợp với bộ lọc
 const countDocuments = async (filter) => {
@@ -97,15 +103,27 @@ const findOneById = async (id) => {
 }
 
 // Tìm product bằng nameSlug
+// Tìm product bằng nameSlug và loại trừ các trường không mong muốn
 const findOneByNameSlug = async (nameSlugValue) => {
     try {
-        return await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
-            nameSlug: nameSlugValue
-        })
+        return await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne(
+            {
+                nameSlug: nameSlugValue
+            },
+            { // Options object
+                projection: {
+                    price: 0,         // 0 để loại trừ trường price
+                    updatedAt: 0,     // 0 để loại trừ trường updatedAt
+                    isDeleted: 0,     // 0 để loại trừ trường isDeleted
+                    isPublish: 0      // 0 để loại trừ trường isPublish
+                }
+            }
+        )
     } catch (error) {
         throw new Error(error)
     }
 }
+
 
 // Cập nhật thông tin product
 const updateOneById = async (id, data) => {
