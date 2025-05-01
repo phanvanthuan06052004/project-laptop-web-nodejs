@@ -18,17 +18,16 @@ const verifyToken = async (token, secretSignature) => {
   }
 }
 
-const decodeToken = (token) => {
-  try {
-    const decoded = JWT.decode(token)
-    return decoded
-  } catch (error) {
-    throw new Error(error)
-  }
-}
+// const decodeToken = (token) => {
+//   try {
+//     const decoded = JWT.decode(token)
+//     return decoded
+//   } catch (error) {
+//     throw new Error(error)
+//   }
+// }
 
 export const JwtProvider = {
   generateToken,
-  verifyToken,
-  decodeToken
+  verifyToken
 }

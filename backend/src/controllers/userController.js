@@ -91,7 +91,7 @@ const updateUser = async (req, res, next) => {
 
 const updateUserByUserId = async (req, res, next) => {
   try {
-    const result = await userService.updateUserByUserId(req.params.id, req.body)
+    const result = await userService.updateUser(req.params.id, req.body)
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(error)
