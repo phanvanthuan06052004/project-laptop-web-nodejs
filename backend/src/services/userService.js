@@ -133,8 +133,8 @@ const getUserById = async (id) => {
   try {
     const result = await userModel.findOneById(id)
     if (!result) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!.')
-    delete result.account.password
-    delete result.account.verifyToken
+    delete result.password
+    delete result.verifyToken
     return result
   } catch (error) {
     throw error
@@ -152,7 +152,8 @@ const updateUser = async (id, data) => {
       updatedAt: Date.now()
     }
     const updatedHeritage = await userModel.updateUser(id, newUser)
-    delete updatedHeritage.account
+    delete updatedHeritage.password
+    delete updatedHeritage.verifyToken
     return updatedHeritage
   } catch (error) {
     throw error
@@ -190,36 +191,6 @@ const refreshToken = async (refreshToken) => {
 
 }
 
-const updateUserByUserId = async (userId, updateData) => {
-  try {
-
-    const existingUser = await userModel.findOneById(userId)
-    if (!existingUser) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
-    }
-
-    // Nếu có cập nhật trạng thái tài khoản
-    if (updateData.account?.isActive !== undefined) {
-      updateData = {
-        ...updateData,
-        account: {
-          ...existingUser.account, // Giữ nguyên các thông tin account hiện tại
-          isActive: updateData.account.isActive // Chỉ cập nhật isActive
-        }
-      }
-    }
-
-    const updatedUser = await userModel.updateUser(userId, {
-      ...updateData,
-      updatedAt: Date.now()
-    })
-
-    return updatedUser
-  } catch (error) {
-    throw error
-  }
-}
-
 // Export thêm function mới
 export const userService = {
   getAll,
@@ -228,6 +199,5 @@ export const userService = {
   updateUser,
   deleteAccount,
   signIn,
-  refreshToken,
-  updateUserByUserId
+  refreshToken
 }

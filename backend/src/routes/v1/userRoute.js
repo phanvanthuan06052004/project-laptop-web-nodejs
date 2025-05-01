@@ -25,7 +25,7 @@ Router.use('/upload', uploadRoute)
 // api get user profile, update user profile
 Router.route('/profile')
   .get(authMiddlewares.authentication, userController.getUserProfile)
-  .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUser)
+  .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUser) // update by token in authentication
 
 // api to logout
 Router.route('/auth/logout')
@@ -37,7 +37,7 @@ Router.route('/')
 
 // get detail, update, and delete user
 Router.route('/:id')
-  .put(userValidation.updateUserByUserId, userController.updateUserByUserId)
+  .put(userValidation.updateUserByUserId, userController.updateUserByUserId) // update by param id
   .get(userValidation.getUserById, userController.getUserById)
   .delete(authMiddlewares.authentication, authMiddlewares.authorization, userValidation.deleteAccount, userController.deleteAccount)
 

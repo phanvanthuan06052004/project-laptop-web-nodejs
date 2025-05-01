@@ -42,9 +42,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   codeExpiry: Joi.date().default(null),
   isVerified: Joi.boolean().default(false),
 
-  status: Joi.string()
-    .valid('active', 'blocked')
-    .default('active'),
+  isActive: Joi.boolean().default(true),
 
   createAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null)
