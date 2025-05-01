@@ -69,7 +69,7 @@ const createNew = async (reqBody) => {
     // verify  email
     await mailService.sendVerificationEmail(reqBody.email)
 
-    delete getNewUser.account
+    delete getNewUser.password
     // retrun data
     return getNewUser
   } catch (error) {
