@@ -26,11 +26,11 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
             screen: Joi.string().trim().strict()
         }).default({})
     ).default([]),
-    rating: Joi.object({
-        average: Joi.number().min(0).max(5).default(0),
-        count: Joi.number().min(0).default(0)
-    }).default({ average: 0, count: 0 }),
-
+    avgRating: Joi.number().min(0).max(5).default(0),
+    numberRating: Joi.number().min(0).default(0),
+    isPublish: Joi.boolean().default(false),
+    isDeleted: Joi.boolean().default(false),
+    comments: Joi.array().items(Joi.object()).default([]),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null)
 })
