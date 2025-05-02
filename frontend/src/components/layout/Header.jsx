@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Search, ShoppingCart, Menu, User, Heart, X, LogOut } from "lucide-react"
-import MobileMenu from "./MobileMenu"
+// import MobileMenu from "./MobileMenu"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "~/components/ui/DropdownMenu"
+import { useSelector } from "react-redux"
+import { selectCurrentUser } from "~/store/slices/authSlice"
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const isAuthenticated = true
+  const userInfo = useSelector(selectCurrentUser)
+  const isAuthenticated = !!userInfo
+
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -45,26 +49,35 @@ const Header = () => {
               <Heart size={20} />
             </Link>
 
-            {/* {isAuthenticated ? (
+            {/* Account dropdown menu */}
+            {isAuthenticated ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger className="p-2 hover:bg-muted rounded-full">
                   <User size={20} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Name</p>
-                      <p className="text-xs leading-none text-muted-foreground">Email</p>
+                      <p className="text-sm font-medium leading-none">{userInfo?.displayname}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{userInfo?.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/account")}>My Account</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/account/orders")}>Orders</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/wishlist")}>Wishlist</DropdownMenuItem>
-                  {user?.role === "admin" && (
+                  <DropdownMenuItem onClick={() => navigate("/account")}>
+                    My Account
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/account/orders")}>
+                    Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/wishlist")}>
+                    Wishlist
+                  </DropdownMenuItem>
+                  {userInfo?.role === "admin" && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate("/admin")}>Admin Dashboard</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        Admin Dashboard
+                      </DropdownMenuItem>
                     </>
                   )}
                   <DropdownMenuSeparator />
@@ -78,7 +91,7 @@ const Header = () => {
               <Link to="/login" className="p-2 hover:bg-muted rounded-full">
                 <User size={20} />
               </Link>
-            )} */}
+            )}
 
             {/* <button onClick={() => setIsCartOpen(true)} className="p-2 hover:bg-muted rounded-full relative">
               <ShoppingCart size={20} />
@@ -100,8 +113,11 @@ const Header = () => {
         )} */}
       </div>
 
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      {/* <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> */}
+      {isMobileMenuOpen && (
+        <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      )}
+
+      {/* {isCartOpen && <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />} */}
     </header>
   )
 }
