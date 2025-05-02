@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Search, ShoppingCart, Menu, User, Heart, X, LogOut } from "lucide-react"
+import { Search, ShoppingCart, Menu, User, X, LogOut } from "lucide-react"
 // import MobileMenu from "./MobileMenu"
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/DropdownMenu"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
+import SearchBar from "./SearchBar"
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -31,7 +32,7 @@ const Header = () => {
           <Link to="/" className="flex items-center">
             <span className="text-2xl font-bold text-primary">LapVibe</span>
           </Link>
-
+          {/* Navigation */}
           <nav className="hidden md:flex space-x-6">
             <Link to="/" className="font-medium hover:text-primary">Home</Link>
             <Link to="/products" className="font-medium hover:text-primary">Laptops</Link>
@@ -44,10 +45,6 @@ const Header = () => {
             <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 hover:bg-muted rounded-full">
               {isSearchOpen ? <X size={20} /> : <Search size={20} />}
             </button>
-
-            <Link to="/wishlist" className="hidden md:block p-2 hover:bg-muted rounded-full">
-              <Heart size={20} />
-            </Link>
 
             {/* Account dropdown menu */}
             {isAuthenticated ? (
@@ -100,17 +97,18 @@ const Header = () => {
               </span>
             </button> */}
 
+            {/* Mobile Menu Toggle */}
             <button className="md:hidden p-2 hover:bg-muted rounded-full" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               <Menu size={20} />
             </button>
           </div>
         </div>
 
-        {/* {isSearchOpen && (
+        {isSearchOpen && (
           <div className="py-3 animate-slideUp">
             <SearchBar onClose={() => setIsSearchOpen(false)} />
           </div>
-        )} */}
+        )}
       </div>
 
       {isMobileMenuOpen && (
