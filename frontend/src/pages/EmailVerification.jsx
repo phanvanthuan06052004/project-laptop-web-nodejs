@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "~/components/ui/Button"
+
 import { useSendVerificationEmailMutation, useVerifyEmailMutation } from "~/store/apis/mailSlice"
 
 const AuthenConfirm = () => {
@@ -77,33 +78,29 @@ const AuthenConfirm = () => {
   }
 
   return (
-    <div className="flex items-center justify-center sm:px-4 py-12">
-      <div className="max-w-md w-full animate-fade-up">
-        <div className="border shadow-lg rounded-lg border-heritage-light/50 bg-card text-card-foreground">
-          <div className="text-center p-6 space-y-1">
-            <h3 className="text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight">Xác nhận Email</h3>
-            <p className="text-sm text-muted-foreground">
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-md mx-auto animate-fade-up">
+        <div className="border shadow-lg rounded-lg">
+          <div className="flex flex-col items-center p-6 gap-1">
+            <h3 className="text-3xl font-bold mb-2">Xác nhận Email</h3>
+            <p className="text-muted-foreground">
               Nhập mã 8 chữ số đã được gửi đến <strong>{email}</strong>
             </p>
           </div>
           <div className="p-6 pt-0">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && <div className="text-destructive text-sm text-center">{error}</div>}
               {resendMessage && <div className="text-green-500 text-sm text-center">{resendMessage}</div>}
               <div className="space-y-2">
-                <label htmlFor="code" className="text-sm font-medium">
-                  Mã xác nhận
-                </label>
-                <input
-                  type="text"
+                <label htmlFor="code" className="text-sm font-medium">Mã xác nhận</label>
+                <Input
+                  placeholder="Nhập mã 8 chữ số..."
                   id="code"
                   name="code"
                   required
-                  placeholder="Nhập mã 8 chữ số..."
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   maxLength={8}
-                  className="w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm"
                 />
               </div>
               <Button type="submit" disabled={isLoading} className="w-full">
@@ -118,15 +115,14 @@ const AuthenConfirm = () => {
               </Button>
             </form>
             <div className="text-center pt-4 text-sm">
-              <button
+              <Button
                 onClick={handleResendCode}
                 disabled={resendCooldown > 0 || isLoading}
-                className={`text-heritage hover:underline ${
-                  resendCooldown > 0 || isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                variant="link"
+                className={`${resendCooldown > 0 || isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Gửi lại mã {resendCooldown > 0 ? `(${resendCooldown}s)` : ""}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,8 +1,9 @@
-import { Eye, EyeOff, UserPlus } from "lucide-react"
+import { Eye, EyeOff, Facebook, Mail, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import { Button } from "~/components/ui/Button"
+import { Input } from "~/components/ui/Input"
 import { useRegisterMutation } from "~/store/apis/authSlice"
 
 const Register = () => {
@@ -75,44 +76,41 @@ const Register = () => {
   }
 
   return (
-    <div className="flex items-center justify-center sm:px-4 py-12 mt-navbar-mobile sm:mt-navbar">
-      <div className="max-w-md w-full animate-fade-up">
-        <div className="border shadow-lg rounded-lg border-heritage-light/50 bg-card text-card-foreground">
-          <div className="text-center p-6 space-y-1">
-            <h3 className="text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight">Tạo tài khoản mới</h3>
-            <p className="text-sm text-muted-foreground">Nhanh chóng và dễ dàng</p>
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-md mx-auto animate-fade-up">
+        <div className="border shadow-lg rounded-lg">
+          <div className="flex flex-col items-center p-6 gap-1">
+            <h3 className="text-3xl font-bold mb-2">Tạo tài khoản mới</h3>
+            <p className="text-muted-foreground">Nhanh chóng và dễ dàng</p>
           </div>
+
           <div className="p-6 pt-0">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && <div className="text-destructive text-sm text-center">{error}</div>}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <input
+                <label htmlFor="email" className="text-sm font-medium">Email</label>
+                <Input
+                  placeholder="Nhập email..."
                   type="email"
                   id="email"
                   name="email"
                   required
-                  placeholder="Nhập email..."
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm"
                 />
               </div>
               <div className="space-y-2">
                 <label htmlFor="phone" className="text-sm font-medium">
                   Số điện thoại
                 </label>
-                <input
+                <Input
+                  placeholder="Nhập số điện thoại..."
                   type="tel"
                   id="phone"
                   name="phone"
                   required
-                  placeholder="Nhập số điện thoại..."
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -120,42 +118,38 @@ const Register = () => {
                   Mật khẩu
                 </label>
                 <div className="relative">
-                  <input
+                  <Input
+                    placeholder="••••••••"
                     type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
                     required
-                    placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full h-10 rounded-md border px-3 py-2 placeholder:text-muted-foreground focus:ring-heritage focus:border-none focus:ring-2 focus:outline-none text-sm"
                   />
-                  <button
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-0 px-3 py-2 h-10"
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0"
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff size={16} className="text-muted-foreground" />
-                    ) : (
-                      <Eye size={16} className="text-muted-foreground" />
-                    )}
-                  </button>
+                    {showPassword ? <EyeOff size={16} className="text-muted-foreground" /> : <Eye size={16} className="text-muted-foreground" />}
+                  </Button>
                 </div>
               </div>
               <div className="space-y-2">
                 <label htmlFor="confirmPassword" className="text-sm font-medium">
                   Xác nhận mật khẩu
                 </label>
-                <input
+                <Input
+                  placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
                   id="confirmPassword"
                   name="confirmPassword"
                   required
-                  placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm"
                 />
               </div>
               <Button type="submit" disabled={isLoading} className="w-full">
@@ -173,11 +167,19 @@ const Register = () => {
               </Button>
             </form>
           </div>
-          <div className="text-center pt-0 p-6 text-sm">
-            <span>Bạn đã có tài khoản ư? </span>
-            <Link to="/login" className="text-heritage font-medium hover:underline">
-              Đăng nhập ngay
-            </Link>
+          <div className="text-center text-sm">
+            <p className="text-sm text-muted-foreground">
+              <span>Bạn đã có tài khoản ư? </span>
+              <Link to="/login" className="text-primary hover:underline">Đăng nhập ngay</Link>
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 p-6">
+            <Button variant="outline" type="button" className="w-full">
+              <Facebook size={16} className="mr-2" /> Facebook
+            </Button>
+            <Button variant="outline" type="button" className="w-full">
+              <Mail size={16} className="mr-2" /> Google
+            </Button>
           </div>
         </div>
       </div>
