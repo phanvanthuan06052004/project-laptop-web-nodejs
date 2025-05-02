@@ -1,7 +1,7 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import { env } from './environment'
 
-let historyHeritageDatabaseInstance = null
+let laptopDatabaseInstance = null
 
 const mongoDBClient = new MongoClient(env.MONGODB_URI, {
   serverApi: {
@@ -14,7 +14,7 @@ const mongoDBClient = new MongoClient(env.MONGODB_URI, {
 
 export const CONNECT_DB = async () => {
   await mongoDBClient.connect()
-  historyHeritageDatabaseInstance = mongoDBClient.db(env.DATABASE_NAME)
+  laptopDatabaseInstance = mongoDBClient.db(env.DATABASE_NAME)
 }
 
 export const CLOSE_DB = async () => {
@@ -22,7 +22,7 @@ export const CLOSE_DB = async () => {
 }
 
 export const GET_DB = () => {
-  if (!historyHeritageDatabaseInstance)
+  if (!laptopDatabaseInstance)
     throw new Error('Database not connected')
-  return historyHeritageDatabaseInstance
+  return laptopDatabaseInstance
 }

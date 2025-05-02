@@ -60,6 +60,7 @@ const createNew = async (reqBody) => {
       displayname: nameFromEmail,
       phone: reqBody.phone,
       email: reqBody.email,
+      role: reqBody.role,
       password: bcryptjs.hashSync(reqBody.password, 8)
     }
     // lưu data
