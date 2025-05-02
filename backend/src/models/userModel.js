@@ -38,6 +38,18 @@ const USER_COLLECTION_SCHEMA = Joi.object({
     .message(EMAIL_RULE_MESSAGE), // unique
   password: Joi.string().required(),
   phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
+
+  addresses: Joi.array().items(Joi.object({
+    label: Joi.string().required(),
+    fullName: Joi.string().required(),
+    phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
+    street: Joi.string().required(),
+    ward: Joi.string().required(),
+    district: Joi.string().required(),
+    city: Joi.string().required(),
+    isDefault: Joi.boolean().default(false)
+  })).default([]),
+
   codeVerify: Joi.string(),
   codeExpiry: Joi.date().default(null),
   isVerified: Joi.boolean().default(false),
