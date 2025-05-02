@@ -82,10 +82,7 @@ const Login = () => {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium" htmlFor="password">Mật khẩu</label>
-                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">Quên mật khẩu?</Link>
-                </div>
+                <label className="text-sm font-medium" htmlFor="password">Mật khẩu</label>
                 <div className="relative">
                   <Input
                     placeholder="••••••••"
@@ -105,6 +102,9 @@ const Login = () => {
                   >
                     {showPassword ? <EyeOff size={16} className="text-muted-foreground" /> : <Eye size={16} className="text-muted-foreground" />}
                   </Button>
+                </div>
+                <div className="text-right">
+                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">Quên mật khẩu?</Link>
                 </div>
               </div>
               <Button

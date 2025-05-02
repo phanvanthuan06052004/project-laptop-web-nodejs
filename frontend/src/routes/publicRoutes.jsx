@@ -17,14 +17,14 @@ const publicRoutes = [
   { path: "/cart", element: <Cart /> },
   { path: "/checkout", element: <Checkout /> },
   { path: "/order-confirmation", element: <OrderConfirmation /> },
-  { path: "/login", element: <Login />, restricted: true },
-  { path: "/register", element: <Register />, restricted: true },
+  { path: "/login", element: <Login />, },
+  { path: "/register", element: <Register />, },
   { path: "/account/*", element: <Account /> },
   // { path: "/blog", element: <Blog /> },
   // { path: "/blog/:slug", element: <BlogPost /> },
   // { path: "/categories", element: <Categories /> },
   // { path: "/deals", element: <Deals /> }
-  { path: "/authen-confirm", element: <EmailVerification />, restricted: true }
+  { path: "/authen-confirm", element: <EmailVerification /> }
 ]
 
 export default publicRoutes

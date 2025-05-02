@@ -19,7 +19,7 @@ function App() {
           const parsedToken = JSON.parse(token)
           const parsedUser = JSON.parse(user)
 
-          // Assuming your token object has an 'expiresAt' property (in milliseconds)
+          // Assuming your token object has an "expiresAt" property (in milliseconds)
           if (parsedToken?.expiresAt > new Date().getTime()) {
             dispatch(
               setCredentials({

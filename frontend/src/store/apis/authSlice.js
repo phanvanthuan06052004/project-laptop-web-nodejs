@@ -1,11 +1,11 @@
-import { BASE_URL } from "~/constants/fe.constant"
 import { apiSlice } from "./apiSlice"
+import { BASE_URL } from "~/constants/fe.constant"
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/users`,
+        url: `${BASE_URL}/users/auth/`,
         method: "POST",
         body: data
       })
@@ -13,16 +13,9 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
     register: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/users/register`,
+        url: `${BASE_URL}/users/auth/register`,
         method: "POST",
         body: data
-      })
-    }),
-
-    logout: builder.mutation({
-      query: () => ({
-        url: `${BASE_URL}/users/logout`,
-        method: "POST"
       })
     }),
 
@@ -47,7 +40,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
 export const {
   useLoginMutation,
   useRegisterMutation,
-  useLogoutMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation
 } = authApiSlice

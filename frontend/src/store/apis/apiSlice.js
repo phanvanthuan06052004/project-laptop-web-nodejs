@@ -5,18 +5,20 @@ import { BASE_URL } from "~/constants/fe.constant"
 import { logOut, setCredentials } from "~/store/slices/authSlice"
 
 const AUTH_URLS = [
-  "/users/register",
-  "/users/",
-  "/users/logout",
-  "/users/refresh_token"
+  "/users/auth/register",
+  "/users/auth/",
+  "/users/auth/logout",
+  "/users/auth/refresh-token"
 ]
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   credentials: "include",
   prepareHeaders: (headers, { getState, endpoint }) => {
-    const token = getState().auth.token
-    const userId = getState().auth.userInfo?._id
+    const authState = getState().auth
+
+    const token = authState.token
+    const userId = authState.userInfo?._id
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`)
@@ -41,25 +43,23 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
         args.url.includes(url)
       )
 
-      if (isLoggedIn && !shouldSkipAuthCheck && !window.isRefreshing) {
+      if (isLoggedIn && !shouldSkipAuthCheck) {
         window.isRefreshing = true
         try {
           const refreshResult = await baseQuery(
             {
-              url: "/users/refresh_token",
+              url: "/users/auth/refresh-token",
               method: "POST"
             },
             api,
             extraOptions
           )
-
           window.isRefreshing = false
-
           if (refreshResult?.data) {
             api.dispatch(
               setCredentials({
                 user: userInfo,
-                accessToken: refreshResult.data
+                accessToken: refreshResult.data?.accessToken
               })
             )
             // Retry the original query with the new token
@@ -68,20 +68,20 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
             // Refresh failed, logout the user
             await baseQuery(
               {
-                url: "/users/logout",
+                url: "/users/auth/logout",
                 method: "POST"
               },
               api,
               extraOptions
             )
             api.dispatch(logOut())
-            return result // Return the original error
+            return result
           }
         } catch (refreshError) {
           console.error("Error during token refresh:", refreshError)
           window.isRefreshing = false
           api.dispatch(logOut())
-          return result // Return the original error
+          return result
         }
       }
     }
@@ -130,7 +130,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
 
 export const apiSlice = createApi({
   baseQuery: baseQueryWithAuth,
-  tagTypes: ["User", "Heritage"],
+  tagTypes: ["User", "Laptop"],
   keepUnusedDataFor: 60,
   refetchOnMountOrArgChange: true,
   refetchOnFocus: false,

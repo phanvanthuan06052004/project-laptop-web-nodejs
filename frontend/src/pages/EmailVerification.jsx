@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "~/components/ui/Button"
+import { Input } from "~/components/ui/Input"
 
 import { useSendVerificationEmailMutation, useVerifyEmailMutation } from "~/store/apis/mailSlice"
 

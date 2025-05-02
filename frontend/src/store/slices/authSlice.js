@@ -39,7 +39,6 @@ const authSlice = createSlice({
     },
     setUser: (state, action) => {
       state.userInfo = action.payload
-      // Cập nhật localStorage
       const storedUserInfo = localStorage.getItem("userInfo")
       if (storedUserInfo) {
         const parsedUserInfo = JSON.parse(storedUserInfo)
