@@ -8,6 +8,7 @@ import Home from "~/pages/Home"
 import OrderConfirmation from "~/pages/OrderConfirmation"
 import ProductDetail from "~/pages/ProductDetail"
 import ProductListing from "~/pages/ProductListing"
+import EmailVerification from "~/pages/EmailVerification"
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
@@ -16,13 +17,14 @@ const publicRoutes = [
   { path: "/cart", element: <Cart /> },
   { path: "/checkout", element: <Checkout /> },
   { path: "/order-confirmation", element: <OrderConfirmation /> },
-  { path: "/login", element: <Login />, restricted: true },
-  { path: "/register", element: <Register />, restricted: true },
+  { path: "/login", element: <Login />, },
+  { path: "/register", element: <Register />, },
   { path: "/account/*", element: <Account /> },
   // { path: "/blog", element: <Blog /> },
   // { path: "/blog/:slug", element: <BlogPost /> },
   // { path: "/categories", element: <Categories /> },
   // { path: "/deals", element: <Deals /> }
+  { path: "/authen-confirm", element: <EmailVerification /> }
 ]
 
 export default publicRoutes

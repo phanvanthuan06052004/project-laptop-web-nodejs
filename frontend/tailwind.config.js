@@ -1,5 +1,4 @@
-// tailwind.config.js
-
+import { fontFamily } from "tailwindcss/defaultTheme"
 export default {
   darkMode: ["class"],
   content: [
@@ -69,8 +68,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ["Inter var", "sans-serif"],
-        display: ["Outfit", "sans-serif"]
+        sans: ["Inter var", ...fontFamily.sans],
+        display: ["'Outfit'", ...fontFamily.sans]
       },
       borderRadius: {
         lg: "var(--radius)",
