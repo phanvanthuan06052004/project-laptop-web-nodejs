@@ -28,7 +28,7 @@ export const productValidation = {
       numberRating: Joi.number().min(0).default(0),
       isPublish: Joi.boolean().default(false),
       isDeleted: Joi.boolean().default(false),
-      comments: Joi.array().items(Joi.object()).default([])
+      category: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE) // Added category
     })
     try {
       await correctCondition.validateAsync(req.body, {
@@ -79,7 +79,7 @@ export const productValidation = {
       ),
       isPublish: Joi.boolean(),
       isDeleted: Joi.boolean(),
-      comments: Joi.array().items(Joi.object())
+      category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE) // Added category
     })
 
     try {
@@ -116,7 +116,8 @@ export const productValidation = {
       // Add any product-specific filtering options here
       brand: Joi.string().trim().allow(''),
       minPrice: Joi.number().min(0),
-      maxPrice: Joi.number().min(0)
+      maxPrice: Joi.number().min(0),
+      category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow('') // Added category
     })
 
     try {
@@ -155,7 +156,8 @@ export const productValidation = {
           screen: Joi.string().trim().strict()
         }).default({})
       ).default([]),
-      avgRating: Joi.number().min(0).max(5)
+      avgRating: Joi.number().min(0).max(5),
+      category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow('') // Added category
     })
     try {
       await correctCondition.validateAsync(req.query, { abortEarly: false })
@@ -165,5 +167,3 @@ export const productValidation = {
     }
   }
 }
-
-
