@@ -15,7 +15,7 @@ import {
 import MobileMenu from "./MobileMenu"
 import SearchBar from "./SearchBar"
 import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
-// import { selectItemCount } from "~/store/slices/cartSlice"
+import { selectItemCount } from "~/store/slices/cartSlice"
 import CartDrawer from "./CartDrawer"
 
 const Header = () => {
@@ -28,9 +28,7 @@ const Header = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  // const itemCount = useSelector(selectItemCount)
-  // Fake data
-  const itemCount = 3
+  const itemCount = useSelector(selectItemCount)
 
   const handleLogout = () => {
     try {
