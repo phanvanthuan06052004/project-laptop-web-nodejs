@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { loadCartFromLocalStorage } from "~/utils/cartStorage"
 
 const initialState = {
-  items: []
+  items: loadCartFromLocalStorage() // Load từ localStorage
 }
 
 const cartSlice = createSlice({
@@ -20,12 +21,9 @@ const cartSlice = createSlice({
         state.items.push({ ...newItem, quantity })
       }
     },
-
     removeItem: (state, action) => {
-      const id = action.payload
-      state.items = state.items.filter(item => item.id !== id)
+      state.items = state.items.filter(item => item.id !== action.payload)
     },
-
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload
       if (quantity < 1) return
@@ -34,7 +32,6 @@ const cartSlice = createSlice({
         item.quantity = quantity
       }
     },
-
     clearCart: (state) => {
       state.items = []
     }
@@ -46,9 +43,7 @@ export default cartSlice.reducer
 
 // Selectors
 export const selectCartItems = (state) => state.cart.items
-// export const selectCartTotal = (state) =>
-//   state.cart.items.reduce((total, item) => total + item.price * item.quantity, 0)
-// export const selectItemCount = (state) =>
-//   state.cart.items.reduce((count, item) => count + item.quantity, 0)
-export const selectItemCount = (state) => state + 1
-export const selectCartTotal = (state) => state + 1
+export const selectCartTotal = (state) =>
+  state.cart.items.reduce((total, item) => total + item.price * item.quantity, 0)
+export const selectItemCount = (state) =>
+  state.cart.items.reduce((count, item) => count + item.quantity, 0)
