@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Search, ShoppingCart, Menu, User, X, LogOut } from "lucide-react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import { toast } from "react-toastify"
 
 import {
   DropdownMenu,
@@ -12,18 +13,35 @@ import {
   DropdownMenuTrigger
 } from "~/components/ui/DropdownMenu"
 import MobileMenu from "./MobileMenu"
-import { selectCurrentUser } from "~/store/slices/authSlice"
 import SearchBar from "./SearchBar"
+import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
+// import { selectItemCount } from "~/store/slices/cartSlice"
+import CartDrawer from "./CartDrawer"
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const userInfo = useSelector(selectCurrentUser)
   const isAuthenticated = !!userInfo
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  // const itemCount = useSelector(selectItemCount)
+  // Fake data
+  const itemCount = 3
 
   const handleLogout = () => {
+    try {
+      dispatch(logOut())
+      toast.success("Đăng xuất thành công!")
+      navigate("/")
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Logout failed:", error)
+      toast.error("Đăng xuất thất bại. Vui lòng thử lại!")
+    }
   }
 
   return (
@@ -91,12 +109,13 @@ const Header = () => {
               </Link>
             )}
 
-            {/* <button onClick={() => setIsCartOpen(true)} className="p-2 hover:bg-muted rounded-full relative">
+            {/* Cart */}
+            <button onClick={() => setIsCartOpen(true)} className="p-2 hover:bg-muted rounded-full relative">
               <ShoppingCart size={20} />
               <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {getItemCount()}
+                {itemCount}
               </span>
-            </button> */}
+            </button>
 
             {/* Mobile Menu Toggle */}
             <button className="md:hidden p-2 hover:bg-muted rounded-full" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -116,7 +135,8 @@ const Header = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && ( <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} /> )}
 
-      {/* {isCartOpen && <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />} */}
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   )
 }

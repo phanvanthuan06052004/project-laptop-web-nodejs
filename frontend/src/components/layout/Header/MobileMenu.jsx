@@ -20,7 +20,7 @@ import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
 import { Button } from "~/components/ui/button"
 import { Separator } from "~/components/ui/Separator"
 
-const DEFAULT_AVATAR = "/images/avatar-default.jpg"
+const DEFAULT_AVATAR = "/images/avatar-default.webp"
 
 const MobileMenu = ({ isOpen, onClose }) => {
   const userInfo = useSelector(selectCurrentUser)
