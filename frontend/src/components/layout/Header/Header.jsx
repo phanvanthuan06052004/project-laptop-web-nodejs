@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Search, ShoppingCart, Menu, User, X, LogOut } from "lucide-react"
-// import MobileMenu from "./MobileMenu"
+import { useSelector } from "react-redux"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "~/components/ui/DropdownMenu"
-import { useSelector } from "react-redux"
+import MobileMenu from "./MobileMenu"
 import { selectCurrentUser } from "~/store/slices/authSlice"
 import SearchBar from "./SearchBar"
 
@@ -34,11 +35,11 @@ const Header = () => {
           </Link>
           {/* Navigation */}
           <nav className="hidden md:flex space-x-6">
-            <Link to="/" className="font-medium hover:text-primary">Home</Link>
-            <Link to="/products" className="font-medium hover:text-primary">Laptops</Link>
-            <Link to="/blog" className="font-medium hover:text-primary">Blog</Link>
-            <Link to="/categories" className="font-medium hover:text-primary">Categories</Link>
-            <Link to="/deals" className="font-medium hover:text-primary">Deals</Link>
+            <Link to="/" className="font-medium hover:text-primary">Trang chủ</Link>
+            <Link to="/products" className="font-medium hover:text-primary">Laptop </Link>
+            <Link to="/blog" className="font-medium hover:text-primary">Bài viết</Link>
+            <Link to="/categories" className="font-medium hover:text-primary">Danh mục</Link>
+            <Link to="/deals" className="font-medium hover:text-primary">Ưu đãi</Link>
           </nav>
 
           <div className="flex items-center space-x-4">
@@ -61,26 +62,26 @@ const Header = () => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate("/account")}>
-                    My Account
+                    Tài khoản của tôi
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/account/orders")}>
-                    Orders
+                    Đơn hàng
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/wishlist")}>
-                    Wishlist
+                    Danh sách yêu thích
                   </DropdownMenuItem>
                   {userInfo?.role === "admin" && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => navigate("/admin")}>
-                        Admin Dashboard
+                        Trang quản trị
                       </DropdownMenuItem>
                     </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Đăng xuất</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -104,6 +105,7 @@ const Header = () => {
           </div>
         </div>
 
+        {/* Search Bar */}
         {isSearchOpen && (
           <div className="py-3 animate-slideUp">
             <SearchBar onClose={() => setIsSearchOpen(false)} />
@@ -111,9 +113,8 @@ const Header = () => {
         )}
       </div>
 
-      {isMobileMenuOpen && (
-        <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      )}
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && ( <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} /> )}
 
       {/* {isCartOpen && <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />} */}
     </header>

@@ -1,5 +1,6 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { toast } from "react-toastify"
 import {
   X,
   ChevronRight,
@@ -11,22 +12,39 @@ import {
   Star,
   MessageSquare,
   LayoutDashboard,
-  Users
+  Users,
+  UserPlus
 } from "lucide-react"
+
+import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
 import { Button } from "~/components/ui/button"
-// import { Separator } from "@/components/ui/separator"
+import { Separator } from "~/components/ui/Separator"
+
+const DEFAULT_AVATAR = "/images/avatar-default.jpg"
 
 const MobileMenu = ({ isOpen, onClose }) => {
-  // const { user, isAuthenticated, logout } = useAuth()
-  // const isAdmin = user?.role === "admin"
-  // const isStaff = user?.role === "staff"
+  const userInfo = useSelector(selectCurrentUser)
+  const isAuthenticated = !!userInfo
+  const isAdmin = userInfo?.role === "admin"
+  const isStaff = userInfo?.role === "staff"
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    try {
+      dispatch(logOut())
+      toast.success("Đăng xuất thành công!")
+      navigate("/")
+      onClose()
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Logout failed:", error)
+      toast.error("Đăng xuất thất bại. Vui lòng thử lại!")
+    }
+  }
 
   if (!isOpen) return null
-
-  // const handleLogout = () => {
-  //   logout()
-  //   onClose()
-  // }
 
   return (
     <div className="fixed inset-0 bg-background z-50 md:hidden">
@@ -39,37 +57,38 @@ const MobileMenu = ({ isOpen, onClose }) => {
         </div>
 
         <div className="flex flex-col overflow-y-auto flex-grow">
-          {/* {isAuthenticated && (
+          {isAuthenticated && (
             <div className="p-4 border-b">
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  {user?.avatar ? (
+                  {userInfo?.avatar ? (
                     <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="h-10 w-10 rounded-full"
+                      src={userInfo.avatar || DEFAULT_AVATAR}
+                      alt={userInfo.displayname}
+                      className="h-10 w-10 rounded-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <User size={20} className="text-primary" />
                   )}
                 </div>
                 <div>
-                  <p className="font-medium">{user?.name}</p>
-                  <p className="text-sm text-muted-foreground">{user?.email}</p>
+                  <p className="font-medium">{userInfo?.displayname}</p>
+                  <p className="text-sm text-muted-foreground">{userInfo?.email}</p>
                 </div>
               </div>
             </div>
-          )} */}
+          )}
 
           <nav className="py-4">
             <ul className="space-y-1">
               {[
-                { title: "Home", path: "/" },
-                { title: "Laptops", path: "/products" },
-                { title: "Categories", path: "/categories" },
-                { title: "Deals", path: "/deals" },
-                { title: "Blog", path: "/blog" },
-                { title: "Support", path: "/support" }
+                { title: "Trang chủ", path: "/" },
+                { title: "Laptop ", path: "/products" },
+                { title: "Danh mục", path: "/categories" },
+                { title: "Ưu đãi", path: "/deals" },
+                { title: "Bài viết", path: "/blog" },
+                { title: "Hỗ trợ", path: "/support" }
               ].map((item) => (
                 <li key={item.path}>
                   <Link
@@ -85,7 +104,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
             </ul>
           </nav>
 
-          {/* {(isAdmin || isStaff) && (
+          {(isAdmin || isStaff) && (
             <>
               <Separator className="my-2" />
               <div className="px-4 py-2">
@@ -100,7 +119,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                       onClick={onClose}
                     >
                       <LayoutDashboard size={16} className="mr-2" />
-                      <span>Dashboard</span>
+                      <span>Trang quản trị</span>
                     </Link>
                   </li>
                   <li>
@@ -110,7 +129,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                       onClick={onClose}
                     >
                       <ShoppingBag size={16} className="mr-2" />
-                      <span>Orders</span>
+                      <span>Đơn hàng</span>
                     </Link>
                   </li>
                   <li>
@@ -120,7 +139,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                       onClick={onClose}
                     >
                       <Star size={16} className="mr-2" />
-                      <span>Reviews</span>
+                      <span>Đánh giá</span>
                     </Link>
                   </li>
                   <li>
@@ -130,7 +149,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                       onClick={onClose}
                     >
                       <MessageSquare size={16} className="mr-2" />
-                      <span>Support</span>
+                      <span>Hỗ trợ</span>
                     </Link>
                   </li>
                   {isAdmin && (
@@ -142,7 +161,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                           onClick={onClose}
                         >
                           <Laptop size={16} className="mr-2" />
-                          <span>Manage Laptops</span>
+                          <span>Quản lý Laptop</span>
                         </Link>
                       </li>
                       <li>
@@ -152,7 +171,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                           onClick={onClose}
                         >
                           <Users size={16} className="mr-2" />
-                          <span>Manage Staff</span>
+                          <span>Quản lý nhân viên</span>
                         </Link>
                       </li>
                     </>
@@ -160,11 +179,11 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 </ul>
               </div>
             </>
-          )} */}
+          )}
 
           <div className="mt-auto border-t">
             <div className="py-4 px-4 space-y-4">
-              {/* {isAuthenticated ? (
+              {isAuthenticated ? (
                 <>
                   <Link
                     to="/account"
@@ -172,7 +191,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                     onClick={onClose}
                   >
                     <User size={20} />
-                    <span>My Account</span>
+                    <span>Tài khoản của tôi</span>
                   </Link>
                   <Link
                     to="/wishlist"
@@ -180,7 +199,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                     onClick={onClose}
                   >
                     <Heart size={20} />
-                    <span>Wishlist</span>
+                    <span>Danh sách yêu thích</span>
                   </Link>
                   <Link
                     to="/account/orders"
@@ -188,37 +207,41 @@ const MobileMenu = ({ isOpen, onClose }) => {
                     onClick={onClose}
                   >
                     <ShoppingBag size={20} />
-                    <span>My Orders</span>
+                    <span>Đơn hàng</span>
                   </Link>
                   <Button
-                    variant="ghost"
-                    className="flex items-center w-full justify-start px-0 hover:bg-transparent hover:text-destructive"
+                    variant="destructive"
+                    className="flex items-center w-full justify-start px-0"
                     onClick={handleLogout}
                   >
                     <LogOut size={20} className="mr-2" />
-                    <span>Logout</span>
+                    <span>Đăng xuất</span>
                   </Button>
                 </>
               ) : (
                 <>
                   <Link
                     to="/login"
-                    className="flex items-center space-x-2 py-2"
+                    className="flex items-center space-x-2"
                     onClick={onClose}
                   >
-                    <User size={20} />
-                    <span>Sign In</span>
+                    <Button className='w-full'>
+                      <User size={20} />
+                      <span>Đăng nhập</span>
+                    </Button>
                   </Link>
                   <Link
-                    to="/signup"
-                    className="flex items-center space-x-2 py-2"
+                    to="/register"
+                    className="flex items-center space-x-2"
                     onClick={onClose}
                   >
-                    <User size={20} />
-                    <span>Create Account</span>
+                    <Button className='w-full' variant="secondary">
+                      <UserPlus size={20} />
+                      <span>Đăng ký</span>
+                    </Button>
                   </Link>
                 </>
-              )} */}
+              )}
             </div>
           </div>
         </div>
