@@ -5,6 +5,7 @@ import bcryptjs from 'bcryptjs'
 import { mailService } from './mailService'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
+import { cartModel } from '~/models/cartModel'
 import ms from 'ms'
 
 const getAll = async (queryParams) => {
@@ -67,11 +68,10 @@ const createNew = async (reqBody) => {
     const result = await userModel.createNew(newUser)
 
     const getNewUser = await userModel.findOneById(result.insertedId)
-    // verify  email
-    await mailService.sendVerificationEmail(reqBody.email)
+    await cartModel.createNew({ userId: getNewUser._id.toString() })
 
+    await mailService.sendVerificationEmail(reqBody.email)
     delete getNewUser.password
-    // retrun data
     return getNewUser
   } catch (error) {
     throw error
