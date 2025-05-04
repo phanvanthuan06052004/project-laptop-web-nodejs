@@ -1,6 +1,6 @@
 // ~/services/couponService.js
 import { couponModel } from '~/models/couponModel'
-import { DiscountContext } from '~/strategies/discountContext'
+import { DiscountContext } from '~/services/couponService/strategies/discountContext'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 

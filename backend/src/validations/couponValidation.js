@@ -12,7 +12,7 @@ export const couponValidation = {
       code: Joi.string().required().trim().strict().uppercase(),
       start_day: Joi.date().timestamp('javascript').required(),
       end_day: Joi.date().timestamp('javascript').required(),
-      type: Joi.string().valid('PERCENT', 'AMOUNT', 'FREESHIPPING').required().default('AMOUNT'),
+      type: Joi.string().valid('PERCENT', 'AMOUNT').required().default('AMOUNT'),
       value: Joi.number().min(0).required(),
       max_value: Joi.number().min(0).allow(null),
       min_value: Joi.number().min(0).default(0),
