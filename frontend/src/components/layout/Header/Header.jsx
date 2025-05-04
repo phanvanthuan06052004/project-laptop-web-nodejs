@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger
 } from "~/components/ui/DropdownMenu"
 import MobileMenu from "./MobileMenu"
-import SearchBar from "./SearchBar"
+import SearchBar from "~/components/search/SearchBar"
 import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
 import { selectItemCount } from "~/store/slices/cartSlice"
 import CartDrawer from "./CartDrawer"

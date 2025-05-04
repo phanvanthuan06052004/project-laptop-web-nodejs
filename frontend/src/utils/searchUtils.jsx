@@ -1,40 +1,9 @@
-// Kiểm tra product có match với query không
-export const productMatchesSearch = (product, query) => {
-  if (!query.trim()) return false
-
-  const searchLower = query.toLowerCase().trim()
-
-  if (product.name.toLowerCase().includes(searchLower)) return true
-  if (product.brand.toLowerCase().includes(searchLower)) return true
-  if (product.category.toLowerCase().includes(searchLower)) return true
-
-  const specs = product.specs
-  if (
-    specs.cpu.toLowerCase().includes(searchLower) ||
-    specs.ram.toLowerCase().includes(searchLower) ||
-    specs.storage.toLowerCase().includes(searchLower) ||
-    specs.display.toLowerCase().includes(searchLower) ||
-    specs.gpu.toLowerCase().includes(searchLower) ||
-    specs.os.toLowerCase().includes(searchLower)
-  ) {
-    return true
-  }
-
-  return false
-}
-
-// Trả về mảng product match với query
-export const getSearchResults = (products, query) => {
-  if (!query.trim()) return []
-  return products.filter(product => productMatchesSearch(product, query))
-}
-
-// Highlight phần match trong text
+// Highlight matching text in search results
 export const highlightMatch = (text, query) => {
-  if (!query.trim()) return text
+  if (!query.trim() || !text) return text
 
   const searchLower = query.toLowerCase()
-  const textLower = text.toLowerCase()
+  const textLower = text.toString().toLowerCase()
   const index = textLower.indexOf(searchLower)
 
   if (index === -1) return text
@@ -52,29 +21,81 @@ export const highlightMatch = (text, query) => {
   )
 }
 
-// Gợi ý tìm kiếm dựa trên kết quả
-export const generateSearchSuggestions = (query, results, limit = 5) => {
-  if (!query.trim()) return []
-
-  const suggestions = new Set()
-
-  results.slice(0, limit).forEach(product => {
-    suggestions.add(`${product.name}`)
-  })
-
-  const categories = new Set()
-  results.forEach(product => categories.add(product.category))
-  categories.forEach(category => {
-    suggestions.add(`${query} in ${category}`)
-  })
-
-  const brands = new Set()
-  results.forEach(product => brands.add(product.brand))
-  brands.forEach(brand => {
-    if (brand.toLowerCase().includes(query.toLowerCase())) {
-      suggestions.add(`${brand} laptops`)
+// Extract brand name from product data
+export const extractBrandName = (product, brandMap) => {
+  // Try to get brand name from attributeGroup if available
+  if (product.attributeGroup && Array.isArray(product.attributeGroup)) {
+    const brandAttribute = product.attributeGroup.find((attr) => attr.name === "Thương hiệu" || attr.name === "Brand")
+    if (brandAttribute && brandAttribute.values) {
+      return brandAttribute.values
     }
-  })
+  }
 
-  return Array.from(suggestions).slice(0, limit)
+  // Try to get from brand map if brand object exists
+  if (product.brand) {
+    if (typeof product.brand === "object" && product.brand._id) {
+      // Try from brand map first
+      const brandFromMap = brandMap[product.brand._id]
+      if (brandFromMap) return brandFromMap
+
+      // If not in map, try to get name directly from brand object
+      if (product.brand.name) return product.brand.name
+    }
+  }
+
+  // Try to extract from product name
+  const laptopBrands = ["Lenovo", "HP", "Dell", "Asus", "Acer", "MSI", "Apple", "Macbook", "Gigabyte", "LG"]
+  for (const brand of laptopBrands) {
+    if (product.name.includes(brand)) {
+      return brand
+    }
+  }
+
+  return "Unknown Brand"
+}
+
+// Extract type/category name from product data
+export const extractTypeName = (product, typeMap) => {
+  // Try to get type from attributeGroup if available
+  if (product.attributeGroup && Array.isArray(product.attributeGroup)) {
+    const typeAttribute = product.attributeGroup.find(
+      (attr) => attr.name === "Nhu cầu" || attr.name === "Category" || attr.name === "Series model"
+    )
+    if (typeAttribute && typeAttribute.values) {
+      return typeAttribute.values
+    }
+  }
+
+  // Try to get from type map if type object exists
+  if (product.type) {
+    if (typeof product.type === "object" && product.type._id) {
+      // Try from type map first
+      const typeFromMap = typeMap[product.type._id]
+      if (typeFromMap) return typeFromMap
+
+      // If not in map, try to get name directly from type object
+      if (product.type.name) return product.type.name
+    }
+  }
+
+  // Try to extract from product name or displayName
+  const laptopTypes = ["Gaming", "Văn phòng", "Ultrabook", "Workstation", "Mỏng nhẹ", "Đồ hoạ"]
+
+  // Check displayName first if available
+  if (product.displayName) {
+    for (const type of laptopTypes) {
+      if (product.displayName.includes(type)) {
+        return type
+      }
+    }
+  }
+
+  // Then check name
+  for (const type of laptopTypes) {
+    if (product.name.includes(type)) {
+      return type
+    }
+  }
+
+  return "Laptop" // Default to "Laptop"
 }
