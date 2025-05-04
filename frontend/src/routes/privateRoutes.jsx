@@ -1,12 +1,12 @@
 import AdminLayout from "~/layout/AdminLayout"
-import AdminDashboard from "~/pages/Admin/AdminDashboard"
-import ManageLaptops from "~/pages/Admin/ManageLaptops"
-import ManageCustomers from "~/pages/Admin/ManageCustomers"
-import ManageStaff from "~/pages/Admin/ManageStaff"
-import ManageOrders from "~/pages/Admin/ManageOrders"
-import ManageReviews from "~/pages/Admin/ManageReviews"
-import SalesReports from "~/pages/Admin/SalesReports"
-import CustomerSupport from "~/pages/Admin/CustomerSupport"
+import AdminDashboard from "~/pages/admin/AdminDashboard"
+import ManageLaptops from "~/pages/admin/ManageLaptops"
+import ManageCustomers from "~/pages/admin/ManageCustomers"
+import ManageStaff from "~/pages/admin/ManageStaff"
+import ManageOrders from "~/pages/admin/ManageOrders"
+import ManageReviews from "~/pages/admin/ManageReviews"
+import SalesReports from "~/pages/admin/SalesReports"
+import CustomerSupport from "~/pages/admin/CustomerSupport"
 
 const privateRoutes = [
   {
