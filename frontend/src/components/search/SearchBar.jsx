@@ -1,5 +1,4 @@
-"use client"
-
+/* eslint-disable no-console */
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { Search, X } from "lucide-react"
@@ -131,6 +130,7 @@ const SearchBar = ({ onClose }) => {
           const formattedResults = result.products.map((product) => ({
             id: product._id,
             name: product.name,
+            slug: product.nameSlug,
             brand: extractBrandName(product, brandMap),
             category: extractTypeName(product, typeMap),
             price: product.price,
@@ -146,7 +146,7 @@ const SearchBar = ({ onClose }) => {
 
           formattedResults.slice(0, 5).forEach((product) => {
             newSuggestions.push(product.name)
-            newSuggestionMap[product.name] = product.id
+            newSuggestionMap[product.name] = product.slug
           })
 
           setSuggestions(newSuggestions)
@@ -169,7 +169,7 @@ const SearchBar = ({ onClose }) => {
     fetchData()
 
     // Chỉ phụ thuộc vào debouncedQuery để tránh vòng lặp
-  }, [debouncedQuery, searchProducts, loadBrandsAndTypes])
+  }, [debouncedQuery, searchProducts, loadBrandsAndTypes, brandMap, typeMap])
 
   const handleChange = (e) => {
     const value = e.target.value
@@ -182,32 +182,21 @@ const SearchBar = ({ onClose }) => {
   const handleSuggestionClick = useCallback(
     (suggestion) => {
       if (suggestionToProductMap[suggestion]) {
-        navigate(`/product/${suggestionToProductMap[suggestion]}`)
+        // Chuyển hướng đến URL slug thay vì id
+        navigate(`/product/slug/${suggestionToProductMap[suggestion]}`)
         onClose()
       } else {
         setQuery(suggestion)
       }
     },
-    [suggestionToProductMap, navigate, onClose],
-  )
-
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (e.key === "Escape") {
-        onClose()
-      }
-      if (e.key === "Enter" && query.trim()) {
-        handleSearch()
-      }
-    },
-    [query, onClose]
+    [suggestionToProductMap, navigate, onClose]
   )
 
   const handleSearch = useCallback(() => {
     if (!query.trim()) return
 
     if (suggestionToProductMap[query]) {
-      navigate(`/product/${suggestionToProductMap[query]}`)
+      navigate(`/product/slug/${suggestionToProductMap[query]}`)
       onClose()
       return
     }
@@ -218,7 +207,7 @@ const SearchBar = ({ onClose }) => {
     }
 
     if (searchResults.length === 1) {
-      navigate(`/product/${searchResults[0].id}`)
+      navigate(`/product/slug/${searchResults[0].slug}`)
       onClose()
     } else {
       navigate(`/products?search=${encodeURIComponent(query)}`)
@@ -226,6 +215,17 @@ const SearchBar = ({ onClose }) => {
     }
   }, [query, searchResults, suggestionToProductMap, navigate, onClose])
 
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Escape") {
+        onClose()
+      }
+      if (e.key === "Enter" && query.trim()) {
+        handleSearch()
+      }
+    },
+    [query, onClose, handleSearch]
+  )
   const handleClearSearch = () => {
     setQuery("")
     setSuggestions([])

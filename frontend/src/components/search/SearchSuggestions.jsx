@@ -17,7 +17,6 @@ const SearchSuggestions = ({ suggestions, query, onSuggestionClick }) => {
               <Search size={14} className="text-gray-400 mr-2 shrink-0" />
               <span className="min-w-0">{highlightMatch(suggestion, query)}</span>
             </button>
-
           </li>
         ))}
       </ul>

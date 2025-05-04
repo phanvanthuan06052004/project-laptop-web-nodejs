@@ -16,7 +16,7 @@ const SearchResults = ({ results, query, onResultClick }) => {
       <div className="max-h-[40vh] sm:max-h-[50vh] overflow-y-auto" style={{ WebkitOverflowScrolling: "touch" }}>
         {limitedResults.map((product) => (
           <Link
-            to={`/product/${product.id}`}
+            to={`/product/slug/${product.slug}`}
             key={product.id}
             className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
             onClick={onResultClick}
