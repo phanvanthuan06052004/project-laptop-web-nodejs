@@ -1,4 +1,3 @@
-//  ~/models/orderModel.js
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
@@ -41,13 +40,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
     phone: Joi.string().required(),
     email: Joi.string().email().allow(null)
   }).allow(null),
-  coupons: Joi.array().items( //  Mảng các coupon đã áp dụng
-    Joi.object({
-      code: Joi.string().required(), //  Mã coupon
-      type: Joi.string().valid('PRODUCT', 'FREESHIPPING', 'ORDER').required(), //  Loại coupon
-      discount: Joi.number().min(0).required() //  Giá trị giảm giá
-    })
-  ).default([]),
+  couponCodes: Joi.array().items(Joi.string()).default([]), // Thay coupons thành couponCodes
   notes: Joi.string().allow(null),
   adminNotes: Joi.string().allow(null),
   cancellationReason: Joi.string().allow(null),
@@ -87,7 +80,11 @@ const findOneById = async (id) => {
 
 const getAllWithPagination = async ({ filter = {}, sort = {}, skip = 0, limit = 10 }) => {
   try {
-    return await GET_DB().collection(ORDER_COLLECTION_NAME).find(filter).sort(sort).skip(skip).limit(limit).toArray()
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find(filter).sort(sort).skip(skip).limit(limit).toArray()
+    return {
+      result,
+      totalCount: await GET_DB().collection(ORDER_COLLECTION_NAME).countDocuments()
+    }
   } catch (error) {
     throw new Error(error)
   }
@@ -109,7 +106,7 @@ const updateOneById = async (id, data) => {
 const deleteOneById = async (id) => {
   try {
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) })
-    return result
+    return result.deletedCount
   } catch (error) {
     throw new Error(error)
   }

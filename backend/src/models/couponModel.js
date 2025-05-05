@@ -117,26 +117,35 @@ const increaseUsesCount = async (couponId, userId) => {
 
     const userUsed = coupon.user_uses.find(user => user.user_id === userId)
 
-    const updates = {}
-
+    const updateQuery = {}
+    const arrayFilters = []
     if (userUsed) {
-      updates['user_uses.$[elem].count'] = userUsed.count + 1
+      updateQuery['$inc'] = {
+        'user_uses.$[elem].count': 1,
+        uses_count: 1
+      }
+      arrayFilters.push({ 'elem.user_id': userId })
     } else {
-      updates['$push'] = { user_uses: { user_id: userId, count: 1 } }
+      updateQuery['$push'] = {
+        user_uses: { user_id: userId, count: 1 }
+      }
+      updateQuery['$inc'] = {
+        uses_count: 1
+      }
     }
-    updates['$inc'] = { uses_count: 1 }
 
     const result = await GET_DB().collection(COUPON_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(couponId) },
-      updates,
+      updateQuery,
       {
-        arrayFilters: [{ 'elem.user_id': userId }],
+        arrayFilters: arrayFilters,
         returnDocument: 'after'
       }
     )
+
     return result
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error.message)
   }
 }
 

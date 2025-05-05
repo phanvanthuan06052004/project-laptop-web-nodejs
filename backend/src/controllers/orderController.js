@@ -3,10 +3,15 @@ import { orderService } from '~/services/orderService'
 
 const createNew = async (req, res, next) => {
   try {
-    const newOrder = await orderService.createNewOrder(req.body)
-    res.status(StatusCodes.CREATED).json(newOrder)
+    const { order, qrCode, couponResults } = await orderService.createNewOrder(req.body)
+    res.status(StatusCodes.CREATED).json({ order, qrCode, couponResults })
   } catch (error) {
-    next(error)
+    console.log('Error object:', error) // Debug: Kiểm tra toàn bộ error
+    console.log('Error details:', error.details) // Debug: Kiểm tra details
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: error.message,
+      details: error.details || {},
+    })
   }
 }
 
@@ -40,7 +45,7 @@ const updateOrder = async (req, res, next) => {
 const deleteOrder = async (req, res, next) => {
   try {
     await orderService.deleteOrder(req.params.id)
-    res.status(StatusCodes.OK).json({ message: 'Order deleted successfully' })
+    res.status(StatusCodes.OK).json({ message: 'Đơn hàng đã được xóa' })
   } catch (error) {
     next(error)
   }
@@ -51,5 +56,5 @@ export const orderController = {
   getOrderById,
   getAllOrders,
   updateOrder,
-  deleteOrder
+  deleteOrder,
 }

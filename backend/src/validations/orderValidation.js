@@ -32,6 +32,7 @@ export const orderValidation = {
         email: Joi.string().email().allow(null)
       }).allow(null),
       couponCodes: Joi.array().items(Joi.string()),
+      shippingCost: Joi.number().min(0).default(30000),
       notes: Joi.string().allow(null),
       items: Joi.array().items(
         Joi.object({
@@ -42,7 +43,8 @@ export const orderValidation = {
     })
 
     try {
-      await createSchema.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+      const correctCondition = await createSchema.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+      req.body =correctCondition
       next()
     } catch (error) {
       next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))

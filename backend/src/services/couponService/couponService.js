@@ -83,25 +83,18 @@ export class CouponService {
       if (!coupon.is_active || coupon.uses_count >= coupon.max_uses) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Coupon is invalid or expired')
       }
-
       const userUsed = coupon.user_uses.find(user => user.user_id === userId)
       if (userUsed && userUsed.count >= coupon.max_uses_per_user) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Coupon usage limit reached for this user')
       }
-
       if (orderTotal < coupon.min_value) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Order total does not meet minimum requirement')
       }
-
       // Sử dụng Strategy Pattern để tính toán giảm giá
       this.discountContext.setStrategy(coupon.type)
       const discount = this.discountContext.calculateDiscount(orderTotal, coupon, shippingCost)
-
-      // Tăng số lần sử dụng
-      const updatedCoupon = await couponModel.increaseUsesCount(coupon._id, userId)
       return {
-        discount,
-        updatedCoupon
+        discount
       }
     } catch (error) {
       throw new ApiError(StatusCodes.BAD_REQUEST, error.message)
