@@ -1,0 +1,108 @@
+/* eslint-disable no-console */
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Heart, ShoppingCart, CreditCard } from "lucide-react"
+import { useDispatch } from "react-redux"
+import { toast } from "react-toastify"
+
+import { addItem } from "~/store/slices/cartSlice"
+
+const ProductActions = ({ inStock, product }) => {
+  const [quantity, setQuantity] = useState(1)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleAddToCart = () => {
+    try {
+      dispatch(
+        addItem({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: quantity,
+          image: product.image
+        })
+      )
+      toast.success("Đã thêm vào giỏ hàng!")
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error)
+      toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại!")
+    }
+  }
+
+  const handleBuyNow = () => {
+    try {
+      dispatch(
+        addItem({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: quantity,
+          image: product.image
+        })
+      )
+      navigate("/checkout")
+    } catch (error) {
+      console.error("Lỗi khi mua ngay:", error)
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại!")
+    }
+  }
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center space-x-4 mb-4">
+        <div className="flex items-center border border-gray-300 rounded">
+          <button
+            className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            disabled={!inStock}
+          >
+            -
+          </button>
+          <span className="px-3">{quantity}</span>
+          <button
+            className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            onClick={() => setQuantity(quantity + 1)}
+            disabled={!inStock}
+          >
+            +
+          </button>
+        </div>
+        <button
+          className={`flex-grow flex items-center justify-center py-3 px-4 rounded-md ${
+            inStock ? "bg-primary hover:bg-primary-dark text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+          disabled={!inStock}
+          onClick={handleAddToCart}
+        >
+          <ShoppingCart size={18} className="mr-2" />
+          {inStock ? "Thêm vào giỏ hàng" : "Hết hàng"}
+        </button>
+        <button
+          className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          aria-label="Thêm vào danh sách yêu thích"
+        >
+          <Heart size={18} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          className={`py-3 px-4 rounded-md flex items-center justify-center ${
+            inStock ? "bg-gray-800 hover:bg-gray-900 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+          disabled={!inStock}
+          onClick={handleBuyNow}
+        >
+          Mua ngay
+        </button>
+        <button className="py-3 px-4 rounded-md border border-primary text-primary hover:bg-primary/5 flex items-center justify-center">
+          <CreditCard size={18} className="mr-2" />
+          Mua trả góp
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default ProductActions
