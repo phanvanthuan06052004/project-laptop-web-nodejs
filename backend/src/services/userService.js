@@ -6,6 +6,7 @@ import { mailService } from './mailService'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
 import { cartModel } from '~/models/cartModel'
+import crypto from 'crypto'
 import ms from 'ms'
 
 const getAll = async (queryParams) => {
@@ -95,6 +96,7 @@ const signIn = async (reqBody, res) => {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email not verified')
     }
 
+    // eslint-disable-next-line no-unused-vars
     const { password: _, ...userWithoutPassword } = user
 
 
@@ -192,6 +194,73 @@ const refreshToken = async (refreshToken) => {
 
 }
 
+
+const forgotPassword = async (email) => {
+  try {
+    const user = await userModel.findOneByEmail(email)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Email not found!!')
+    }
+    if (user?.isVerified === false) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email not verified')
+    }
+
+    const resetCode = crypto.randomBytes(32).toString('hex')
+    const codeExpiry = Date.now() + ms('1h')
+
+    await userModel.updateUser(user._id, {
+      resetPasswordToken: resetCode,
+      resetPasswordExpires: codeExpiry
+    })
+
+    await mailService.sendResetPasswordEmail(email, resetCode)
+
+    return {
+      success: true,
+      message: 'A reset email has been sent to your email'
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+const resetPassword = async (email, code, newPassword) => {
+  try {
+    const user = await userModel.findOneByEmail(email)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    }
+
+    if (!user.resetPasswordToken || user.resetPasswordToken !== code) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid reset code')
+    }
+
+    const isCodeExpired = new Date() > user.resetPasswordExpires
+    if (isCodeExpired) {
+      await userModel.updateUser(user._id, {
+        resetPasswordToken: null,
+        resetPasswordExpires: null
+      })
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Reset code has expired')
+    }
+
+    const hashedPassword = bcryptjs.hashSync(newPassword, 8)
+    await userModel.updateUser(user._id, {
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpires: null
+    })
+
+    return {
+      success: true,
+      message: 'Password reset successfully'
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+
 // Export thêm function mới
 export const userService = {
   getAll,
@@ -200,5 +269,7 @@ export const userService = {
   updateUser,
   deleteAccount,
   signIn,
-  refreshToken
+  refreshToken,
+  forgotPassword,
+  resetPassword
 }

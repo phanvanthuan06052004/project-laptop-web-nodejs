@@ -34,21 +34,20 @@ export const commentValidation = {
 
   updateComment: async (req, res, next) => {
     const updateSchema = Joi.object({
-      content: Joi.string().trim().strict(),
-      isDeleted: Joi.boolean(),
-      updatedAt: Joi.date().timestamp('javascript')
+      content: Joi.string().trim().strict().required()
     })
 
     try {
       await updateSchema.validateAsync(req.body, {
         abortEarly: false,
-        allowUnknown: true
+        allowUnknown: false
       })
       next()
     } catch (error) {
       next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
     }
   },
+
 
   getCommentById: async (req, res, next) => {
     const correctCondition = Joi.object({
@@ -67,7 +66,6 @@ export const commentValidation = {
   },
 
   getCommentByParentId: async (req, res, next) => {
-    // Preprocess query to handle 'null' string for parentId
     const processedQuery = {
       ...req.query,
       parentId: req.query.parentId === 'null' ? null : req.query.parentId

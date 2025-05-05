@@ -9,4 +9,8 @@ Router.route('/')
   .get(commentValidation.getCommentByParentId, commentController.getCommentsByParentId)
 
 
+Router.route('/:id')
+  .patch(commentValidation.updateComment, commentController.updateComment)
+  .delete(commentValidation.deleteComment, commentController.deleteComment)
+
 export const commentRoute = Router
