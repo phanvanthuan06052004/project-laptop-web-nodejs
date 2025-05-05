@@ -12,8 +12,10 @@ const createNew = async (req, res, next) => {
 
 const updateComment = async (req, res, next) => {
   try {
-    const userId = req.user.id
-    const result = await commentService.updateComment(req.params.id, req.body.content, userId)
+    const { id } = req.params
+    const { content } = req.body
+
+    const result = await commentService.updateComment(id, { content })
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(error)
@@ -32,7 +34,7 @@ const getCommentsByParentId = async (req, res, next) => {
 
 const deleteComment = async (req, res, next) => {
   try {
-    const userId = req.user.id
+    const userId = req.body
     const result = await commentService.deleteComment(req.params.id, userId)
     res.status(StatusCodes.OK).json(result)
   } catch (error) {

@@ -20,7 +20,6 @@ const COMMENT_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null).allow(null)
 })
 
-const INVALID_UPDATE_FIELDS = ['_id', 'productId', 'userId', 'parentId', 'createdAt']
 
 const validateBeforeCreate = async (data) => {
   return await COMMENT_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -77,11 +76,6 @@ const createNew = async (data) => {
 
 const updateOneById = async (id, data) => {
   try {
-    Object.keys(data).forEach(key => {
-      if (INVALID_UPDATE_FIELDS.includes(key)) {
-        delete data[key]
-      }
-    })
     const result = await GET_DB().collection(COMMENT_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: data },
@@ -113,6 +107,7 @@ const getCommentByParentId = async (parentId, productId) => {
       const comments = await GET_DB().collection(COMMENT_COLLECTION_NAME)
         .find({
           productId: productId,
+          parentId: parentId,
           comment_left: { $gte: parentComment.comment_left, $lte: parentComment.comment_right },
           isDeleted: false
         })
@@ -120,7 +115,8 @@ const getCommentByParentId = async (parentId, productId) => {
           comment_left: 1,
           comment_right: 1,
           content: 1,
-          parentId: 1
+          parentId: 1,
+          userId: 1
         })
         .sort({ comment_left: 1 })
         .toArray()
@@ -138,7 +134,8 @@ const getCommentByParentId = async (parentId, productId) => {
         comment_left: 1,
         comment_right: 1,
         content: 1,
-        parentId: 1
+        parentId: 1,
+        userId: 1
       })
       .sort({ comment_left: 1 })
       .toArray()
@@ -149,10 +146,31 @@ const getCommentByParentId = async (parentId, productId) => {
   }
 }
 
+const findOneById = async (id) => {
+  try {
+    const objectId = new ObjectId(id)
+    return await GET_DB().collection(COMMENT_COLLECTION_NAME).findOne({ _id: objectId })
+  } catch (error) {
+    return null
+  }
+}
+
+const deleteById = async (id) => {
+  try {
+    const objectId = new ObjectId(id)
+    const result = await GET_DB().collection(COMMENT_COLLECTION_NAME).deleteOne({ _id: objectId })
+    return result
+  } catch (error) {
+    return { acknowledged: false, deletedCount: 0 }
+  }
+}
+
 export const commentModel = {
   COMMENT_COLLECTION_NAME,
   COMMENT_COLLECTION_SCHEMA,
   createNew,
   updateOneById,
-  getCommentByParentId
+  getCommentByParentId,
+  findOneById,
+  deleteById
 }

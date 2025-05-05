@@ -19,15 +19,24 @@ const createNew = async (reqBody) => {
   }
 }
 
-const updateComment = async (id, data) => {
+const updateComment = async (id, updateData) => {
   try {
-    const existingComment = await commentModel.getCommentByParentId(null, id)
+    const existingComment = await commentModel.findOneById(id)
     if (!existingComment) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Comment not found')
     }
 
+    const validUpdateData = {}
+    if (updateData.content !== undefined) {
+      validUpdateData.content = updateData.content
+    }
+
+    if (Object.keys(validUpdateData).length === 0) {
+      return existingComment
+    }
+
     const updatedData = {
-      ...data,
+      ...validUpdateData,
       updatedAt: Date.now()
     }
 
@@ -55,7 +64,7 @@ const getCommentByParentId = async (parentId, productId) => {
 
 const deleteComment = async (id) => {
   try {
-    const existingComment = await commentModel.getCommentByParentId(null, id)
+    const existingComment = await commentModel.findOneById(id)
     if (!existingComment) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Comment not found')
     }
