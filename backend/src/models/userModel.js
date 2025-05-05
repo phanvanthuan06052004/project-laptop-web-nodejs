@@ -1,8 +1,6 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { OBJECT_ID_RULE } from '~/utils/validators'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
@@ -53,6 +51,8 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   codeVerify: Joi.string(),
   codeExpiry: Joi.date().default(null),
   isVerified: Joi.boolean().default(false),
+  resetPasswordToken: Joi.string().allow(null).default(null),
+  resetPasswordExpires: Joi.date().allow(null).default(null),
 
   isActive: Joi.boolean().default(true),
 

@@ -13,7 +13,7 @@ import EmailVerification from "~/pages/EmailVerification"
 const publicRoutes = [
   { path: "/", element: <Home /> },
   { path: "/products", element: <ProductListing /> },
-  { path: "/product/:id", element: <ProductDetail /> },
+  { path: "/product/slug/:nameSlug", element: <ProductDetail /> },
   { path: "/cart", element: <Cart /> },
   { path: "/checkout", element: <Checkout /> },
   { path: "/order-confirmation", element: <OrderConfirmation /> },
