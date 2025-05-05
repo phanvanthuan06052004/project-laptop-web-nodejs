@@ -9,6 +9,7 @@ import {
   removeItem,
   updateQuantity
 } from "~/store/slices/cartSlice"
+import { formatPrice } from "~/utils/formatPrice"
 
 const DEFAULT_LAPTOP = "/images/laptop-placeholder.webp"
 
@@ -63,10 +64,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         <div className="flex justify-between text-base font-medium">
                           <h4>{item.name || "Product"}</h4>
                           <p className="ml-4">
-                            ₫
-                            {typeof item.price === "number"
-                              ? item.price.toFixed(2)
-                              : "0.00"}
+                            { formatPrice(item.price) }₫
                           </p>
                         </div>
                         <div className="flex items-center justify-between mt-4">
@@ -117,10 +115,10 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <div className="border-t border-gray-200 p-4">
                 <div className="flex justify-between text-base font-medium mb-4">
                   <p>Tổng tiền</p>
-                  <p>${total.toFixed(2)}</p>
+                  <p>${formatPrice(total)}₫</p>
                 </div>
                 <p className="text-sm text-gray-500 mb-6">
-                  Phí vận chuyển và thuế sẽ tính khi thanh toán.
+                  Phí vận chuyển sẽ tính khi thanh toán.
                 </p>
                 <Link
                   to="/checkout"
