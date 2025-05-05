@@ -9,6 +9,7 @@ import { usePagination } from "~/hooks/usePagination"
 import { useGetProductsQuery, useLazyGetProductsQuery } from "~/store/apis/productSlice"
 import { setPage, setFilters, setSort } from "~/store/slices/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
+import MetaTags from "~/components/seo/MetaTags"
 
 export default function ProductListing() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
@@ -272,6 +273,11 @@ export default function ProductListing() {
 
   return (
     <>
+      <MetaTags
+        title="Bộ Sưu Tập Laptop - Tìm Chiếc Máy Hoàn Hảo Của Bạn"
+        description="Khám phá bộ sưu tập laptop toàn diện của chúng tôi. Lọc theo thương hiệu, hiệu năng, giá cả và tìm chiếc laptop lý tưởng cho công việc, chơi game hoặc sử dụng cá nhân."
+      />
+
       <div className="bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Mua Laptop</h1>

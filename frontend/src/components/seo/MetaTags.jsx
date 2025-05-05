@@ -1,5 +1,3 @@
-import React from "react"
-
 const MetaTags = ({ title, description }) => {
   const siteName = "LapVibe"
   const fullTitle = `${title} | ${siteName}`
@@ -10,6 +8,7 @@ const MetaTags = ({ title, description }) => {
       <meta name="description" content={description} />
 
       {/* Open Graph Meta Tags */}
+      <meta property="og:site_name" content={siteName} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:type" content="website" />
