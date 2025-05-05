@@ -138,8 +138,7 @@ const updateOneById = async (id, data) => {
         { $set: data },
         { returnDocument: 'after' } // Trả về kết quả mới sau khi update
       )
-
-    return result.value // Trả về product đã được cập nhật
+    return result// Trả về product đã được cập nhật
   } catch (error) {
     throw new Error(error)
   }
