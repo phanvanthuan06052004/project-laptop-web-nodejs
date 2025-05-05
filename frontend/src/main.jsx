@@ -6,13 +6,14 @@ import { BrowserRouter } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
 import { Provider } from "react-redux"
 import { store } from "./store"
+import "react-toastify/dist/ReactToastify.css"
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <App />
-        <ToastContainer />
+        <ToastContainer position="bottom-right" />
       </BrowserRouter>
     </Provider>
   </StrictMode>

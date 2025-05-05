@@ -14,14 +14,12 @@ export const productSlice = apiSlice.injectEndpoints({
         if (brand) params.append("brand", brand)
         if (minPrice !== undefined) params.append("minPrice", minPrice.toString())
         if (maxPrice !== undefined) params.append("maxPrice", maxPrice.toString())
+
         return `${BASE_URL}/products?${params.toString()}`
       },
       providesTags: (result) =>
         result
-          ? [
-            ...result.products.map(({ _id }) => ({ type: "Products", id: _id })),
-            { type: "Products", id: "LIST" }
-          ]
+          ? [...result.products.map(({ _id }) => ({ type: "Products", id: _id })), { type: "Products", id: "LIST" }]
           : [{ type: "Products", id: "LIST" }]
     }),
 
