@@ -18,7 +18,12 @@ Router.route('/auth/')
 Router.route('/auth/refresh-token')
   .post(userValidation.refreshToken, userController.refreshToken)
 
-// API to upload image
+Router.route('/auth/forgot-password')
+  .post(userValidation.forgotPassword, userController.forgotPassword)
+
+Router.route('/auth/reset-password')
+  .post(userValidation.resetPassword, userController.resetPassword)
+
 Router.use('/upload', uploadRoute)
 
 // API get user profile, update user profile

@@ -29,7 +29,7 @@ const EmailVerification = lazy(() => import("~/pages/EmailVerification"))
 const routeComponents = {
   "/": <Home />,
   "/products": <ProductListing />,
-  "/product/:id": <ProductDetail />,
+  "/product/slug/:nameSlug": <ProductDetail />,
   "/cart": <Cart />,
   "/checkout": <Checkout />,
   "/order-confirmation": <OrderConfirmation />,

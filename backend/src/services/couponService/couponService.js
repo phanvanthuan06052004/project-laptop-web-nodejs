@@ -1,4 +1,3 @@
-// ~/services/couponService.js
 import { couponModel } from '~/models/couponModel'
 import { DiscountContext } from '~/services/couponService/strategies/discountContext'
 import { StatusCodes } from 'http-status-codes'

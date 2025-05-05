@@ -9,42 +9,14 @@ import {
   removeItem,
   updateQuantity
 } from "~/store/slices/cartSlice"
+import { formatPrice } from "~/utils/formatPrice"
 
 const DEFAULT_LAPTOP = "/images/laptop-placeholder.webp"
-const fakeCartItems = [
-  {
-    id: "1",
-    name: "Laptop Lenovo IdeaPad 5",
-    price: 14990000,
-    quantity: 1,
-    image: "https://cdn.tgdd.vn/Products/Images/44/314246/lenovo-ideapad-5-pro-14arl7-r5-82sj006rvn-thumb-600x600.jpg"
-  },
-  {
-    id: "2",
-    name: "Laptop Asus Vivobook X1504",
-    price: 12990000,
-    quantity: 2,
-    image: "https://cdn.tgdd.vn/Products/Images/44/313249/asus-vivobook-x1504va-i5-nj033w-thumb-600x600.jpg"
-  },
-  {
-    id: "3",
-    name: "Laptop MacBook Air M2 2022",
-    price: 26990000,
-    quantity: 1,
-    image: "https://cdn.tgdd.vn/Products/Images/44/301638/macbook-air-m2-2022-16gb-thumb-600x600.jpg"
-  }
-]
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const dispatch = useDispatch()
-  // const items = useSelector(selectCartItems)
-  // const total = useSelector(selectCartTotal)
-  // Fake data
-  const items = fakeCartItems
-  const fakeTotal = fakeCartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity, 0
-  )
-  const total = fakeTotal
+  const items = useSelector(selectCartItems)
+  const total = useSelector(selectCartTotal)
 
   if (!isOpen) return null
 
@@ -92,10 +64,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         <div className="flex justify-between text-base font-medium">
                           <h4>{item.name || "Product"}</h4>
                           <p className="ml-4">
-                            ₫
-                            {typeof item.price === "number"
-                              ? item.price.toFixed(2)
-                              : "0.00"}
+                            { formatPrice(item.price) }₫
                           </p>
                         </div>
                         <div className="flex items-center justify-between mt-4">
@@ -146,10 +115,10 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <div className="border-t border-gray-200 p-4">
                 <div className="flex justify-between text-base font-medium mb-4">
                   <p>Tổng tiền</p>
-                  <p>${total.toFixed(2)}</p>
+                  <p>${formatPrice(total)}₫</p>
                 </div>
                 <p className="text-sm text-gray-500 mb-6">
-                  Phí vận chuyển và thuế sẽ tính khi thanh toán.
+                  Phí vận chuyển sẽ tính khi thanh toán.
                 </p>
                 <Link
                   to="/checkout"
