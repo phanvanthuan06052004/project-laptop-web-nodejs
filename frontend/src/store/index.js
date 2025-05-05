@@ -4,6 +4,7 @@ import { setupListeners } from "@reduxjs/toolkit/query"
 import authSlice from "./slices/authSlice"
 import cartSlice from "./slices/cartSlice"
 import productSlice from "./slices/productSlice"
+import themeSlice from "./slices/themeSlice"
 import { apiSlice } from "./apis/apiSlice"
 import { saveCartToLocalStorage } from "~/utils/cartStorage"
 
@@ -12,6 +13,7 @@ const store = configureStore({
     auth: authSlice,
     cart: cartSlice,
     product: productSlice,
+    theme: themeSlice,
     [apiSlice.reducerPath]: apiSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>

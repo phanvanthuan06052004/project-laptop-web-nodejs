@@ -68,8 +68,8 @@ const ProductCard = ({ product }) => {
       {/* Product Info */}
       <div className="p-4">
         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{brandName}</div>
-        <Link to={`/product/${_id}`} className="block">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-1 hover:text-primary transition-colors line-clamp-2">
+        <Link to={`/product/slug/${nameSlug}`} className="block">
+          <h3 className="font-semibold text-gray-900 dark:text-white  dark:hover:text-blue-700 mb-1 hover:text-primary transition-colors line-clamp-2">
             {displayName || name}
           </h3>
         </Link>
@@ -108,7 +108,7 @@ const ProductCard = ({ product }) => {
           </div>
           <button
             onClick={handleAddToCart}
-            className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-colors"
+            className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 dark:hover:bg-blue-700 hover:bg-primary hover:text-white transition-colors"
             aria-label="Add to cart"
           >
             <ShoppingCart size={16} />

@@ -40,13 +40,13 @@ const ProductImages = ({ images, name }) => {
         {imageArray.length > 1 && (
           <>
             <button
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white dark:text-black dark:hover:bg-slate-200"
               onClick={prevImage}
             >
               <ChevronLeft size={20} />
             </button>
             <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white dark:text-black dark:hover:bg-slate-200"
               onClick={nextImage}
             >
               <ChevronRight size={20} />
@@ -55,7 +55,7 @@ const ProductImages = ({ images, name }) => {
         )}
 
         <button
-          className="absolute right-2 bottom-2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white"
+          className="absolute right-2 bottom-2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white dark:text-black dark:hover:bg-slate-200"
           onClick={() => setShowLightbox(true)}
         >
           <ZoomIn size={20} />

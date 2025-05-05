@@ -15,7 +15,7 @@ export const highlightMatch = (text, query) => {
   return (
     <>
       {before}
-      <span className="bg-yellow-100 font-medium">{match}</span>
+      <span className="bg-yellow-100 dark:bg-yellow-700 font-medium">{match}</span>
       {after}
     </>
   )

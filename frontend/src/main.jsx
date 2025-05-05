@@ -7,6 +7,10 @@ import { ToastContainer } from "react-toastify"
 import { Provider } from "react-redux"
 import { store } from "./store"
 import "react-toastify/dist/ReactToastify.css"
+import { applyThemeToDocument, loadThemeFromLocalStorage } from "./utils/themeStorage"
+
+const savedTheme = loadThemeFromLocalStorage()
+applyThemeToDocument(savedTheme)
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

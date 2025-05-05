@@ -17,6 +17,7 @@ import SearchBar from "~/components/search/SearchBar"
 import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
 import { selectItemCount } from "~/store/slices/cartSlice"
 import CartDrawer from "./CartDrawer"
+import ThemeToggle from "~/components/theme/ThemeToggle"
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -59,6 +60,9 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
+            <div className="relative">
+              <ThemeToggle />
+            </div>
             <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 hover:bg-muted rounded-full">
               {isSearchOpen ? <X size={20} /> : <Search size={20} />}
             </button>

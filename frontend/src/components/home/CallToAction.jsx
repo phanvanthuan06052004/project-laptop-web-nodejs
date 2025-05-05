@@ -3,7 +3,7 @@ import { Button } from "~/components/ui/button"
 
 const CallToAction = () => {
   return (
-    <section className="py-16 bg-primary-700 text-white">
+    <section className="py-16 bg-primary-700 ">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -19,7 +19,7 @@ const CallToAction = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="bg-white text-primary-700 hover:bg-white/90 w-full sm:w-1/2"
+                className="bg-white text-primary-700 hover:text-primary-700 hover:bg-white/90 w-full sm:w-1/2"
               >
                 Liên Hệ Chuyên Gia
               </Button>

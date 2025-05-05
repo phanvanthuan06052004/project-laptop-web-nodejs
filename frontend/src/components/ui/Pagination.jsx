@@ -8,7 +8,7 @@ export const Pagination = ({ currentPage, totalPages, paginationButtons, handleP
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1 || isLoading}
-        className="px-4 py-2 border rounded disabled:opacity-50"
+        className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-primary dark:hover:bg-primary transition-colors duration-300 cursor-pointer hover:text-white"
         aria-label="Previous Page"
       >
         <ChevronLeft size={20} />
@@ -24,7 +24,7 @@ export const Pagination = ({ currentPage, totalPages, paginationButtons, handleP
             key={`page-${page}`}
             onClick={() => handlePageChange(page)}
             disabled={isLoading}
-            className={`px-4 py-2 border rounded ${currentPage === page ? "bg-primary text-white" : ""}`}
+            className={`px-4 py-2 border rounded hover:bg-primary dark:hover:bg-primary transition-colors duration-300 cursor-pointer hover:text-white ${currentPage === page ? "bg-primary text-white" : ""}`}
           >
             {page}
           </button>
@@ -34,7 +34,7 @@ export const Pagination = ({ currentPage, totalPages, paginationButtons, handleP
       <button
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages || isLoading}
-        className="px-4 py-2 border rounded disabled:opacity-50"
+        className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-primary dark:hover:bg-primary transition-colors duration-300 cursor-pointer hover:text-white"
         aria-label="Next Page"
       >
         <ChevronRight size={20} />

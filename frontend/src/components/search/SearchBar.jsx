@@ -71,7 +71,6 @@ const SearchBar = ({ onClose }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [showResults])
 
-
   // Xử lý overflow khi hiển thị kết quả tìm kiếm
   useEffect(() => {
     if (showResults && searchResults.length > 0) {
@@ -239,7 +238,7 @@ const SearchBar = ({ onClose }) => {
         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
           <Search
             size={20}
-            className={`${isSearching || isFetching ? "text-primary animate-pulse" : "text-gray-400"}`}
+            className={`${isSearching || isFetching ? "text-primary animate-pulse" : "text-gray-400 dark:text-gray-500"}`}
           />
         </div>
         <input
@@ -249,7 +248,7 @@ const SearchBar = ({ onClose }) => {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Tìm kiếm laptop, thương hiệu, hoặc thông số kỹ thuật..."
-          className="w-full py-3 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full py-3 pl-10 pr-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           aria-label="Search"
           autoComplete="off"
         />
@@ -258,7 +257,11 @@ const SearchBar = ({ onClose }) => {
             <div className="w-4 h-4 rounded-full border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
           )}
           {query && (
-            <button onClick={handleClearSearch} className="text-gray-400 hover:text-gray-600" aria-label="Clear search">
+            <button
+              onClick={handleClearSearch}
+              className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              aria-label="Clear search"
+            >
               <X size={20} />
             </button>
           )}
@@ -267,7 +270,7 @@ const SearchBar = ({ onClose }) => {
 
       {/* Search Dropdown */}
       {showResults && query.trim().length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-xl overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-xl overflow-hidden">
           {suggestions.length > 0 && (
             <SearchSuggestions suggestions={suggestions} query={query} onSuggestionClick={handleSuggestionClick} />
           )}
@@ -276,7 +279,7 @@ const SearchBar = ({ onClose }) => {
             <SearchResults results={searchResults} query={query} onResultClick={onClose} />
           ) : (
             !isSearching && (
-              <div className="py-4 px-4 text-center text-gray-500">
+              <div className="py-4 px-4 text-center text-gray-500 dark:text-gray-400">
                 Không tìm thấy sản phẩm nào phù hợp với "{query}"
               </div>
             )
