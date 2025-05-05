@@ -1,0 +1,48 @@
+import { StatusCodes } from 'http-status-codes'
+import { commentService } from '~/services/commentService'
+
+const createNew = async (req, res, next) => {
+  try {
+    const newComment = await commentService.createNew(req.body)
+    res.status(StatusCodes.CREATED).json(newComment)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const updateComment = async (req, res, next) => {
+  try {
+    const userId = req.user.id
+    const result = await commentService.updateComment(req.params.id, req.body.content, userId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getCommentsByParentId = async (req, res, next) => {
+  try {
+    const { parentId, productId } = req.query
+    const result = await commentService.getCommentByParentId(parentId, productId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteComment = async (req, res, next) => {
+  try {
+    const userId = req.user.id
+    const result = await commentService.deleteComment(req.params.id, userId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const commentController = {
+  createNew,
+  updateComment,
+  getCommentsByParentId,
+  deleteComment
+}
