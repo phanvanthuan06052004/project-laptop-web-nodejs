@@ -7,7 +7,7 @@ import { addItem } from "~/store/slices/cartSlice"
 import { formatPrice } from "~/utils/formatPrice"
 
 const ProductCard = ({ product }) => {
-  const { _id, name, displayName, price, discount, mainImg } = product
+  const { _id, name, displayName, price, discount, mainImg, nameSlug } = product
 
   const dispatch = useDispatch()
 
@@ -50,7 +50,7 @@ const ProductCard = ({ product }) => {
     <div className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
       {/* Product Image with Discount Badge */}
       <div className="relative h-52 overflow-hidden">
-        <Link to={`/product/${_id}`}>
+        <Link to={`/product/slug/${nameSlug}`}>
           <img
             src={mainImg || "/images/laptop-placeholder.webp"}
             alt={displayName || name}

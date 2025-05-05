@@ -48,7 +48,7 @@ function App() {
   return (
     <>
       <AppRoutes />
-      <ToastProvider position="bottom-right"/>
+      <ToastProvider/>
     </>
   )
 }

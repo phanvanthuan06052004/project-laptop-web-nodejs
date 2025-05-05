@@ -1,5 +1,3 @@
-"use client"
-
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export const Pagination = ({ currentPage, totalPages, paginationButtons, handlePageChange, isLoading }) => {
@@ -30,7 +28,7 @@ export const Pagination = ({ currentPage, totalPages, paginationButtons, handleP
           >
             {page}
           </button>
-        ),
+        )
       )}
 
       <button

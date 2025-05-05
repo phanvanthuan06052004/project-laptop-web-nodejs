@@ -209,7 +209,7 @@ export default function ProductListing() {
         setFilteredPagination({
           ...data.pagination,
           totalItems: products.length,
-          totalPages: Math.ceil(products.length / 10)
+          totalPages: Math.ceil(products.length / 9)
         })
       } else {
         setFilteredPagination(null)
@@ -263,6 +263,12 @@ export default function ProductListing() {
     }
   }, [])
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }, [page])
 
   return (
     <>
