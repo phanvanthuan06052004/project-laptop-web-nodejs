@@ -70,7 +70,7 @@ const ProductActions = ({ inStock, product }) => {
         </div>
         <button
           className={`flex-grow flex items-center justify-center py-3 px-4 rounded-md ${
-            inStock ? "bg-primary hover:bg-primary-dark text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            inStock ? "bg-primary hover:bg-primary-dark dark:hover:bg-blue-700 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
           disabled={!inStock}
           onClick={handleAddToCart}
@@ -79,7 +79,7 @@ const ProductActions = ({ inStock, product }) => {
           {inStock ? "Thêm vào giỏ hàng" : "Hết hàng"}
         </button>
         <button
-          className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors dark:hover:bg-gray-500"
           aria-label="Thêm vào danh sách yêu thích"
         >
           <Heart size={18} />

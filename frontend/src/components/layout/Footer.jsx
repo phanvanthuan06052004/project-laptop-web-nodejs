@@ -46,7 +46,7 @@ const Footer = () => {
                   key={social.label}
                   href={social.url}
                   aria-label={social.label}
-                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-700 transition-colors"
                 >
                   <social.icon size={20} />
                 </a>
@@ -62,7 +62,7 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-700 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -79,7 +79,7 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-700 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -115,10 +115,10 @@ const Footer = () => {
 
         <div className="border-t border-gray-200 dark:border-gray-800 mt-8 md:mt-12 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center">
           <div className="flex space-x-4">
-            <Link to="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
+            <Link to="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-700 transition-colors">
               Chính sách bảo mật
             </Link>
-            <Link to="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
+            <Link to="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-700 transition-colors">
               Điều khoản dịch vụ
             </Link>
           </div>
