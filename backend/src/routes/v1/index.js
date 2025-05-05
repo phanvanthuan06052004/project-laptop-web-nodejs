@@ -6,6 +6,7 @@ import { productRoute } from './productRoute'
 import { brandRoute } from './brandRoute'
 import { typeRoute } from './typeRoute'
 import { cartRoute } from './cartRoute'
+import { commentRoute } from './commentRoute'
 
 const Router = express.Router()
 
@@ -28,5 +29,6 @@ Router.use('/mail', mailRoute)
 
 Router.use('/cart', cartRoute)
 
+Router.use('/comment', commentRoute)
 
 export const APIs_V1 = Router
