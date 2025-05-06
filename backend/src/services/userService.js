@@ -6,8 +6,8 @@ import { mailService } from './mailService'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
 import { cartModel } from '~/models/cartModel'
-import crypto from 'crypto'
 import ms from 'ms'
+import generateConfirmationCode from '~/utils/generateConfirmationCode'
 
 const getAll = async (queryParams) => {
   try {
@@ -205,7 +205,7 @@ const forgotPassword = async (email) => {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email not verified')
     }
 
-    const resetCode = crypto.randomBytes(32).toString('hex')
+    const resetCode = generateConfirmationCode()
     const codeExpiry = Date.now() + ms('1h')
 
     await userModel.updateUser(user._id, {
