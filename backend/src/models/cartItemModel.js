@@ -101,6 +101,16 @@ const deleteManyByCartId = async (cartId) => {
   }
 }
 
+const countCartItemsByCartId = async (cartId) => {
+  try {
+    return await GET_DB()
+      .collection(CARTITEM_COLLECTION_NAME)
+      .countDocuments({ cartId })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cartItemModel = {
   CARTITEM_COLLECTION_NAME,
   CARTITEM_COLLECTION_SCHEMA,
@@ -110,5 +120,6 @@ export const cartItemModel = {
   findOneById,
   updateOneById,
   deleteOneById,
-  deleteManyByCartId
+  deleteManyByCartId,
+  countCartItemsByCartId
 }

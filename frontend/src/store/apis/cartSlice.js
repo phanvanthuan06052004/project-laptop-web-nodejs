@@ -5,10 +5,15 @@ export const cartSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUserCart: builder.query({
       query: (userId) => `${BASE_URL}/cart/${userId}`,
-      providesTags: (result) =>
-        result
-          ? [{ type: "Cart", id: "LIST" }]
-          : []
+      keepUnusedDataFor: 30,
+      providesTags: [{ type: "Cart", id: "LIST" }]
+    })
+    ,
+
+    countItemCart: builder.query({
+      query: () => `${BASE_URL}/cart/all`,
+      keepUnusedDataFor: 20,
+      providesTags: [{ type: "Cart", id: "LIST" }]
     })
     ,
 
@@ -18,7 +23,8 @@ export const cartSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data
       }),
-      invalidatesTags: [{ type: "Cart", id: "LIST" }]
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
+      keepUnusedDataFor: 30
     }),
 
     updateQuantity: builder.mutation({
@@ -27,7 +33,8 @@ export const cartSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: { quantity }
       }),
-      invalidatesTags: [{ type: "Cart", id: "LIST" }]
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
+      keepUnusedDataFor: 30
     }),
 
     deleteItem: builder.mutation({
@@ -35,7 +42,8 @@ export const cartSlice = apiSlice.injectEndpoints({
         url: `${BASE_URL}/cart/items/${cartItemId}`,
         method: "DELETE"
       }),
-      invalidatesTags: [{ type: "Cart", id: "LIST" }]
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
+      keepUnusedDataFor: 20
     }),
 
     deleteCart: builder.mutation({
@@ -53,5 +61,6 @@ export const {
   useAddItemMutation,
   useUpdateQuantityMutation,
   useDeleteItemMutation,
-  useDeleteCartMutation
+  useDeleteCartMutation,
+  useCountItemCartQuery
 } = cartSlice

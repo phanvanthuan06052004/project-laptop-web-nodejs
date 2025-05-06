@@ -10,14 +10,14 @@ const proxyMiddleware = (controller) => {
 
   const wrapMethod = (method, allowedRoles = ['admin']) => async (req, res, next) => {
     // Kiểm tra quyền truy cập dựa trên vai trò
-    if (!checkRoleAccess(req, allowedRoles)) {
+    if (allowedRoles.length === 0 || checkRoleAccess(req, allowedRoles)) {
+      try {
+        return await method(req, res, next)
+      } catch (error) {
+        next(error)
+      }
+    } else {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'Access denied' })
-    }
-
-    try {
-      return await method(req, res, next)
-    } catch (error) {
-      next(error)
     }
   }
 
@@ -25,7 +25,7 @@ const proxyMiddleware = (controller) => {
   for (const [key, method] of Object.entries(controller)) {
     const { proxyConfig = {} } = method
     const { allowedRoles = ['admin'] } = proxyConfig
-    proxiedController[key] = wrapMethod(method, allowedRoles)
+    proxiedController[key] = wrapMethod(method.handler, allowedRoles)
   }
 
   return proxiedController
