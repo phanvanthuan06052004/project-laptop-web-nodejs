@@ -20,7 +20,6 @@ const COMMENT_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null).allow(null)
 })
 
-
 const validateBeforeCreate = async (data) => {
   return await COMMENT_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
@@ -93,6 +92,7 @@ const getCommentByParentId = async (parentId, productId) => {
       throw new Error('Invalid product ID')
     }
 
+    let comments
 
     if (parentId) {
       if (!ObjectId.isValid(parentId)) {
@@ -104,7 +104,7 @@ const getCommentByParentId = async (parentId, productId) => {
         throw new Error('Parent comment not found')
       }
 
-      const comments = await GET_DB().collection(COMMENT_COLLECTION_NAME)
+      comments = await GET_DB().collection(COMMENT_COLLECTION_NAME)
         .find({
           productId: productId,
           parentId: parentId,
@@ -120,27 +120,46 @@ const getCommentByParentId = async (parentId, productId) => {
         })
         .sort({ comment_left: 1 })
         .toArray()
-
-      return comments
+    } else {
+      comments = await GET_DB().collection(COMMENT_COLLECTION_NAME)
+        .find({
+          productId: productId,
+          parentId: null,
+          isDeleted: false
+        })
+        .project({
+          comment_left: 1,
+          comment_right: 1,
+          content: 1,
+          parentId: 1,
+          userId: 1
+        })
+        .sort({ comment_left: 1 })
+        .toArray()
     }
 
-    const comments = await GET_DB().collection(COMMENT_COLLECTION_NAME)
-      .find({
-        productId: productId,
-        parentId: null,
-        isDeleted: false
-      })
+    const userIds = comments.map(comment => comment.userId)
+    const users = await GET_DB().collection('User')
+      .find({ _id: { $in: userIds.map(id => new ObjectId(id)) } })
       .project({
-        comment_left: 1,
-        comment_right: 1,
-        content: 1,
-        parentId: 1,
-        userId: 1
+        _id: 1,
+        displayname: 1,
+        avatar: 1
       })
-      .sort({ comment_left: 1 })
       .toArray()
 
-    return comments
+    // Tạo một map để dễ dàng truy cập thông tin người dùng
+    const userMap = new Map(users.map(user => [user._id.toString(), user]))
+
+    // Kết hợp thông tin người dùng vào kết quả bình luận
+    const commentsWithUser = comments.map(comment => {
+      const user = userMap.get(comment.userId.toString())
+      return {
+        ...comment,
+        user: user || { _id: comment.userId, name: 'Unknown User', avatar: null } // Xử lý trường hợp không tìm thấy user
+      }
+    })
+    return commentsWithUser
   } catch (error) {
     throw new Error(`Failed to retrieve comments: ${error.message}`)
   }
@@ -165,6 +184,67 @@ const deleteById = async (id) => {
   }
 }
 
+const deleteNestedById = async (productId, commentId) => {
+  try {
+    if (!ObjectId.isValid(productId) || !ObjectId.isValid(commentId)) {
+      return { acknowledged: false, deletedCount: 0 }
+    }
+
+    const objectId = new ObjectId(commentId)
+
+    const comment = await GET_DB()
+      .collection(COMMENT_COLLECTION_NAME)
+      .findOne({
+        _id: objectId
+      })
+
+    if (!comment) {
+      return { acknowledged: false, deletedCount: 0 }
+    }
+
+    const left = comment.comment_left
+    const right = comment.comment_right
+
+    const width = right - left + 1
+
+
+    const result = await GET_DB()
+      .collection(COMMENT_COLLECTION_NAME)
+      .deleteMany({
+        productId: (productId),
+        comment_left: { $gte: left, $lte: right }
+      })
+
+
+    await GET_DB()
+      .collection(COMMENT_COLLECTION_NAME)
+      .updateMany(
+        {
+          productId: (productId),
+          comment_left: { $gt: right }
+        },
+        {
+          $inc: { comment_left: -width }
+        }
+      )
+    await GET_DB()
+      .collection(COMMENT_COLLECTION_NAME)
+      .updateMany(
+        {
+          productId: (productId),
+          comment_right: { $gt: right }
+        },
+        {
+          $inc: { comment_right: -width }
+        }
+      )
+
+    return result
+  } catch (error) {
+    return { acknowledged: false, deletedCount: 0, productId, parentId: null }
+  }
+}
+
 export const commentModel = {
   COMMENT_COLLECTION_NAME,
   COMMENT_COLLECTION_SCHEMA,
@@ -172,5 +252,6 @@ export const commentModel = {
   updateOneById,
   getCommentByParentId,
   findOneById,
-  deleteById
+  deleteById,
+  deleteNestedById
 }
