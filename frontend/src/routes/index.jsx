@@ -9,6 +9,7 @@ import MainLayout from "~/layout/MainLayout"
 import publicRoutes from "./publicRoutes"
 import privateRoutes from "./privateRoutes"
 
+
 // Lazy load public pages
 const Home = lazy(() => import("~/pages/Home"))
 const ProductListing = lazy(() => import("~/pages/ProductListing"))
@@ -19,6 +20,8 @@ const OrderConfirmation = lazy(() => import("~/pages/OrderConfirmation"))
 const Login = lazy(() => import("~/pages/auth/Login"))
 const Register = lazy(() => import("~/pages/auth/Register"))
 const Account = lazy(() => import("~/pages/account/Account"))
+const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"))
+
 // const Blog = lazy(() => import("~/pages/Blog"))
 // const BlogPost = lazy(() => import("~/pages/BlogPost"))
 // const Categories = lazy(() => import("~/pages/Categories"))
@@ -34,6 +37,7 @@ const routeComponents = {
   "/checkout": <Checkout />,
   "/order-confirmation": <OrderConfirmation />,
   "/login": <Login />,
+  "/forgot-password": <ForgotPassword />,
   "/register": <Register />,
   "/authen-confirm": <EmailVerification />,
   "/account/*": <Account />

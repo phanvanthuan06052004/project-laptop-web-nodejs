@@ -9,6 +9,7 @@ import OrderConfirmation from "~/pages/OrderConfirmation"
 import ProductDetail from "~/pages/ProductDetail"
 import ProductListing from "~/pages/ProductListing"
 import EmailVerification from "~/pages/EmailVerification"
+import ForgotPassword from "~/pages/ForgotPassword"
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
@@ -17,9 +18,10 @@ const publicRoutes = [
   { path: "/cart", element: <Cart /> },
   { path: "/checkout", element: <Checkout /> },
   { path: "/order-confirmation", element: <OrderConfirmation /> },
-  { path: "/login", element: <Login />, },
-  { path: "/register", element: <Register />, },
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
   { path: "/account/*", element: <Account /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
   // { path: "/blog", element: <Blog /> },
   // { path: "/blog/:slug", element: <BlogPost /> },
   // { path: "/categories", element: <Categories /> },
