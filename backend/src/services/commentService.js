@@ -84,9 +84,22 @@ const deleteComment = async (id) => {
   }
 }
 
+const deleteNestedById = async (productId, commentId) => {
+  try {
+    const existingComment = await commentModel.findOneById(commentId)
+    if (!existingComment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Comment not found')
+    }
+    return await commentModel.deleteNestedById(productId, commentId)
+  } catch (error) {
+    throw error
+  }
+}
+
 export const commentService = {
   createNew,
   updateComment,
   getCommentByParentId,
-  deleteComment
+  deleteComment,
+  deleteNestedById
 }

@@ -42,9 +42,20 @@ const deleteComment = async (req, res, next) => {
   }
 }
 
+const deleteNesstedById = async (req, res, next) => {
+  try {
+    const result = await commentService.deleteNestedById(req.query.productId, req.query.commentId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 export const commentController = {
   createNew,
   updateComment,
   getCommentsByParentId,
-  deleteComment
+  deleteComment,
+  deleteNesstedById
 }
