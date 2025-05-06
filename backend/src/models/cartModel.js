@@ -25,24 +25,24 @@ const createNew = async (userId) => {
   try {
     const data = {
       userId: userId,
-      createdAt: new Date(),
-    };
-    const validation = await validationBeforeCreate(data);
+      createdAt: new Date()
+    }
+    const validation = await validationBeforeCreate(data)
 
     const newCart = {
-      ...validation, 
-      updatedAt: new Date(),
-    };
+      ...validation,
+      updatedAt: new Date()
+    }
 
     const result = await GET_DB()
       .collection(CART_COLLECTION_NAME)
-      .insertOne(newCart);
+      .insertOne(newCart)
 
-    return result;
+    return result
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error)
   }
-};
+}
 
 
 const getAllWithPagination = async ({ skip, limit }) => {

@@ -5,6 +5,7 @@ import ms from 'ms'
 
 const originalController = {
   createNew: {
+    proxyConfig: { allowedRoles: [] }, // Public access
     async handler(req, res, next) {
       try {
         const newUser = await userService.createNew(req.body)
@@ -16,6 +17,7 @@ const originalController = {
   },
 
   signIn: {
+    proxyConfig: { allowedRoles: [] }, // Public access
     async handler(req, res, next) {
       try {
         const newUser = await userService.signIn(req.body, res)
@@ -27,6 +29,7 @@ const originalController = {
   },
 
   refreshToken: {
+    proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] }, // Authenticated users
     async handler(req, res) {
       try {
         const newAccessToken = await userService.refreshToken(req.cookies['refreshToken'])
@@ -132,7 +135,7 @@ const originalController = {
   },
 
   forgotPassword: {
-    proxyConfig: { allowedRoles: [] }, // Allow all users (public route)
+    proxyConfig: { allowedRoles: [] }, // Public access
     async handler(req, res, next) {
       try {
         const result = await userService.forgotPassword(req.body.email)
@@ -144,7 +147,7 @@ const originalController = {
   },
 
   resetPassword: {
-    proxyConfig: { allowedRoles: [] }, // Allow all users (public route)
+    proxyConfig: { allowedRoles: [] }, // Public access
     async handler(req, res, next) {
       try {
         const { email, code, newPassword } = req.body

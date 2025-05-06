@@ -58,12 +58,8 @@ const getByUserId = async (userId) => {
               price: product.price,
               discount: product.discount,
               purchasePrice: product.purchasePrice,
-              brand: brand
-                ? {
-                  _id: brand._id,
-                  name: brand.name // Lấy tên thương hiệu từ bảng thương hiệu
-                }
-                : null
+              brand: brand.name,
+              stock : product.quantity
             }
             : null // Xử lý trường hợp không tìm thấy sản phẩm
         }
@@ -224,6 +220,16 @@ const deleteCart = async (userId) => {
   }
 }
 
+const countItemCart = async (userId) => {
+  try {
+    const cart = await cartModel.findOneByUserId(userId)
+    if (!cart) throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+    return await cartItemModel.countCartItemsByCartId(cart._id.toString())
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cartService = {
   getAll,
   getByUserId,
@@ -231,5 +237,6 @@ export const cartService = {
   addItem,
   updateQuantity,
   deleteItem,
-  deleteCart
+  deleteCart,
+  countItemCart
 }

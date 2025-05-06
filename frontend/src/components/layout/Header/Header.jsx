@@ -15,9 +15,9 @@ import {
 import MobileMenu from "./MobileMenu"
 import SearchBar from "~/components/search/SearchBar"
 import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
-import { selectItemCount } from "~/store/slices/cartSlice"
 import CartDrawer from "./CartDrawer"
 import ThemeToggle from "~/components/theme/ThemeToggle"
+import { useCountItemCartQuery } from "~/store/apis/cartSlice"
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -29,7 +29,8 @@ const Header = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const itemCount = useSelector(selectItemCount)
+
+  const { data: cartNumber } = useCountItemCartQuery()
 
   const handleLogout = () => {
     try {
@@ -115,7 +116,7 @@ const Header = () => {
             <button onClick={() => navigate("/cart")} className="p-2 hover:bg-muted rounded-full relative">
               <ShoppingCart size={20} />
               <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {itemCount}
+                {cartNumber}
               </span>
             </button>
 

@@ -64,6 +64,16 @@ const deleteCart = async (req, res, next) => {
   }
 }
 
+const countItemCart = async (req, res, next) => {
+  try {
+    const result = await cartService.countItemCart(req.userId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 export const cartController = {
   getAll,
   getByUserId,
@@ -71,5 +81,6 @@ export const cartController = {
   addItem,
   updateQuantity,
   deleteItem,
-  deleteCart
+  deleteCart,
+  countItemCart
 }

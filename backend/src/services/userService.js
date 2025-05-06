@@ -69,8 +69,8 @@ const createNew = async (reqBody) => {
     const result = await userModel.createNew(newUser)
 
     const getNewUser = await userModel.findOneById(result.insertedId)
-    await cartModel.createNew({ userId: getNewUser._id.toString() })
-
+    const userId = result.insertedId.toString()
+    await cartModel.createNew( userId )
     await mailService.sendVerificationEmail(reqBody.email)
     delete getNewUser.password
     return getNewUser
