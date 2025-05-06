@@ -112,7 +112,7 @@ const Header = () => {
             )}
 
             {/* Cart */}
-            <button onClick={() => setIsCartOpen(true)} className="p-2 hover:bg-muted rounded-full relative">
+            <button onClick={() => navigate("/cart")} className="p-2 hover:bg-muted rounded-full relative">
               <ShoppingCart size={20} />
               <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {itemCount}
@@ -135,7 +135,7 @@ const Header = () => {
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && ( <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} /> )}
+      {isMobileMenuOpen && (<MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />)}
 
       {/* Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

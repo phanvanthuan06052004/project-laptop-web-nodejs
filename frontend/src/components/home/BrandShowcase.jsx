@@ -10,7 +10,7 @@ const BrandShowcase = () => {
 
   if (isLoading) {
     return (
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-blue-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
             Được các thương hiệu hàng đầu tin tưởng
@@ -30,7 +30,7 @@ const BrandShowcase = () => {
 
   if (error) {
     return (
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-blue-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
             Được các thương hiệu hàng đầu tin tưởng
@@ -48,7 +48,7 @@ const BrandShowcase = () => {
   }
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section className="py-16 bg-blue-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
           Được các thương hiệu hàng đầu tin tưởng

@@ -3,21 +3,31 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 const createOrUpdateSchema = Joi.object({
-  userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
+  userId: Joi.string()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE)
+    .required(),
   createdAt: Joi.date().default(Date.now),
   updatedAt: Joi.date().default(null).allow(null)
 })
 
 const addItemSchema = Joi.object({
-  cartId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
-  laptopId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
-  quantity: Joi.number().min(1).default(1),
-  createdAt: Joi.date().default(Date.now),
-  updatedAt: Joi.date().default(null).allow(null)
+  userId: Joi.string()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE)
+    .required(),
+  laptopId: Joi.string()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE)
+    .required(),
+  quantity: Joi.number().min(1).default(1)
 })
 
 const updateQuantitySchema = Joi.object({
-  cartItemId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
+  cartItemId: Joi.string()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE)
+    .required(),
   quantity: Joi.number().min(1).required()
 })
 
@@ -37,7 +47,9 @@ const getAllQuerySchema = Joi.object({
 export const cartValidation = {
   getAll: async (req, res, next) => {
     try {
-      const query = await getAllQuerySchema.validateAsync(req.query, { abortEarly: false })
+      const query = await getAllQuerySchema.validateAsync(req.query, {
+        abortEarly: false
+      })
       req.query = query
       next()
     } catch (error) {
@@ -47,7 +59,10 @@ export const cartValidation = {
   getByUserId: async (req, res, next) => {
     try {
       await Joi.object({
-        userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required()
+        userId: Joi.string()
+          .pattern(OBJECT_ID_RULE)
+          .message(OBJECT_ID_RULE_MESSAGE)
+          .required()
       }).validateAsync(req.params)
       next()
     } catch (error) {
@@ -81,7 +96,10 @@ export const cartValidation = {
   deleteItem: async (req, res, next) => {
     try {
       await Joi.object({
-        cartItemId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required()
+        cartItemId: Joi.string()
+          .pattern(OBJECT_ID_RULE)
+          .message(OBJECT_ID_RULE_MESSAGE)
+          .required()
       }).validateAsync(req.params)
       next()
     } catch (error) {
@@ -91,7 +109,10 @@ export const cartValidation = {
   deleteCart: async (req, res, next) => {
     try {
       await Joi.object({
-        userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required()
+        userId: Joi.string()
+          .pattern(OBJECT_ID_RULE)
+          .message(OBJECT_ID_RULE_MESSAGE)
+          .required()
       }).validateAsync(req.params)
       next()
     } catch (error) {
