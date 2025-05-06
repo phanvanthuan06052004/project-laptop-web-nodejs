@@ -99,11 +99,11 @@ const countDocuments = async (filter) => {
 }
 
 // Tìm product bằng productId
-const findOneById = async (id, projection = {}) => {
+const findOneById = async (id) => {
   try {
     return await GET_DB()
       .collection(PRODUCT_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(id) }, { projection })
+      .findOne({ _id: new ObjectId(id) })
   } catch (error) {
     throw new Error(error)
   }

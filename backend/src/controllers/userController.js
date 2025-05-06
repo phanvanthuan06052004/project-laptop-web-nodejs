@@ -129,28 +129,32 @@ const originalController = {
         next(error)
       }
     }
+  },
+
+  forgotPassword: {
+    proxyConfig: { allowedRoles: [] }, // Allow all users (public route)
+    async handler(req, res, next) {
+      try {
+        const result = await userService.forgotPassword(req.body.email)
+        res.status(StatusCodes.OK).json(result)
+      } catch (error) {
+        next(error)
+      }
+    }
+  },
+
+  resetPassword: {
+    proxyConfig: { allowedRoles: [] }, // Allow all users (public route)
+    async handler(req, res, next) {
+      try {
+        const { email, code, newPassword } = req.body
+        const result = await userService.resetPassword(email, code, newPassword)
+        res.status(StatusCodes.OK).json(result)
+      } catch (error) {
+        next(error)
+      }
+    }
   }
 }
-
-const forgotPassword = async (req, res, next) => {
-  try {
-    const result = await userService.forgotPassword(req.body.email)
-    res.status(StatusCodes.OK).json(result)
-  } catch (error) {
-    next(error)
-  }
-}
-
-const resetPassword = async (req, res, next) => {
-  try {
-    const { email, code, newPassword } = req.body
-    const result = await userService.resetPassword(email, code, newPassword)
-    res.status(StatusCodes.OK).json(result)
-  } catch (error) {
-    next(error)
-  }
-}
-
-
 
 export const userController = proxyMiddleware(originalController)

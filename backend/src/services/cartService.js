@@ -3,6 +3,7 @@ import ApiError from '~/utils/ApiError'
 import { cartModel } from '~/models/cartModel'
 import { cartItemModel } from '~/models/cartItemModel'
 import { productModel } from '~/models/productModel'
+import { brandModel } from '~/models/brandModel'
 
 const getAll = async (queryParams) => {
   try {
@@ -13,7 +14,12 @@ const getAll = async (queryParams) => {
     const totalPages = Math.ceil(totalCount / limit)
     return {
       carts,
-      pagination: { totalItems: totalCount, currentPage: page, totalPages, itemsPerPage: limit }
+      pagination: {
+        totalItems: totalCount,
+        currentPage: page,
+        totalPages,
+        itemsPerPage: limit
+      }
     }
   } catch (error) {
     throw error
@@ -22,23 +28,77 @@ const getAll = async (queryParams) => {
 
 const getByUserId = async (userId) => {
   try {
+    // Tìm giỏ hàng theo userId
     const cart = await cartModel.findOneByUserId(userId)
-    if (!cart) throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+    if (!cart) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+    }
+
+    // Lấy các sản phẩm trong giỏ hàng
     const cartItems = await cartItemModel.getByCartId(cart._id.toString())
-    return { ...cart, items: cartItems }
+
+    // Lấy thông tin chi tiết sản phẩm và thương hiệu cho mỗi sản phẩm trong giỏ hàng
+    const enrichedItems = await Promise.all(
+      cartItems.map(async (item) => {
+        const product = await productModel.findOneById(item.laptopId)
+        let brand = null
+
+        if (product?.brand) {
+          brand = await brandModel.findOneById(product.brand._id) // Giả sử bạn có một brandModel
+        }
+        return {
+          ...item,
+          product: product
+            ? {
+              _id: product._id,
+              name: product.name,
+              mainImg: product.mainImg,
+              nameSlug: product.nameSlug,
+              displayName: product.displayName,
+              price: product.price,
+              discount: product.discount,
+              purchasePrice: product.purchasePrice,
+              brand: brand
+                ? {
+                  _id: brand._id,
+                  name: brand.name // Lấy tên thương hiệu từ bảng thương hiệu
+                }
+                : null
+            }
+            : null // Xử lý trường hợp không tìm thấy sản phẩm
+        }
+      })
+    )
+
+    const validItems = enrichedItems.filter((item) => item.product)
+
+    // Tính tổng số lượng và tổng giá
+    let totalQuantity = 0
+    let totalPrice = 0
+    validItems.forEach((item) => {
+      totalQuantity += item.quantity
+      totalPrice += item.quantity * item.product.price // Sử dụng product.price
+    })
+
+    // Trả về giỏ hàng với các sản phẩm đã được làm phong phú, tổng số lượng và tổng giá
+    return {
+      items: validItems,
+      totalQuantity,
+      totalPrice
+    }
   } catch (error) {
     throw error
   }
 }
 
-const createOrUpdate = async (data) => {
+
+const createOrUpdate = async (userId) => {
   try {
-    const { userId } = data
     const existingCart = await cartModel.findOneByUserId(userId)
     if (existingCart) {
-      return await cartModel.updateOneById(existingCart._id.toString(), { updatedAt: Date.now() })
+      return existingCart
     }
-    return await cartModel.createNew(data)
+    return await cartModel.createNew(userId)
   } catch (error) {
     throw error
   }
@@ -46,15 +106,23 @@ const createOrUpdate = async (data) => {
 
 const addItem = async (data) => {
   try {
-    const { cartId, laptopId, quantity } = data
+    const { userId, laptopId, quantity } = data
+    const cart = await createOrUpdate(userId)
+    const cartId = cart?._id.toString()
 
     // Kiểm tra tồn kho trước khi thêm
     const product = await productModel.findOneById(laptopId)
     if (!product) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Product with laptopId ${laptopId} not found`)
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Product with laptopId ${laptopId} not found`
+      )
     }
     if (quantity <= 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Quantity must be greater than 0')
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Quantity must be greater than 0'
+      )
     }
     if (product.quantity < quantity) {
       throw new ApiError(
@@ -64,7 +132,10 @@ const addItem = async (data) => {
     }
 
     // Kiểm tra item tồn tại trong giỏ hàng
-    const existingItem = await cartItemModel.findOneByCartAndLaptop(cartId, laptopId)
+    const existingItem = await cartItemModel.findOneByCartAndLaptop(
+      cartId,
+      laptopId
+    )
     if (existingItem) {
       const newQuantity = existingItem.quantity + quantity
       if (product.quantity < newQuantity) {
@@ -82,7 +153,10 @@ const addItem = async (data) => {
     // Tạo mới item nếu không tồn tại
     return await cartItemModel.createNew({ cartId, laptopId, quantity })
   } catch (error) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, `Failed to add item to cart: ${error.message}`)
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      `Failed to add item to cart: ${error.message}`
+    )
   }
 }
 
@@ -90,17 +164,24 @@ const updateQuantity = async (cartItemId, quantity) => {
   try {
     // Kiểm tra item tồn tại
     const cartItem = await cartItemModel.findOneById(cartItemId)
-    if (!cartItem) throw new ApiError(StatusCodes.NOT_FOUND, 'Cart item not found')
+    if (!cartItem)
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart item not found')
 
     // Kiểm tra quantity hợp lệ
     if (quantity <= 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Quantity must be greater than 0')
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Quantity must be greater than 0'
+      )
     }
 
     // Kiểm tra tồn kho
     const product = await productModel.findOneById(cartItem.laptopId)
     if (!product) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Product with laptopId ${cartItem.laptopId} not found`)
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Product with laptopId ${cartItem.laptopId} not found`
+      )
     }
     if (product.quantity < quantity) {
       throw new ApiError(
@@ -110,16 +191,23 @@ const updateQuantity = async (cartItemId, quantity) => {
     }
 
     // Cập nhật số lượng
-    return await cartItemModel.updateOneById(cartItemId, { quantity, updatedAt: Date.now() })
+    return await cartItemModel.updateOneById(cartItemId, {
+      quantity,
+      updatedAt: Date.now()
+    })
   } catch (error) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, `Failed to update quantity: ${error.message}`)
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      `Failed to update quantity: ${error.message}`
+    )
   }
 }
 
 const deleteItem = async (cartItemId) => {
   try {
     const cartItem = await cartItemModel.findOneById(cartItemId)
-    if (!cartItem) throw new ApiError(StatusCodes.NOT_FOUND, 'Cart item not found')
+    if (!cartItem)
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart item not found')
     return await cartItemModel.deleteOneById(cartItemId)
   } catch (error) {
     throw error

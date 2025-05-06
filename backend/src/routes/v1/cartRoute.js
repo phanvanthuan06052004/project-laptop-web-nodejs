@@ -5,24 +5,21 @@ import { cartValidation } from '~/validations/cartValidation'
 const Router = express.Router()
 
 // Lấy tất cả giỏ hàng của người dùng
-Router.route('/')
-  .get(cartValidation.getAll, cartController.getAll)
+Router.route('/').get(cartValidation.getAll, cartController.getAll)
 
 // Lấy chi tiết giỏ hàng bằng userId
 // Xóa toàn bộ giỏ hàng
 Router.route('/:userId')
-  .get(cartValidation.getByUserId, cartController.getByUserId)
-  .delete(cartValidation.deleteCart, cartController.deleteCart)
-
+  .get(cartController.getByUserId)
+  .delete(cartController.deleteCart)
 
 // Thêm hoặc cập nhật sản phẩm trong giỏ hàng
-Router.route('/items')
-  .post(cartValidation.addItem, cartController.addItem)
+Router.route('/items').post(cartController.addItem)
 
 // Cập nhật số lượng sản phẩm trong giỏ hàng
 // Xóa sản phẩm khỏi giỏ hàng
 Router.route('/items/:cartItemId')
-  .put(cartValidation.updateQuantity, cartController.updateQuantity)
-  .delete(cartValidation.deleteItem, cartController.deleteItem)
+  .put(cartController.updateQuantity)
+  .delete(cartController.deleteItem)
 
 export const cartRoute = Router

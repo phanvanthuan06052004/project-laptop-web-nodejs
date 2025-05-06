@@ -2,28 +2,42 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Heart, ShoppingCart, CreditCard } from "lucide-react"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { toast } from "react-toastify"
 
+import { useAddItemMutation } from "~/store/apis/cartSlice"
+import { selectCurrentUser } from "~/store/slices/authSlice"
 import { addItem } from "~/store/slices/cartSlice"
 
 const ProductActions = ({ inStock, product }) => {
   const [quantity, setQuantity] = useState(1)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [addItemApi] = useAddItemMutation()
+  const userId = useSelector(selectCurrentUser)?._id
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     try {
-      dispatch(
-        addItem({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          quantity: quantity,
-          image: product.image
-        })
-      )
-      toast.success("Đã thêm vào giỏ hàng!")
+      const addData = await addItemApi({
+        userId: userId,
+        laptopId: product.id,
+        quantity: quantity
+      })
+
+      if (addData?.data) {
+        // dispatch(
+        //   addItem({
+        //     id: product.id,
+        //     name: product.name,
+        //     price: product.price,
+        //     quantity: quantity,
+        //     image: product.image
+        //   })
+        // )
+        toast.success("Đã thêm vào giỏ hàng!")
+      } else {
+        toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại!")
+      }
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error)
       toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại!")
@@ -69,9 +83,8 @@ const ProductActions = ({ inStock, product }) => {
           </button>
         </div>
         <button
-          className={`flex-grow flex items-center justify-center py-3 px-4 rounded-md ${
-            inStock ? "bg-primary hover:bg-primary-dark dark:hover:bg-blue-700 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`flex-grow flex items-center justify-center py-3 px-4 rounded-md ${inStock ? "bg-primary hover:bg-primary-dark dark:hover:bg-blue-700 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           disabled={!inStock}
           onClick={handleAddToCart}
         >
@@ -88,9 +101,8 @@ const ProductActions = ({ inStock, product }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
-          className={`py-3 px-4 rounded-md flex items-center justify-center ${
-            inStock ? "bg-gray-800 hover:bg-gray-900 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`py-3 px-4 rounded-md flex items-center justify-center ${inStock ? "bg-gray-800 hover:bg-gray-900 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           disabled={!inStock}
           onClick={handleBuyNow}
         >
