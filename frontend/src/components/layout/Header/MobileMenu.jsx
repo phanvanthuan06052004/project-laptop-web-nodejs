@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 
 import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
-import { Button } from "~/components/ui/button"
+import { Button } from "~/components/ui/Button"
 import { Separator } from "~/components/ui/Separator"
 
 const DEFAULT_AVATAR = "/images/avatar-default.webp"

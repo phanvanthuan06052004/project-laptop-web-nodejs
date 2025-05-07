@@ -1,8 +1,16 @@
 import React from "react"
 import { Button } from "~/components/ui/button"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, CreditCard, Wallet, Truck } from "lucide-react"
 
-const ShippingStep = ({ shippingDetails, setShippingDetails, shippingMethod, setShippingMethod, onSubmit }) => {
+const ShippingStep = ({
+  shippingDetails,
+  setShippingDetails,
+  shippingMethod,
+  setShippingMethod,
+  paymentMethod,
+  setPaymentMethod,
+  onSubmit
+}) => {
   const handleShippingChange = (e) => {
     const { name, value } = e.target
     setShippingDetails((prev) => ({ ...prev, [name]: value }))
@@ -154,39 +162,109 @@ const ShippingStep = ({ shippingDetails, setShippingDetails, shippingMethod, set
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-3">Shipping Method</h3>
           <div className="space-y-3">
-            <label className="flex items-center p-3 border rounded-md cursor-pointer">
+            <label className="flex items-center p-3 border rounded-md cursor-pointer hover:border-primary transition-colors">
               <input
                 type="radio"
                 name="shippingMethod"
                 value="standard"
                 checked={shippingMethod === "standard"}
                 onChange={() => setShippingMethod("standard")}
-                className="mr-3"
+                className="mr-3 text-primary focus:ring-primary"
               />
-              <div>
-                <div className="font-medium">Standard Shipping</div>
-                <div className="text-sm text-gray-500">3-5 business days - $15.99</div>
+              <div className="flex items-center justify-between flex-1">
+                <div>
+                  <div className="font-medium">Standard Shipping</div>
+                  <div className="text-sm text-gray-500">3-5 business days</div>
+                </div>
+                <div className="font-medium">₫30.000</div>
               </div>
             </label>
-            <label className="flex items-center p-3 border rounded-md cursor-pointer">
+
+            <label className="flex items-center p-3 border rounded-md cursor-pointer hover:border-primary transition-colors">
               <input
                 type="radio"
                 name="shippingMethod"
                 value="express"
                 checked={shippingMethod === "express"}
                 onChange={() => setShippingMethod("express")}
-                className="mr-3"
+                className="mr-3 text-primary focus:ring-primary"
               />
-              <div>
-                <div className="font-medium">Express Shipping</div>
-                <div className="text-sm text-gray-500">1-2 business days - $29.99</div>
+              <div className="flex items-center justify-between flex-1">
+                <div>
+                  <div className="font-medium">Express Shipping</div>
+                  <div className="text-sm text-gray-500">1-2 business days</div>
+                </div>
+                <div className="font-medium">₫50.000</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h3 className="text-lg font-medium mb-3">Payment Method</h3>
+          <div className="space-y-3">
+            <label className="flex items-center p-3 border rounded-md cursor-pointer hover:border-primary transition-colors">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="COD"
+                checked={paymentMethod === "COD"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="mr-3 text-primary focus:ring-primary"
+              />
+              <div className="flex items-center">
+                <Truck className="w-5 h-5 mr-3 text-gray-600" />
+                <div>
+                  <div className="font-medium">Cash On Delivery (COD)</div>
+                  <div className="text-sm text-gray-500">Pay when you receive</div>
+                </div>
+              </div>
+            </label>
+
+            <label className="flex items-center p-3 border rounded-md cursor-pointer hover:border-primary transition-colors">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="MOMO"
+                checked={paymentMethod === "MOMO"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="mr-3 text-primary focus:ring-primary"
+              />
+              <div className="flex items-center">
+                <Wallet className="w-5 h-5 mr-3 text-pink-500" />
+                <div>
+                  <div className="font-medium">MoMo E-Wallet</div>
+                  <div className="text-sm text-gray-500">Pay with MoMo</div>
+                </div>
+              </div>
+            </label>
+
+            <label className="flex items-center p-3 border rounded-md cursor-pointer hover:border-primary transition-colors">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="BANK"
+                checked={paymentMethod === "BANK"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="mr-3 text-primary focus:ring-primary"
+              />
+              <div className="flex items-center">
+                <CreditCard className="w-5 h-5 mr-3 text-blue-500" />
+                <div>
+                  <div className="font-medium">Bank Transfer</div>
+                  <div className="text-sm text-gray-500">Pay via bank transfer</div>
+                </div>
               </div>
             </label>
           </div>
         </div>
 
         <Button type="submit" className="w-full">
-                    Continue to Payment <ChevronRight size={16} className="ml-1" />
+          {paymentMethod === "BANK" ? (
+            <>Continue to Bank Payment <ChevronRight size={16} className="ml-1" /></>
+          ) : (
+            <>Place Order <ChevronRight size={16} className="ml-1" /></>
+          )}
         </Button>
       </form>
     </div>

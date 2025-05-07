@@ -6,6 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
+import { momoPaymentService } from './paymentService'
 
 const createNewOrder = async (orderData) => {
   try {
@@ -182,6 +183,21 @@ const createNewOrder = async (orderData) => {
     const createdOrder = await orderModel.createNew(newOrderData)
     if (!createdOrder || !createdOrder.insertedId) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không thể tạo đơn hàng')
+    }
+
+    // Nếu thanh toán qua MOMO
+    if (orderData.paymentMethod === 'MOMO') {
+      const { payUrl, paymentId } = await momoPaymentService.createPaymentRequest({
+        _id: createdOrder.insertedId.toString(),
+        orderCode: newOrderData.orderCode,
+        totalAmount: newOrderData.totalAmount
+      })
+
+      return {
+        order: createdOrder,
+        paymentUrl: payUrl,
+        paymentId
+      }
     }
 
     // 6. Tạo mã QR

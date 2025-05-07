@@ -7,8 +7,10 @@ import "react-toastify/dist/ReactToastify.css"
 import ShippingStep from "./ShippingStep"
 import PaymentStep from "./PaymentStep"
 import ReviewStep from "./ReviewStep"
+import { useCreateOrderMutation } from "~/store/apis/orderSlice"
 
 const Checkout = () => {
+  const [createOrder] = useCreateOrderMutation()
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState("shipping")
   const [shippingDetails, setShippingDetails] = useState({
@@ -29,6 +31,7 @@ const Checkout = () => {
     cvv: ""
   })
   const [shippingMethod, setShippingMethod] = useState("standard")
+  const [paymentMethod, setPaymentMethod] = useState("COD")
 
   // Mock cart items
   const cartItems = [
@@ -60,20 +63,77 @@ const Checkout = () => {
   const total = subtotal + shipping + tax
 
   // Handlers
-  const handleShippingSubmit = () => {
-    setCurrentStep("payment")
+  const handleShippingSubmit = (e) => {
+    e.preventDefault()
+
+    switch(paymentMethod) {
+    case "COD":
+      // Xử lý đặt hàng COD
+      handlePlaceOrder()
+      break
+
+    case "MOMO":
+      // Redirect to MOMO payment
+      createMomoPayment()
+      break
+
+    case "BANK":
+      // Chuyển sang trang payment step
+      setCurrentStep("payment")
+      break
+
+    default:
+      toast.error("Please select a payment method")
+    }
   }
 
   const handlePaymentSubmit = () => {
     setCurrentStep("review")
   }
 
-  const handlePlaceOrder = () => {
-    toast.success("Order placed successfully!", {
-      position: "top-right",
-      autoClose: 2000
-    })
-    navigate("/order-confirmation")
+  const handlePlaceOrder = async () => {
+    try {
+      // 1. Tạo order
+      const response = await createOrder({
+        shippingDetails,
+        paymentMethod,
+        items: cartItems,
+        totalAmount: total,
+        shippingCost: shipping
+      }).unwrap()
+
+      // 2. Xử lý theo payment method
+      if (response.paymentMethod === "MOMO") {
+        // Redirect to MOMO payment URL
+        window.location.href = response.paymentUrl
+      } else {
+        // COD Order
+        navigate(`/order-confirmation/${response.orderId}`)
+      }
+    } catch (err) {
+      console.log(err)
+      toast.error("Failed to place order")
+    }
+  }
+
+  const createMomoPayment = async () => {
+    try {
+      const response = await createOrder({
+        shippingDetails,
+        paymentMethod,
+        items: cartItems,
+        totalAmount: total,
+        shippingCost: shipping
+      }).unwrap()
+
+      // Redirect to MOMO payment URL
+      if (response.paymentUrl) {
+        window.location.href = response.paymentUrl
+      }
+    } catch (err) {
+      console.log(err)
+      toast.error("Failed to create MOMO payment")
+    }
   }
 
   return (
@@ -135,6 +195,8 @@ const Checkout = () => {
                   setShippingDetails={setShippingDetails}
                   shippingMethod={shippingMethod}
                   setShippingMethod={setShippingMethod}
+                  paymentMethod={paymentMethod}
+                  setPaymentMethod={setPaymentMethod}
                   onSubmit={handleShippingSubmit}
                 />
               )}

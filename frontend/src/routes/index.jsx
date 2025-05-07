@@ -25,6 +25,8 @@ const Account = lazy(() => import("~/pages/account/Account"))
 // const Deals = lazy(() => import("~/pages/Deals"))
 const NotFound = lazy(() => import("~/pages/NotFound"))
 const EmailVerification = lazy(() => import("~/pages/EmailVerification"))
+const PaymentCallback = lazy(() => import("~/pages/PaymentCallback"))
+const PaymentFailed = lazy(() => import("~/pages/PaymentFailed"))
 
 const routeComponents = {
   "/": <Home />,
@@ -36,7 +38,10 @@ const routeComponents = {
   "/login": <Login />,
   "/register": <Register />,
   "/authen-confirm": <EmailVerification />,
-  "/account/*": <Account />
+  "/account/*": <Account />,
+  "/payment/callback": <PaymentCallback />,
+  "/order-confirmation/:orderId": <OrderConfirmation />,
+  "/checkout/payment-failed": <PaymentFailed />
   // "/blog": <Blog />,
   // "/blog/:slug": <BlogPost />,
   // "/categories": <Categories />,
@@ -117,6 +122,10 @@ const AppRoutes = () => {
               ))}
           </Route>
         ))}
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/payment/callback" element={<PaymentCallback />} />
+        <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+        <Route path="/checkout/payment-failed" element={<PaymentFailed />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

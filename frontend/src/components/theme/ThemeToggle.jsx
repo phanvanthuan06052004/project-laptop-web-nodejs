@@ -1,7 +1,7 @@
 import { Moon, Sun } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
 import { toggleTheme } from "~/store/slices/themeSlice"
-import { Button } from "~/components/ui/button"
+import { Button } from "~/components/ui/Button"
 
 const ThemeToggle = () => {
   const dispatch = useDispatch()

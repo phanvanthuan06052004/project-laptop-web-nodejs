@@ -14,7 +14,8 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   orderDate: Joi.date().timestamp('javascript').default(Date.now),
   status: Joi.string().valid('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded').default('Pending'),
   totalAmount: Joi.number().min(0).required(),
-  paymentMethod: Joi.string().valid('COD', 'Card', 'Bank').required(),
+  paymentMethod: Joi.string().valid('COD', 'MOMO', 'BANK').required(), // Đồng bộ với payment providers
+  paymentId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null), // Reference tới Payment collection
   paymentStatus: Joi.string().valid('Pending', 'Paid', 'Failed').default('Pending'),
   shippingMethod: Joi.string().valid('Standard', 'Express').allow(null),
   shippingCost: Joi.number().min(0).default(30000),
@@ -52,7 +53,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
       quantity: Joi.number().min(1).required(),
       price: Joi.number().min(0).required()
     })
-  ).required(),
+  ).required().min(1),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').allow(null)
 })
