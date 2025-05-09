@@ -14,5 +14,12 @@ export const env = {
   MOMO_ACCESS_KEY: process.env.MOMO_ACCESS_KEY,
   MOMO_SECRET_KEY: process.env.MOMO_SECRET_KEY,
   CLIENT_URL: process.env.CLIENT_URL,
-  API_URL: process.env.API_URL
+  API_URL: process.env.API_URL,
+
+  // cấu hình cho payos
+  PAYOS_API_URL: process.env.PAYOS_API_URL,
+  PAYOS_CLIENT_ID: process.env.PAYOS_CLIENT_ID,
+  PAYOS_API_KEY: process.env.PAYOS_API_KEY,
+  PAYOS_CHECKSUM_KEY: process.env.PAYOS_CHECKSUM_KEY,
+  FRONTEND_URL: process.env.FRONTEND_URL
 }

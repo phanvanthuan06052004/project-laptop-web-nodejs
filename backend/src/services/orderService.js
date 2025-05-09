@@ -7,6 +7,33 @@ import ApiError from '~/utils/ApiError'
 import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
 import { momoPaymentService } from './paymentService'
+import { payosService } from './payosService'
+import { paymentModel } from '~/models/paymentModel'
+import { env } from '~/config/environment'
+
+// Payment method constants - Sync with orderModel and paymentModel
+const PAYMENT_METHODS = {
+  MOMO: 'MOMO',
+  COD: 'COD',
+  BANK: 'BANK'
+}
+
+// Payment status constants - Sync with orderModel
+const PAYMENT_STATUS = {
+  PENDING: 'Pending',
+  PAID: 'Paid',
+  FAILED: 'Failed'
+}
+
+// Payment provider status constants - Sync with paymentModel
+const PAYMENT_PROVIDER_STATUS = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+  CANCELLED: 'CANCELLED'
+}
 
 const createNewOrder = async (orderData) => {
   try {
@@ -177,6 +204,8 @@ const createNewOrder = async (orderData) => {
       orderCode: orderData.orderCode || uuidv4().slice(0, 8).toUpperCase(),
       totalAmount,
       couponCodes: appliedCouponCodes,
+      paymentStatus: PAYMENT_STATUS.PENDING,
+      paymentMethod: orderData.paymentMethod || PAYMENT_METHODS.COD
     }
 
     // 5. Tạo đơn hàng
@@ -185,22 +214,104 @@ const createNewOrder = async (orderData) => {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không thể tạo đơn hàng')
     }
 
-    // Nếu thanh toán qua MOMO
-    if (orderData.paymentMethod === 'MOMO') {
-      const { payUrl, paymentId } = await momoPaymentService.createPaymentRequest({
+    // 6. Xử lý thanh toán dựa trên phương thức
+    let paymentResponse = null
+    let paymentRecord = null
+
+    switch (orderData.paymentMethod) {
+    case PAYMENT_METHODS.MOMO: {
+      const momoResponse = await momoPaymentService.createPaymentRequest({
         _id: createdOrder.insertedId.toString(),
         orderCode: newOrderData.orderCode,
         totalAmount: newOrderData.totalAmount
       })
 
-      return {
-        order: createdOrder,
-        paymentUrl: payUrl,
-        paymentId
+      // Tạo bản ghi thanh toán
+      paymentRecord = await paymentModel.createNew({
+        orderId: createdOrder.insertedId.toString(),
+        provider: PAYMENT_METHODS.MOMO,
+        amount: newOrderData.totalAmount,
+        status: PAYMENT_PROVIDER_STATUS.PENDING,
+        paymentDetails: {
+          partnerCode: momoResponse.partnerCode,
+          orderId: momoResponse.orderId,
+          requestId: momoResponse.requestId,
+          amount: newOrderData.totalAmount,
+          orderInfo: `Thanh toan don hang ${newOrderData.orderCode}`,
+          orderType: 'momo_wallet'
+        }
+      })
+
+      paymentResponse = {
+        paymentUrl: momoResponse.payUrl,
+        paymentId: momoResponse.paymentId,
+        paymentMethod: PAYMENT_METHODS.MOMO
       }
+      break
     }
 
-    // 6. Tạo mã QR
+    case PAYMENT_METHODS.COD: {
+      // Tạo bản ghi thanh toán cho COD
+      paymentRecord = await paymentModel.createNew({
+        orderId: createdOrder.insertedId.toString(),
+        provider: PAYMENT_METHODS.COD,
+        amount: newOrderData.totalAmount,
+        status: PAYMENT_PROVIDER_STATUS.PENDING,
+        paymentDetails: {
+          orderInfo: `Thanh toan khi nhan hang - Don hang ${newOrderData.orderCode}`
+        }
+      })
+
+      paymentResponse = {
+        paymentMethod: PAYMENT_METHODS.COD,
+        message: 'Thanh toán khi nhận hàng'
+      }
+      break
+    }
+
+    case PAYMENT_METHODS.BANK: {
+      const payosResponse = await payosService.createPaymentRequest({
+        orderId: createdOrder.insertedId.toString(),
+        orderCode: newOrderData.orderCode,
+        amount: newOrderData.totalAmount,
+        description: `Thanh toan don hang ${newOrderData.orderCode}`,
+        returnUrl: `${env.FRONTEND_URL}/payment/result`,
+        cancelUrl: `${env.FRONTEND_URL}/payment/cancel`
+      })
+
+      // Tạo bản ghi thanh toán
+      paymentRecord = await paymentModel.createNew({
+        orderId: createdOrder.insertedId.toString(),
+        provider: PAYMENT_METHODS.BANK,
+        amount: newOrderData.totalAmount,
+        status: PAYMENT_PROVIDER_STATUS.PENDING,
+        paymentDetails: {
+          orderInfo: `Chuyen khoan ngan hang - Don hang ${newOrderData.orderCode}`,
+          bankAccounts: payosResponse.bankAccounts
+        }
+      })
+
+      paymentResponse = {
+        paymentUrl: payosResponse.paymentUrl,
+        paymentId: payosResponse.paymentId,
+        paymentMethod: PAYMENT_METHODS.BANK,
+        bankAccounts: payosResponse.bankAccounts
+      }
+      break
+    }
+
+    default:
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Phương thức thanh toán không hợp lệ')
+    }
+
+    // 7. Cập nhật paymentId vào đơn hàng
+    if (paymentRecord) {
+      await orderModel.updateOneById(createdOrder.insertedId.toString(), {
+        paymentId: paymentRecord.insertedId.toString()
+      })
+    }
+
+    // 8. Tạo mã QR cho đơn hàng
     const qrData = `Order Code: ${newOrderData.orderCode}\nTotal Amount: ${newOrderData.totalAmount} VND`
     let qrCode
     try {
@@ -210,7 +321,7 @@ const createNewOrder = async (orderData) => {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không thể tạo mã QR')
     }
 
-    // 7. Cập nhật số lượng sản phẩm
+    // 9. Cập nhật số lượng sản phẩm
     for (const item of orderData.items) {
       const product = await productService.getProductById(item.productId)
       const newQuantity = product.quantity - item.quantity
@@ -224,6 +335,7 @@ const createNewOrder = async (orderData) => {
       order: createdOrder,
       qrCode,
       couponResults,
+      payment: paymentResponse
     }
   } catch (error) {
     console.error('Lỗi khi tạo đơn hàng:', error)
@@ -293,10 +405,69 @@ const deleteOrder = async (id) => {
   }
 }
 
+const updatePaymentStatus = async (orderId, paymentStatus, paymentDetails = {}) => {
+  try {
+    const order = await orderModel.findOneById(orderId)
+    if (!order) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đơn hàng không tồn tại')
+    }
+
+    // Cập nhật trạng thái thanh toán trong đơn hàng
+    const orderUpdateData = {
+      paymentStatus,
+      updatedAt: new Date()
+    }
+
+    // Cập nhật trạng thái thanh toán trong bản ghi payment
+    if (order.paymentId) {
+      const payment = await paymentModel.findOneById(order.paymentId)
+      if (payment) {
+        let providerStatus = PAYMENT_PROVIDER_STATUS.PENDING
+        switch (paymentStatus) {
+        case PAYMENT_STATUS.PAID:
+          providerStatus = PAYMENT_PROVIDER_STATUS.COMPLETED
+          break
+        case PAYMENT_STATUS.FAILED:
+          providerStatus = PAYMENT_PROVIDER_STATUS.FAILED
+          break
+        }
+
+        await paymentModel.updateOneById(order.paymentId, {
+          status: providerStatus,
+          paymentDetails: {
+            ...payment.paymentDetails,
+            ...paymentDetails,
+            updatedAt: new Date()
+          },
+          completedAt: paymentStatus === PAYMENT_STATUS.PAID ? new Date() : null
+        })
+      }
+    }
+
+    const updatedOrder = await orderModel.updateOneById(orderId, orderUpdateData)
+    return updatedOrder
+  } catch (error) {
+    throw error
+  }
+}
+
+const getByUserId = async (userId) => {
+  try {
+    const orders = await orderModel.getByUserId(userId)
+    return orders
+  } catch (error) {
+    throw error
+  }
+}
 export const orderService = {
   createNewOrder,
   getOrderById,
   getAllOrders,
   updateOrder,
   deleteOrder,
+  updatePaymentStatus,
+  getByUserId,
+  PAYMENT_METHODS,
+  PAYMENT_STATUS,
+  PAYMENT_PROVIDER_STATUS
 }

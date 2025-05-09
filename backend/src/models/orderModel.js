@@ -6,9 +6,6 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 const ORDER_COLLECTION_NAME = 'Order'
 
 const ORDER_COLLECTION_SCHEMA = Joi.object({
-  _id: Joi.object({}).keys({
-    _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required()
-  }),
   orderCode: Joi.string().required().trim().strict(),
   userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
   orderDate: Joi.date().timestamp('javascript').default(Date.now),
@@ -17,32 +14,20 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   paymentMethod: Joi.string().valid('COD', 'MOMO', 'BANK').required(), // Đồng bộ với payment providers
   paymentId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null), // Reference tới Payment collection
   paymentStatus: Joi.string().valid('Pending', 'Paid', 'Failed').default('Pending'),
-  shippingMethod: Joi.string().valid('Standard', 'Express').allow(null),
+  shippingMethod: Joi.string().valid('standard', 'express').allow(null),
   shippingCost: Joi.number().min(0).default(30000),
   shippingAddress: Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
-    street: Joi.string().required(),
+    address: Joi.string().required(),
     ward: Joi.string().required(),
     district: Joi.string().required(),
-    city: Joi.string().required(),
-    country: Joi.string().required(),
+    province: Joi.string().required(),
     phone: Joi.string().required(),
-    email: Joi.string().email().allow(null)
+    email: Joi.string().email().allow(null),
+    notes: Joi.string().allow(null)
   }).required(),
-  billingAddress: Joi.object({
-    firstName: Joi.string().required(),
-    lastName: Joi.string().required(),
-    street: Joi.string().required(),
-    ward: Joi.string().required(),
-    district: Joi.string().required(),
-    city: Joi.string().required(),
-    country: Joi.string().required(),
-    phone: Joi.string().required(),
-    email: Joi.string().email().allow(null)
-  }).allow(null),
-  couponCodes: Joi.array().items(Joi.string()).default([]), // Thay coupons thành couponCodes
-  notes: Joi.string().allow(null),
+  couponCodes: Joi.array().items(Joi.string()).default([]),
   adminNotes: Joi.string().allow(null),
   cancellationReason: Joi.string().allow(null),
   refundReason: Joi.string().allow(null),
@@ -51,7 +36,8 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
       productId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
       productName: Joi.string().required(),
       quantity: Joi.number().min(1).required(),
-      price: Joi.number().min(0).required()
+      price: Joi.number().min(0).required(),
+      avatar: Joi.string().required()
     })
   ).required().min(1),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -113,6 +99,14 @@ const deleteOneById = async (id) => {
   }
 }
 
+const getByUserId = async (userId) => {
+  try {
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ userId }).toArray()
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 export const orderModel = {
   ORDER_COLLECTION_NAME,
   ORDER_COLLECTION_SCHEMA,
@@ -121,5 +115,6 @@ export const orderModel = {
   findOneById,
   getAllWithPagination,
   updateOneById,
-  deleteOneById
+  deleteOneById,
+  getByUserId
 }
