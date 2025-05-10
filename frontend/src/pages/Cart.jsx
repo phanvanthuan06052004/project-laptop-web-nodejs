@@ -5,15 +5,17 @@ import { Button } from "~/components/ui/button"
 import { useDeleteItemMutation, useGetUserCartQuery, useUpdateQuantityMutation } from "~/store/apis/cartSlice"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const Cart = () => {
   const navigate = useNavigate()
   const userId = useSelector(selectCurrentUser)?._id
 
   // Fetch cart data
-  const { data: cartData, isLoading, error } = useGetUserCartQuery(userId)
-  console.log(cartData)
-
+  const { data: cartData, isLoading, error } = useGetUserCartQuery(userId, {
+    skip: !userId // Chỉ gọi query khi userId là truthy (có giá trị)
+  })
   // Mutations
   const [updateCartItem] = useUpdateQuantityMutation()
   const [removeCartItem] = useDeleteItemMutation()
@@ -21,20 +23,29 @@ const Cart = () => {
   // Extract cart items
   const cartItems = cartData?.items || []
 
-  const updateQuantity = async (id, newQuantity) => {
+  const updateQuantity = async (id, newQuantity, maxQuantity, productName) => {
     if (newQuantity < 1) return
+    if (newQuantity > maxQuantity) {
+      toast.error(`Cannot add more "${productName}". Only ${maxQuantity} in stock.`)
+      return
+    }
     try {
-      await updateCartItem({ id, quantity: newQuantity }).unwrap()
+      await updateCartItem({ cartItemId: id, quantity: newQuantity }).unwrap()
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Failed to update quantity:", err)
+      toast.error("Failed to update quantity. Please try again.")
     }
   }
 
   const removeItem = async (id) => {
     try {
       await removeCartItem(id).unwrap()
+      toast.success("Item removed from cart.")
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Failed to remove item:", err)
+      toast.error("Failed to remove item. Please try again.")
     }
   }
 
@@ -114,20 +125,23 @@ const Cart = () => {
                               <h3 className="font-medium text-gray-900 dark:text-white">
                                 {item.product.name}
                               </h3>
+
                               <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {item.product.displayname || "Unknown Brand"}
+                                {item.product.brand || "Unknown Brand"}
                               </p>
                             </div>
                             <p className="font-medium">
                               ₫{(item.product.price * item.quantity).toLocaleString("vi-VN")}
                             </p>
                           </div>
+                          <span className="text-xl font-semibold text-red-500">Còn lại {item?.product?.stock || "Unknown Brand"} sản phẩm</span>
                           <div className="mt-auto flex justify-between items-center pt-4">
                             <div className="flex items-center border border-gray-300 rounded">
+
                               <button
                                 className="px-3 py-1"
                                 onClick={() =>
-                                  updateQuantity(item._id, item.quantity - 1)
+                                  updateQuantity(item._id, item.quantity - 1, item.product.quantity, item.product.name)
                                 }
                               >
                                 <Minus size={14} />
@@ -136,8 +150,9 @@ const Cart = () => {
                               <button
                                 className="px-3 py-1"
                                 onClick={() =>
-                                  updateQuantity(item._id, item.quantity + 1)
+                                  updateQuantity(item._id, item.quantity + 1, item.product.quantity, item.product.name)
                                 }
+                                disabled={item.quantity >= item.product.quantity}
                               >
                                 <Plus size={14} />
                               </button>

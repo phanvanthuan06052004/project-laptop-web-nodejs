@@ -1,7 +1,7 @@
 // ~/routes/couponRoute.js
 import express from 'express'
 import { couponController } from '~/controllers/couponController'
-import { couponValidation } from '~/validations/couponValidation'
+import { couponValidation } from '../../validations/couponValidation'
 // import { authMiddlewares } from '~/middlewares/authMiddleware'; // Nếu cần bảo vệ route
 
 const Router = express.Router()

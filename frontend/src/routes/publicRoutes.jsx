@@ -3,12 +3,13 @@ import Account from "~/pages/account/Account"
 import Login from "~/pages/auth/Login"
 import Register from "~/pages/auth/Register"
 import Cart from "~/pages/Cart"
-import Checkout from "~/pages/Checkout"
+import Checkout from "~/pages/CheckoutPage/Checkout"
 import Home from "~/pages/Home"
 import OrderConfirmation from "~/pages/OrderConfirmation"
 import ProductDetail from "~/pages/ProductDetail"
 import ProductListing from "~/pages/ProductListing"
 import EmailVerification from "~/pages/EmailVerification"
+import ForgotPassword from "~/pages/ForgotPassword"
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
@@ -20,6 +21,7 @@ const publicRoutes = [
   { path: "/login", element: <Login />, restricted: true },
   { path: "/register", element: <Register />, restricted: true },
   { path: "/account/*", element: <Account /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
   // { path: "/blog", element: <Blog /> },
   // { path: "/blog/:slug", element: <BlogPost /> },
   // { path: "/categories", element: <Categories /> },
