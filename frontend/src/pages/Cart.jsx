@@ -229,12 +229,8 @@ const Cart = () => {
                       <span>COD</span>
                     </div>
                     <div className="border p-3 rounded-md flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <img
-                        src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png"
-                        alt="MoMo"
-                        className="w-5 h-5"
-                      />
-                      <span>MoMo</span>
+                      <Wallet className="w-5 h-5 text-pink-500" />
+                      <span>e-wallet</span>
                     </div>
                     <div className="border p-3 rounded-md flex items-center gap-2 text-gray-700 dark:text-gray-300">
                       <CreditCard size={20} />

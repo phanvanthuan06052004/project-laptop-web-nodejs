@@ -221,24 +221,6 @@ const ShippingStep = ({
               <input
                 type="radio"
                 name="paymentMethod"
-                value="MOMO"
-                checked={paymentMethod === "MOMO"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="mr-3 text-primary focus:ring-primary"
-              />
-              <div className="flex items-center">
-                <Wallet className="w-5 h-5 mr-3 text-pink-500" />
-                <div>
-                  <div className="font-medium">MoMo E-Wallet</div>
-                  <div className="text-sm text-gray-500">Pay with MoMo</div>
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-3 border rounded-md cursor-pointer hover:border-primary transition-colors">
-              <input
-                type="radio"
-                name="paymentMethod"
                 value="BANK"
                 checked={paymentMethod === "BANK"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
@@ -247,8 +229,8 @@ const ShippingStep = ({
               <div className="flex items-center">
                 <CreditCard className="w-5 h-5 mr-3 text-blue-500" />
                 <div>
-                  <div className="font-medium">Bank Transfer</div>
-                  <div className="text-sm text-gray-500">Pay via bank transfer</div>
+                  <div className="font-medium">Bank or e-wallet Transfer</div>
+                  <div className="text-sm text-gray-500">Pay via bank or e-wallet</div>
                 </div>
               </div>
             </label>
