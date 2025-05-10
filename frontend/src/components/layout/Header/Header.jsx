@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Search, ShoppingCart, Menu, User, X, LogOut } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
@@ -29,8 +29,15 @@ const Header = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
+  const { data: cartNumber, refetch } = useCountItemCartQuery(undefined, {
+    skip: !isAuthenticated
+  })
 
-  const { data: cartNumber } = useCountItemCartQuery()
+  useEffect(() => {
+    if (isAuthenticated) {
+      refetch()
+    }
+  }, [isAuthenticated, refetch])
 
   const handleLogout = () => {
     try {

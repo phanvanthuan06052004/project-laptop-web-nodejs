@@ -22,6 +22,8 @@ const OrderList = lazy(() => import("~/pages/Order/OrderList"))
 const Login = lazy(() => import("~/pages/auth/Login"))
 const Register = lazy(() => import("~/pages/auth/Register"))
 const Account = lazy(() => import("~/pages/account/Account"))
+const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"))
+
 // const Blog = lazy(() => import("~/pages/Blog"))
 // const BlogPost = lazy(() => import("~/pages/BlogPost"))
 // const Categories = lazy(() => import("~/pages/Categories"))
@@ -39,6 +41,7 @@ const routeComponents = {
   "/checkout": <Checkout />,
   "/order-confirmation": <OrderConfirmation />,
   "/login": <Login />,
+  "/forgot-password": <ForgotPassword />,
   "/register": <Register />,
   "/authen-confirm": <EmailVerification />,
   "/account/*": <Account />,

@@ -22,6 +22,7 @@ export const commentValidation = {
     })
 
     try {
+      req.body.userId = req.userId
       await correctCondition.validateAsync(req.body, {
         abortEarly: false,
         allowUnknown: true
@@ -105,5 +106,26 @@ export const commentValidation = {
     } catch (error) {
       next(new ApiError(StatusCodes.BAD_REQUEST, new Error(error).message))
     }
+  },
+
+  deleteNestedById: async (req, res, next) => {
+    const correctCondition = Joi.object({
+      productId: Joi.string()
+        .required()
+        .pattern(OBJECT_ID_RULE)
+        .message(OBJECT_ID_RULE_MESSAGE),
+      commentId: Joi.string()
+        .required()
+        .pattern(OBJECT_ID_RULE)
+        .message(OBJECT_ID_RULE_MESSAGE)
+    })
+
+    try {
+      await correctCondition.validateAsync(req.query, { abortEarly: false })
+      next()
+    } catch (error) {
+      next(new ApiError(StatusCodes.BAD_REQUEST, new Error(error).message))
+    }
   }
+
 }

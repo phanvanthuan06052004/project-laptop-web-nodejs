@@ -9,6 +9,7 @@ import ProductActions from "~/components/products/detail/ProductActions"
 import ProductFeatures from "~/components/products/detail/ProductFeatures"
 import ProductTabs from "~/components/products/detail/ProductTabs"
 import MetaTags from "~/components/seo/MetaTags"
+import DiscussionSection from "~/components/products/detail/DiscussionSection"
 
 export default function ProductDetail() {
   const { nameSlug } = useParams()
@@ -119,7 +120,7 @@ export default function ProductDetail() {
             {/* AI PC Badge */}
             {specs.npu && (
               <div className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
-                <CircleCheck size={16} className="mr-1" fill="currentColor" color="white"/>
+                <CircleCheck size={16} className="mr-1" fill="currentColor" color="white" />
                 Intel AI PC
               </div>
             )}
@@ -181,6 +182,9 @@ export default function ProductDetail() {
           reviews={product.comments || []}
           attributeGroup={product.attributeGroup || []}
         />
+
+        <hr className="mt-5"/>
+        <DiscussionSection productId={productData?.id} />
       </div>
     </div>
   )
