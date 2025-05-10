@@ -10,6 +10,7 @@ import { orderRoute } from './orderRoute'
 import { couponRoute } from './couponRoute'
 import { commentRoute } from './commentRoute'
 import { paymentRoute } from './paymentRoute'
+import { reviewRoute } from './reviewRoute'
 
 
 const Router = express.Router()
@@ -38,6 +39,8 @@ Router.use('/coupon', couponRoute)
 Router.use('/orders', orderRoute)
 
 Router.use('/comment', commentRoute)
+
+Router.use('/reviews', reviewRoute)
 
 Router.use('/payments', paymentRoute)
 
