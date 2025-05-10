@@ -93,7 +93,10 @@ export class CouponService {
       this.discountContext.setStrategy(coupon.type)
       const discount = this.discountContext.calculateDiscount(orderTotal, coupon, shippingCost)
       return {
-        discount
+        discount,
+        type: coupon.type,
+        couponCode: coupon.code,
+        value: coupon.value
       }
     } catch (error) {
       throw new ApiError(StatusCodes.BAD_REQUEST, error.message)

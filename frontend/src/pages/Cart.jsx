@@ -1,6 +1,6 @@
 import React from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { ShoppingCart, Trash2, Plus, Minus, ChevronLeft, ArrowRight } from "lucide-react"
+import { ShoppingCart, Trash2, Plus, Minus, ChevronLeft, ArrowRight, Truck, Wallet, CreditCard } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { useDeleteItemMutation, useGetUserCartQuery, useUpdateQuantityMutation } from "~/store/apis/cartSlice"
 import { useSelector } from "react-redux"
@@ -54,9 +54,7 @@ const Cart = () => {
     (total, item) => total + item.product.price * item.quantity,
     0
   )
-  const shipping = 350000 // VND (~$15.99)
-  const tax = subtotal * 0.08 // 8% tax
-  const total = subtotal + shipping + tax
+  const total = subtotal
 
   if (isLoading) {
     return <div className="text-center py-16">Loading...</div>
@@ -190,42 +188,34 @@ const Cart = () => {
                       </span>
                       <span>₫{subtotal.toLocaleString("vi-VN")}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Shipping
-                      </span>
-                      <span>₫{shipping.toLocaleString("vi-VN")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Estimated Tax
-                      </span>
-                      <span>₫{tax.toLocaleString("vi-VN")}</span>
-                    </div>
+
+                    {/* Total sau cùng */}
                     <div className="border-t pt-4 flex justify-between font-semibold">
                       <span>Total</span>
                       <span>₫{total.toLocaleString("vi-VN")}</span>
                     </div>
                   </div>
+
+                  {/* Nút Proceed to Checkout */}
                   <div className="mt-6">
                     <Button
                       className="w-full"
-                      onClick={() => navigate("/checkout")}
+                      onClick={() => navigate("/checkout", {
+                        state: {
+                          cartItems: cartItems.map(item => ({
+                            productId: item.product._id,
+                            productName: item.product.name,
+                            price: item.product.price,
+                            quantity: item.quantity,
+                            avatar: item.product.mainImg
+                          })),
+                          subtotal: subtotal,
+                          total: total
+                        }
+                      })}
                     >
                       Proceed to Checkout <ArrowRight size={16} className="ml-1" />
                     </Button>
-                  </div>
-                  <div className="mt-6 space-y-4 text-sm">
-                    <div className="flex items-center">
-                      <input
-                        type="text"
-                        placeholder="Promo Code"
-                        className="flex-grow rounded-l-md border border-r-0 px-4 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-                      />
-                      <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-r-md">
-                        Apply
-                      </button>
-                    </div>
                   </div>
                 </div>
 
@@ -233,11 +223,23 @@ const Cart = () => {
                   <h3 className="text-sm font-medium mb-4">
                     Accepted Payment Methods
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <div className="border p-2 rounded-md">Visa</div>
-                    <div className="border p-2 rounded-md">Mastercard</div>
-                    <div className="border p-2 rounded-md">Amex</div>
-                    <div className="border p-2 rounded-md">PayPal</div>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="border p-3 rounded-md flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <Truck size={20} />
+                      <span>COD</span>
+                    </div>
+                    <div className="border p-3 rounded-md flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <img
+                        src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png"
+                        alt="MoMo"
+                        className="w-5 h-5"
+                      />
+                      <span>MoMo</span>
+                    </div>
+                    <div className="border p-3 rounded-md flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <CreditCard size={20} />
+                      <span>Bank</span>
+                    </div>
                   </div>
                 </div>
               </div>

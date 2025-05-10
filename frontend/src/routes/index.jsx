@@ -11,12 +11,14 @@ import privateRoutes from "./privateRoutes"
 
 
 // Lazy load public pages
+const BankTransferInfo = lazy(() => import("~/components/payment/BankTransferInfo"))
 const Home = lazy(() => import("~/pages/Home"))
 const ProductListing = lazy(() => import("~/pages/ProductListing"))
 const ProductDetail = lazy(() => import("~/pages/ProductDetail"))
 const Cart = lazy(() => import("~/pages/Cart"))
 const Checkout = lazy(() => import("~/pages/CheckoutPage/Checkout"))
 const OrderConfirmation = lazy(() => import("~/pages/OrderConfirmation"))
+const OrderList = lazy(() => import("~/pages/Order/OrderList"))
 const Login = lazy(() => import("~/pages/auth/Login"))
 const Register = lazy(() => import("~/pages/auth/Register"))
 const Account = lazy(() => import("~/pages/account/Account"))
@@ -28,6 +30,8 @@ const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"))
 // const Deals = lazy(() => import("~/pages/Deals"))
 const NotFound = lazy(() => import("~/pages/NotFound"))
 const EmailVerification = lazy(() => import("~/pages/EmailVerification"))
+const PaymentCallback = lazy(() => import("~/pages/PaymentCallback"))
+const PaymentFailed = lazy(() => import("~/pages/PaymentFailed"))
 
 const routeComponents = {
   "/": <Home />,
@@ -40,7 +44,13 @@ const routeComponents = {
   "/forgot-password": <ForgotPassword />,
   "/register": <Register />,
   "/authen-confirm": <EmailVerification />,
-  "/account/*": <Account />
+  "/account/*": <Account />,
+  "/payment/callback": <PaymentCallback />,
+  "/order-confirmation/:orderId": <OrderConfirmation />,
+  "/payment-failed": <PaymentFailed />,
+  // "/payment-success": <PaymentSuccess />,
+  "/account/orders": <OrderList />,
+  "/payment/bank-transfer/:orderId": <BankTransferInfo />
   // "/blog": <Blog />,
   // "/blog/:slug": <BlogPost />,
   // "/categories": <Categories />,
@@ -121,6 +131,11 @@ const AppRoutes = () => {
               ))}
           </Route>
         ))}
+        {/* <Route path="/checkout" element={<Checkout />} />
+        <Route path="/payment/callback" element={<PaymentCallback />} />
+        <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+        <Route path="/checkout/payment-failed" element={<PaymentFailed />} />
+        <Route path="/account/orders" element={<OrderList />} /> */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

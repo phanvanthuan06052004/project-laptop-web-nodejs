@@ -1,3 +1,4 @@
+
 import { BASE_URL } from "~/constants/fe.constant"
 import { apiSlice } from "./apiSlice"
 
@@ -27,7 +28,7 @@ export const orderSlice = apiSlice.injectEndpoints({
     }),
 
     getUserOrders: builder.query({
-      query: (userId) => `${BASE_URL}/orders?userId=${userId}`,
+      query: (userId) => `${BASE_URL}/orders/user/${userId}`,
       providesTags: [{ type: "Orders", id: "USER" }],
     }),
 

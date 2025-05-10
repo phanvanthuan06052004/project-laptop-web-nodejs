@@ -7,47 +7,39 @@ export const orderValidation = {
   createNew: async (req, res, next) => {
     const createSchema = Joi.object({
       userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
-      paymentMethod: Joi.string().valid('COD', 'Card', 'Bank').required(),
-      shippingMethod: Joi.string().valid('Standard', 'Express').allow(null),
+      paymentMethod: Joi.string().valid('COD', 'MOMO', 'BANK').required(),
+      shippingMethod: Joi.string().valid('standard', 'express').required(),
       shippingAddress: Joi.object({
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
-        street: Joi.string().required(),
+        address: Joi.string().required(),
         ward: Joi.string().required(),
         district: Joi.string().required(),
-        city: Joi.string().required(),
-        country: Joi.string().required(),
+        province: Joi.string().required(),
         phone: Joi.string().required(),
         email: Joi.string().email().allow(null)
       }).required(),
-      billingAddress: Joi.object({
-        firstName: Joi.string().required(),
-        lastName: Joi.string().required(),
-        street: Joi.string().required(),
-        ward: Joi.string().required(),
-        district: Joi.string().required(),
-        city: Joi.string().required(),
-        country: Joi.string().required(),
-        phone: Joi.string().required(),
-        email: Joi.string().email().allow(null)
-      }).allow(null),
-      couponCodes: Joi.array().items(Joi.string()),
+      items: Joi.array()
+        .items(
+          Joi.object({
+            productId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
+            productName: Joi.string().required(),
+            quantity: Joi.number().min(1).required(),
+            price: Joi.number().min(0).required(),
+          })
+        )
+        .required(),
+      couponCodes: Joi.array().items(Joi.string()).default([]),
       shippingCost: Joi.number().min(0).default(30000),
-      notes: Joi.string().allow(null),
-      items: Joi.array().items(
-        Joi.object({
-          productId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
-          quantity: Joi.number().min(1).required()
-        })
-      ).required()
+      totalAmount: Joi.number().min(0).required()
     })
 
     try {
-      const correctCondition = await createSchema.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
-      req.body =correctCondition
-      next()
+      const validatedData = await createSchema.validateAsync(req.body, { abortEarly: false, allowUnknown: true });
+      req.body = validatedData;
+      next();
     } catch (error) {
-      next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+      next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message));
     }
   },
 
@@ -68,29 +60,17 @@ export const orderValidation = {
     const updateSchema = Joi.object({
       status: Joi.string().valid('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'),
       paymentStatus: Joi.string().valid('Pending', 'Paid', 'Failed'),
-      shippingMethod: Joi.string().valid('Standard', 'Express').allow(null),
+      shippingMethod: Joi.string().valid('standard', 'express').allow(null),
       shippingAddress: Joi.object({
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
-        street: Joi.string().required(),
+        address: Joi.string().required(),
         ward: Joi.string().required(),
         district: Joi.string().required(),
-        city: Joi.string().required(),
-        country: Joi.string().required(),
+        province: Joi.string().required(),
         phone: Joi.string().required(),
         email: Joi.string().email().allow(null)
       }).required(),
-      billingAddress: Joi.object({
-        firstName: Joi.string().required(),
-        lastName: Joi.string().required(),
-        street: Joi.string().required(),
-        ward: Joi.string().required(),
-        district: Joi.string().required(),
-        city: Joi.string().required(),
-        country: Joi.string().required(),
-        phone: Joi.string().required(),
-        email: Joi.string().email().allow(null)
-      }).allow(null),
       notes: Joi.string().allow(null),
       adminNotes: Joi.string().allow(null),
       cancellationReason: Joi.string().allow(null),
@@ -128,7 +108,7 @@ export const orderValidation = {
       status: Joi.string().valid('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded').allow(''),
       paymentMethod: Joi.string().valid('COD', 'Card', 'Bank').allow(''),
       paymentStatus: Joi.string().valid('Pending', 'Paid', 'Failed').allow(''),
-      shippingMethod: Joi.string().valid('Standard', 'Express').allow('')
+      shippingMethod: Joi.string().valid('standard', 'express').allow('')
     })
 
     try {

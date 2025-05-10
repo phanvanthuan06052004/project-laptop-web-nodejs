@@ -4,16 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
+    "dev": "cross-env VITE_BUILD_MODE=dev vite --host",
+    "build": "cross-env VITE_BUILD_MODE=production vite build --base=./",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
+    "antd": "^5.15.1",
     "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
     "frontend": "file:",
     "lucide-react": "^0.503.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",

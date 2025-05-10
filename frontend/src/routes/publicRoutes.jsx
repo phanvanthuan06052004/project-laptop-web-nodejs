@@ -9,6 +9,9 @@ import OrderConfirmation from "~/pages/OrderConfirmation"
 import ProductDetail from "~/pages/ProductDetail"
 import ProductListing from "~/pages/ProductListing"
 import EmailVerification from "~/pages/EmailVerification"
+import OrderList from "~/pages/Order/OrderList"
+import BankTransferInfo from "~/components/payment/BankTransferInfo"
+import PaymentFailed from "~/pages/PaymentFailed"
 import ForgotPassword from "~/pages/ForgotPassword"
 
 const publicRoutes = [
@@ -21,6 +24,11 @@ const publicRoutes = [
   { path: "/login", element: <Login />, restricted: true },
   { path: "/register", element: <Register />, restricted: true },
   { path: "/account/*", element: <Account /> },
+  { path: "/account/orders", element: <OrderList /> },
+  { path: "/order-confirmation/:orderId", element: <OrderConfirmation /> },
+  { path: "/payment/bank-transfer/:orderId", element: <BankTransferInfo /> },
+  { path: "/payment-failed", element: <PaymentFailed /> },
+
   { path: "/forgot-password", element: <ForgotPassword /> },
   // { path: "/blog", element: <Blog /> },
   // { path: "/blog/:slug", element: <BlogPost /> },

@@ -4,8 +4,42 @@ import { couponService } from '~/services/couponService/couponService'
 import { couponModel } from '~/models/couponModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
-import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
+import { payosService } from './payosService'
+import { paymentModel } from '~/models/paymentModel'
+import { env } from '~/config/environment'
+import { method } from 'lodash'
+import { stat } from 'fs'
+
+// Payment method constants - Sync with orderModel and paymentModel
+const PAYMENT_METHODS = {
+  COD: 'COD',
+  BANK: 'BANK'
+}
+
+// Payment status constants - Sync with orderModel
+const PAYMENT_STATUS = {
+  PENDING: 'Pending',
+  PAID: 'Paid',
+  FAILED: 'Failed'
+}
+
+// Payment provider status constants - Sync with paymentModel
+const PAYMENT_PROVIDER_STATUS = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+  CANCELLED: 'CANCELLED'
+}
+
+// Hàm tạo mã đơn hàng dạng số
+const generateOrderCode = () => {
+  const timestamp = Date.now()
+  const random = Math.floor(Math.random() * 1000)
+  return parseInt(`${timestamp}${random}`)
+}
 
 const createNewOrder = async (orderData) => {
   try {
@@ -173,9 +207,12 @@ const createNewOrder = async (orderData) => {
     // 4. Chuẩn bị dữ liệu đơn hàng
     const newOrderData = {
       ...orderData,
-      orderCode: orderData.orderCode || uuidv4().slice(0, 8).toUpperCase(),
+      status: orderData.paymentMethod === PAYMENT_METHODS.COD ? 'Processing' : 'Pending',
+      orderCode: orderData.orderCode || generateOrderCode(),
       totalAmount,
       couponCodes: appliedCouponCodes,
+      paymentStatus: PAYMENT_STATUS.PENDING,
+      paymentMethod: orderData.paymentMethod || PAYMENT_METHODS.COD
     }
 
     // 5. Tạo đơn hàng
@@ -184,7 +221,83 @@ const createNewOrder = async (orderData) => {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không thể tạo đơn hàng')
     }
 
-    // 6. Tạo mã QR
+    // 6. Xử lý thanh toán dựa trên phương thức
+    let paymentResponse = null
+    let paymentRecord = null
+
+    switch (orderData.paymentMethod) {
+
+    case PAYMENT_METHODS.COD: {
+      // Tạo bản ghi thanh toán cho COD
+      paymentRecord = await paymentModel.createNew({
+        orderId: createdOrder.insertedId.toString(),
+        method: PAYMENT_METHODS.COD,
+        amount: newOrderData.totalAmount,
+        status: PAYMENT_PROVIDER_STATUS.PROCESSING
+      })
+
+      paymentResponse = {
+        paymentMethod: PAYMENT_METHODS.COD,
+        message: 'Thanh toán khi nhận hàng'
+      }
+      break
+    }
+
+    case PAYMENT_METHODS.BANK: {
+      // Lấy 8 kí tự đầu tiên của orderCode để làm description (PayOS giới hạn 9 ký tự)
+      const orderCodeStr = String(newOrderData.orderCode)
+      // const shortDescription = orderCodeStr.slice(-5)
+      const payosResponse = await payosService.createPaymentRequest({
+        orderId: createdOrder.insertedId.toString(),
+        orderCode: newOrderData.orderCode,
+        amount: newOrderData.totalAmount,
+        // amount: 5000,
+        description: `${orderCodeStr}`,
+        returnUrl: `${env.FRONTEND_URL}/order-confirmation`,
+        cancelUrl: `${env.FRONTEND_URL}/payment-failed`
+      })
+
+      // Tạo bản ghi thanh toán
+      paymentRecord = await paymentModel.createNew({
+        orderId: createdOrder.insertedId.toString(),
+        method: PAYMENT_METHODS.BANK,
+        amount: newOrderData.totalAmount,
+        status: PAYMENT_PROVIDER_STATUS.PENDING,
+        payosTransaction: {
+          checkoutUrl: payosResponse.data.checkoutUrl,
+          bin: payosResponse.data.bin,
+          accountNumber: payosResponse.data.accountNumber,
+          description: payosResponse.data.description,
+          transactionId: payosResponse.data.paymentLinkId,
+          expiredAt: payosResponse.data.expiredAt,
+          signedData: payosResponse.signature
+        }
+      })
+      paymentResponse = {
+        paymentUrl: payosResponse.data.checkoutUrl,
+        paymentLinkId: payosResponse.data.paymentLinkId,
+        paymentMethod: PAYMENT_METHODS.BANK,
+        bankAccounts: payosResponse.data.accountNumber,
+        qrCode: payosResponse.data.qrCode,
+        amount: payosResponse.data.amount,
+        accountName: payosResponse.data.accountName,
+        description: payosResponse.data.description,
+      }
+      break
+    }
+
+    default:
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Phương thức thanh toán không hợp lệ')
+    }
+
+    // 7. Cập nhật paymentId vào đơn hàng
+    if (paymentRecord) {
+      await orderModel.updateOneById(createdOrder.insertedId.toString(), {
+        paymentId: paymentRecord.insertedId.toString()
+      })
+    }
+
+    // 8. Tạo mã QR cho đơn hàng
     const qrData = `Order Code: ${newOrderData.orderCode}\nTotal Amount: ${newOrderData.totalAmount} VND`
     let qrCode
     try {
@@ -194,7 +307,7 @@ const createNewOrder = async (orderData) => {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không thể tạo mã QR')
     }
 
-    // 7. Cập nhật số lượng sản phẩm
+    // 9. Cập nhật số lượng sản phẩm
     for (const item of orderData.items) {
       const product = await productService.getProductById(item.productId)
       const newQuantity = product.quantity - item.quantity
@@ -208,6 +321,7 @@ const createNewOrder = async (orderData) => {
       order: createdOrder,
       qrCode,
       couponResults,
+      payment: paymentResponse
     }
   } catch (error) {
     console.error('Lỗi khi tạo đơn hàng:', error)
@@ -277,10 +391,90 @@ const deleteOrder = async (id) => {
   }
 }
 
+const updatePaymentStatus = async (orderId, paymentStatus, paymentDetails = {}) => {
+  try {
+    const order = await orderModel.findOneById(orderId)
+    if (!order) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đơn hàng không tồn tại')
+    }
+
+    // Cập nhật trạng thái thanh toán trong đơn hàng
+    const orderUpdateData = {
+      paymentStatus,
+      updatedAt: new Date()
+    }
+
+    // Cập nhật trạng thái thanh toán trong bản ghi payment
+    if (order.paymentId) {
+      const payment = await paymentModel.findOneById(order.paymentId)
+      if (payment) {
+        let providerStatus = PAYMENT_PROVIDER_STATUS.PENDING
+        switch (paymentStatus) {
+        case PAYMENT_STATUS.PAID:
+          providerStatus = PAYMENT_PROVIDER_STATUS.COMPLETED
+          break
+        case PAYMENT_STATUS.FAILED:
+          providerStatus = PAYMENT_PROVIDER_STATUS.FAILED
+          break
+        }
+
+        // Cập nhật payment record theo đúng schema
+        const paymentUpdate = {
+          status: providerStatus,
+          updatedAt: new Date(),
+          completedAt: paymentStatus === PAYMENT_STATUS.PAID ? new Date() : null,
+          payosTransaction: {
+            ...payment.payosTransaction,
+            paymentTime: paymentStatus === PAYMENT_STATUS.PAID ? new Date() : null
+          }
+        }
+
+        await paymentModel.updateOneById(order.paymentId, paymentUpdate)
+      }
+    }
+
+    const updatedOrder = await orderModel.updateOneById(orderId, orderUpdateData)
+    return updatedOrder
+  } catch (error) {
+    throw error
+  }
+}
+
+const updatePaymentStatusByOrderCode = async (orderCode, payosResponse) => {
+  try {
+    const order = await orderModel.findOneByOrderCode(orderCode)
+    if (!order) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đơn hàng không tồn tại')
+    }
+
+    await orderModel.updateOneById(order._id, {
+      paymentStatus: PAYMENT_STATUS.FAILED,
+      cancellationReason: payosResponse.cancellationReason,
+      updatedAt: new Date()
+    })
+  } catch (error) {
+    throw error
+  }
+}
+
+const getByUserId = async (userId) => {
+  try {
+    const orders = await orderModel.getByUserId(userId)
+    return orders
+  } catch (error) {
+    throw error
+  }
+}
 export const orderService = {
   createNewOrder,
   getOrderById,
   getAllOrders,
   updateOrder,
   deleteOrder,
+  updatePaymentStatus,
+  updatePaymentStatusByOrderCode,
+  getByUserId,
+  PAYMENT_METHODS,
+  PAYMENT_STATUS,
+  PAYMENT_PROVIDER_STATUS
 }

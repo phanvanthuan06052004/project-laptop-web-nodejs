@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button"
 import MetaTags from "~/components/seo/MetaTags"
 
 const OrderConfirmation = () => {
+  // const { orderId } = useParams()
   const navigate = useNavigate()
 
   return (
@@ -23,12 +24,6 @@ const OrderConfirmation = () => {
           <p className="text-muted-foreground mb-6">
             Your order has been placed successfully. We've sent you an email with your order details.
           </p>
-
-          <div className="bg-muted/50 p-4 rounded-md mb-8">
-            <h2 className="font-medium mb-2">Order Information</h2>
-            <p className="text-sm">Order #: {Math.floor(Math.random() * 1000000).toString().padStart(6, "0")}</p>
-            <p className="text-sm">Date: {new Date().toLocaleDateString()}</p>
-          </div>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
             <Button onClick={() => navigate("/account/orders")}>

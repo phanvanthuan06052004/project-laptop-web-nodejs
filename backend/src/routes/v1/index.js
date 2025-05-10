@@ -9,6 +9,7 @@ import { cartRoute } from './cartRoute'
 import { orderRoute } from './orderRoute'
 import { couponRoute } from './couponRoute'
 import { commentRoute } from './commentRoute'
+import { paymentRoute } from './paymentRoute'
 
 
 const Router = express.Router()
@@ -33,7 +34,11 @@ Router.use('/mail', mailRoute)
 Router.use('/cart', cartRoute)
 
 Router.use('/coupon', couponRoute)
+
 Router.use('/orders', orderRoute)
+
 Router.use('/comment', commentRoute)
+
+Router.use('/payments', paymentRoute)
 
 export const APIs_V1 = Router

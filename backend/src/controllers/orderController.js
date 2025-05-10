@@ -3,8 +3,8 @@ import { orderService } from '~/services/orderService'
 
 const createNew = async (req, res, next) => {
   try {
-    const { order, qrCode, couponResults } = await orderService.createNewOrder(req.body)
-    res.status(StatusCodes.CREATED).json({ order, qrCode, couponResults })
+    const { order, qrCode, couponResults, payment } = await orderService.createNewOrder(req.body)
+    res.status(StatusCodes.CREATED).json({ order, qrCode, couponResults, payment })
   } catch (error) {
     console.log('Error object:', error) // Debug: Kiểm tra toàn bộ error
     console.log('Error details:', error.details) // Debug: Kiểm tra details
@@ -51,10 +51,20 @@ const deleteOrder = async (req, res, next) => {
   }
 }
 
+const getByUserId = async (req, res, next) => {
+  try {
+    const orders = await orderService.getByUserId(req.params.id)
+    res.status(StatusCodes.OK).json(orders)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const orderController = {
   createNew,
   getOrderById,
   getAllOrders,
   updateOrder,
   deleteOrder,
+  getByUserId
 }
