@@ -1,9 +1,8 @@
-import React, { useState } from "react"
+import React from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { ShoppingCart, Trash2, Plus, Minus, ChevronLeft, ArrowRight, Truck, Wallet, CreditCard } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { useDeleteItemMutation, useGetUserCartQuery, useUpdateQuantityMutation } from "~/store/apis/cartSlice"
-import { useApplyCouponMutation } from "~/store/apis/couponSlice"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
 import { toast } from "react-toastify"
@@ -20,13 +19,9 @@ const Cart = () => {
   // Mutations
   const [updateCartItem] = useUpdateQuantityMutation()
   const [removeCartItem] = useDeleteItemMutation()
-  const [applyCoupon] = useApplyCouponMutation()
 
   // Extract cart items
   const cartItems = cartData?.items || []
-
-  const [couponCode, setCouponCode] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState(null)
 
   const updateQuantity = async (id, newQuantity, maxQuantity, productName) => {
     if (newQuantity < 1) return
@@ -54,42 +49,12 @@ const Cart = () => {
     }
   }
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
-      toast.error("Please enter a coupon code")
-      return
-    }
-
-    try {
-      const result = await applyCoupon({
-        couponCode: couponCode.trim().toUpperCase(),
-        userId: userId,
-        orderTotal: subtotal,
-        shippingCost: shipping
-      }).unwrap()
-
-      setAppliedCoupon(result)
-      toast.success("Coupon applied successfully!")
-      setCouponCode("") // Reset input
-    } catch (error) {
-      toast.error(error?.data?.message || "Failed to apply coupon")
-      setAppliedCoupon(null)
-    }
-  }
-
   // Calculate totals
   const subtotal = cartItems.reduce(
     (total, item) => total + item.product.price * item.quantity,
     0
   )
-  const shipping = 350000 // VND (~$15.99)
-  const tax = subtotal * 0.08 // 8% tax
-  const total = subtotal + shipping + tax
-
-  // Tính final total sau khi áp dụng giảm giá
-  console.log("trước")
-  const finalTotal = appliedCoupon ? total - appliedCoupon?.discount : total
-  console.log("sau", finalTotal)
+  const total = subtotal
 
   if (isLoading) {
     return <div className="text-center py-16">Loading...</div>
@@ -223,91 +188,34 @@ const Cart = () => {
                       </span>
                       <span>₫{subtotal.toLocaleString("vi-VN")}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Shipping
-                      </span>
-                      <span>₫{shipping.toLocaleString("vi-VN")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Estimated Tax
-                      </span>
-                      <span>₫{tax.toLocaleString("vi-VN")}</span>
-                    </div>
-
-                    {/* Hiển thị discount nếu có */}
-                    {appliedCoupon && (
-                      <div className="flex justify-between text-green-600">
-                        <span>Discount</span>
-                        <span>-₫{appliedCoupon.discount.toLocaleString("vi-VN")}</span>
-                      </div>
-                    )}
 
                     {/* Total sau cùng */}
                     <div className="border-t pt-4 flex justify-between font-semibold">
                       <span>Total</span>
-                      <span>₫{finalTotal.toLocaleString("vi-VN")}</span>
+                      <span>₫{total.toLocaleString("vi-VN")}</span>
                     </div>
                   </div>
 
-                  {/* Nút Proceed to Checkout cũng cần cập nhật total */}
+                  {/* Nút Proceed to Checkout */}
                   <div className="mt-6">
                     <Button
                       className="w-full"
                       onClick={() => navigate("/checkout", {
-                        state: { 
-                          total: finalTotal,
-                          appliedCoupon: appliedCoupon
+                        state: {
+                          cartItems: cartItems.map(item => ({
+                            productId: item.product._id,
+                            productName: item.product.name,
+                            price: item.product.price,
+                            quantity: item.quantity,
+                            avatar: item.product.mainImg
+                          })),
+                          subtotal: subtotal,
+                          total: total
                         }
                       })}
                     >
                       Proceed to Checkout <ArrowRight size={16} className="ml-1" />
                     </Button>
-                  </div>
-
-                  <div className="mt-6 space-y-4 text-sm">
-                    <div className="flex items-center">
-                      <input
-                        type="text"
-                        placeholder="Promo Code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        className="flex-grow rounded-l-md border border-r-0 px-4 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-                      />
-                      <button
-                        onClick={handleApplyCoupon}
-                        className="bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-r-md transition-colors"
-                      >
-                        Apply
-                      </button>
-                    </div>
-
-                    {/* Hiển thị thông tin mã giảm giá đã áp dụng */}
-                    {appliedCoupon && (
-                      <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/10 rounded-md">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-green-600 dark:text-green-400">
-                              {appliedCoupon.code}
-                            </p>
-                            <p className="text-sm text-green-500 dark:text-green-400">
-                              {appliedCoupon.type === "PERCENT"
-                                ? `${appliedCoupon.value}% Off`
-                                : appliedCoupon.type === "AMOUNT"
-                                  ? `₫${appliedCoupon.value.toLocaleString("vi-VN")} Off`
-                                  : "Free Shipping"}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => setAppliedCoupon(null)}
-                            className="text-red-500 hover:text-red-600"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 

@@ -9,13 +9,6 @@ export const env = {
   ACCESS_TOKEN_SECRET_SIGNATURE: process.env.ACCESS_TOKEN_SECRET_SIGNATURE,
   REFRESH_TOKEN_SECRET_SIGNATURE: process.env.REFRESH_TOKEN_SECRET_SIGNATURE,
 
-  // cấu hình cho momo
-  MOMO_PARTNER_CODE: process.env.MOMO_PARTNER_CODE,
-  MOMO_ACCESS_KEY: process.env.MOMO_ACCESS_KEY,
-  MOMO_SECRET_KEY: process.env.MOMO_SECRET_KEY,
-  CLIENT_URL: process.env.CLIENT_URL,
-  API_URL: process.env.API_URL,
-
   // cấu hình cho payos
   PAYOS_API_URL: process.env.PAYOS_API_URL,
   PAYOS_CLIENT_ID: process.env.PAYOS_CLIENT_ID,

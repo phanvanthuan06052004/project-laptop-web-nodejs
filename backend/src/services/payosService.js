@@ -51,7 +51,7 @@ const createPaymentRequest = async ({
         returnUrl
       })
     }
-
+    console.log('Payload gửi lên PayOS:', paymentData)
     const response = await axios.post(
       `${PAYOS_API_URL}/v2/payment-requests`,
       paymentData,
@@ -63,20 +63,16 @@ const createPaymentRequest = async ({
       }
     )
 
-    if (!response.data || response.data.code !== 0) {
+    // console.log("PayOS response data:", response.data)
+    if (!response.data) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         response.data?.message || 'Lỗi khi tạo yêu cầu thanh toán'
       )
     }
-
-    return {
-      paymentId: response.data.data.paymentId,
-      paymentUrl: response.data.data.paymentUrl,
-      bankAccounts: response.data.data.bankAccounts
-    }
+    return response.data
   } catch (error) {
-    console.error('PayOS payment error:', error)
+    console.error('PayOS payment error details:', error.response?.data)
     throw new ApiError(
       StatusCodes.INTERNAL_SERVER_ERROR,
       'Không thể tạo yêu cầu thanh toán'
@@ -118,7 +114,33 @@ const verifyPayment = async (paymentId) => {
   }
 }
 
+const cancelTransaction = async ( paymentLinkId ) => {
+  try {
+    const response = await axios.post(
+      `${PAYOS_API_URL}/v2/payment-requests/${paymentLinkId}/cancel`,
+      { cancellationReason: 'Changed my mind' },
+      { headers: { 'x-client-id': PAYOS_CLIENT_ID, 'x-api-key': PAYOS_API_KEY } }
+    )
+
+    if (!response.data) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        response.data?.message || 'Lỗi khi hủy giao dịch'
+      )
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('PayOS cancel transaction error:', error)
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể hủy giao dịch'
+    )
+  }
+}
+
 export const payosService = {
   createPaymentRequest,
-  verifyPayment
+  verifyPayment,
+  cancelTransaction
 } 

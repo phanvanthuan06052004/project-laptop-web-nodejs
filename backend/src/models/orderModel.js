@@ -6,12 +6,12 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 const ORDER_COLLECTION_NAME = 'Order'
 
 const ORDER_COLLECTION_SCHEMA = Joi.object({
-  orderCode: Joi.string().required().trim().strict(),
+  orderCode: Joi.number().required(),
   userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
   orderDate: Joi.date().timestamp('javascript').default(Date.now),
   status: Joi.string().valid('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded').default('Pending'),
   totalAmount: Joi.number().min(0).required(),
-  paymentMethod: Joi.string().valid('COD', 'MOMO', 'BANK').required(), // Đồng bộ với payment providers
+  paymentMethod: Joi.string().valid('COD', 'BANK').required(), // Đồng bộ với payment providers
   paymentId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null), // Reference tới Payment collection
   paymentStatus: Joi.string().valid('Pending', 'Paid', 'Failed').default('Pending'),
   shippingMethod: Joi.string().valid('standard', 'express').allow(null),
@@ -65,6 +65,14 @@ const findOneById = async (id) => {
   }
 }
 
+const findOneByOrderCode = async (orderCode) => {
+  try {
+    return await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ orderCode })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const getAllWithPagination = async ({ filter = {}, sort = {}, skip = 0, limit = 10 }) => {
   try {
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find(filter).sort(sort).skip(skip).limit(limit).toArray()
@@ -113,6 +121,7 @@ export const orderModel = {
   validateBeforeCreate,
   createNew,
   findOneById,
+  findOneByOrderCode,
   getAllWithPagination,
   updateOneById,
   deleteOneById,

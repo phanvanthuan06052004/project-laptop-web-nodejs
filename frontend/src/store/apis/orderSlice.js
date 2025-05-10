@@ -12,12 +12,18 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     }),
     
     checkOrderStatus: builder.query({
-      query: (orderId) => `/orders/${orderId}/status`
+      query: (orderId) => `/orders/${orderId}`
+    }),
+
+    getUserOrders: builder.query({
+      query: (userId) => `/orders/user/${userId}`,
+      providesTags: ["Orders"]
     })
   })
 })
 
 export const {
   useCreateOrderMutation,
-  useCheckOrderStatusQuery
+  useCheckOrderStatusQuery,
+  useGetUserOrdersQuery
 } = orderApiSlice

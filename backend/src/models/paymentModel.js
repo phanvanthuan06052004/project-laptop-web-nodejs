@@ -6,47 +6,37 @@ import { ObjectId } from 'mongodb'
 const PAYMENT_COLLECTION_NAME = 'Payment'
 
 const PAYMENT_COLLECTION_SCHEMA = Joi.object({
-  _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-
   orderId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
 
-  // Chỉ cho phép 3 phương thức: MOMO, COD, BANK
-  provider: Joi.string().valid('MOMO', 'COD', 'BANK').required(),
+  // Chỉ định phương thức thanh toán chung
+  method: Joi.string().valid('COD', 'BANK').required(), // BANK_QR bao gồm cả MOMO và ngân hàng thông qua PayOS
 
   amount: Joi.number().min(0).required(),
 
-  currency: Joi.string().default('VND'),
-
   status: Joi.string().valid(
-    'PENDING', // Chờ thanh toán
-    'PROCESSING', // Đang xử lý
-    'COMPLETED', // Hoàn thành
-    'FAILED', // Thất bại
-    'REFUNDED', // Hoàn tiền
-    'CANCELLED' // Đã hủy
+    'PENDING', // Chưa thanh toán
+    'PROCESSING', // Đang xử lý tại PayOS
+    'COMPLETED', // Thanh toán thành công
+    'FAILED', // Thanh toán thất bại
+    'CANCELLED', // Bị hủy
+    'REFUNDED' // Đã hoàn tiền
   ).default('PENDING'),
 
-  paymentDetails: Joi.object({
-    // Chỉ giữ lại thông tin của MOMO
-    partnerCode: Joi.string(),
-    orderId: Joi.string(), // Mã đơn hàng từ MOMO
-    requestId: Joi.string(), // Request ID của giao dịch
-    amount: Joi.number(), // Số tiền thanh toán
-    orderInfo: Joi.string(), // Thông tin đơn hàng
-    orderType: Joi.string(), // Loại thanh toán (ex: momo_wallet)
-    transId: Joi.string(), // Mã giao dịch của MOMO
-    resultCode: Joi.number(), // Mã kết quả giao dịch
-    message: Joi.string(), // Thông báo kết quả
-    payType: Joi.string(), // Phương thức thanh toán
-    responseTime: Joi.date(), // Thời gian phản hồi
-    extraData: Joi.string() // Data bổ sung nếu có
+  payosTransaction: Joi.object({
+    checkoutUrl: Joi.string().uri(), // URL khách hàng dùng để thanh toán
+    bin: Joi.string(), // Mã ngân hàng
+    accountNumber: Joi.string(), // Mã tài khoản thụ hưởng
+    description: Joi.string(), // Mô tả giao dịch
+    transactionId: Joi.string(), // ID của PayOS (nếu có)
+    expiredAt: Joi.date(), // Hạn của mã QR
+    signedData: Joi.string(), // Chữ ký từ PayOS để xác thực
+    paymentTime: Joi.date().allow(null) // Thời gian khách thanh toán
   }).default({}),
 
   refundDetails: Joi.object({
     amount: Joi.number(),
     reason: Joi.string(),
-    requestId: Joi.string(),
-    status: Joi.string(),
+    status: Joi.string().valid('REQUESTED', 'COMPLETED', 'FAILED'),
     transactionId: Joi.string(),
     refundedAt: Joi.date()
   }).allow(null),
@@ -55,6 +45,7 @@ const PAYMENT_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().allow(null),
   completedAt: Joi.date().allow(null)
 })
+
 
 const validateBeforeCreate = async (data) => {
   return await PAYMENT_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -72,6 +63,14 @@ const createNew = async (data) => {
 const findOneById = async (id) => {
   try {
     return await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const findOneByOrderCode = async (orderCode) => {
+  try {
+    return await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOne({ 'payosTransaction.description': { $regex: orderCode.toString(), $options: 'i' } })
   } catch (error) {
     throw new Error(error)
   }
@@ -101,6 +100,18 @@ const updateOneById = async (id, data) => {
     throw new Error(error)
   }
 }
+const updateOneByPaymentId = async (paymentId, data) => {
+  try {
+    const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
+      { 'payosTransaction.transactionId': paymentId },
+      { $set: data },
+      { returnDocument: 'after' }
+    )
+    return result?.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 const deleteOneById = async (id) => {
   try {
@@ -117,7 +128,9 @@ export const paymentModel = {
   validateBeforeCreate,
   createNew,
   findOneById,
+  findOneByOrderCode,
   getAllWithPagination,
   updateOneById,
-  deleteOneById
+  deleteOneById,
+  updateOneByPaymentId
 }

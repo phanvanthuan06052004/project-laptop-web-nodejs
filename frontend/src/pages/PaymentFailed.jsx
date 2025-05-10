@@ -38,14 +38,14 @@ const PaymentFailed = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center mt-8">
-            <Button onClick={() => navigate("/checkout")}>
+            <Button onClick={() => navigate("/cart")}>
               Try Again
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => navigate("/cart")}
+              onClick={() => navigate("/products")}
             >
-              Return to Cart
+              Continue Shopping
             </Button>
           </div>
 

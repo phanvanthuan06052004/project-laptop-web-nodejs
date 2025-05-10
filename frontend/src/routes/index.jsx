@@ -9,13 +9,16 @@ import MainLayout from "~/layout/MainLayout"
 import publicRoutes from "./publicRoutes"
 import privateRoutes from "./privateRoutes"
 
+
 // Lazy load public pages
+const BankTransferInfo = lazy(() => import("~/components/payment/BankTransferInfo"))
 const Home = lazy(() => import("~/pages/Home"))
 const ProductListing = lazy(() => import("~/pages/ProductListing"))
 const ProductDetail = lazy(() => import("~/pages/ProductDetail"))
 const Cart = lazy(() => import("~/pages/Cart"))
 const Checkout = lazy(() => import("~/pages/CheckoutPage/Checkout"))
 const OrderConfirmation = lazy(() => import("~/pages/OrderConfirmation"))
+const OrderList = lazy(() => import("~/pages/Order/OrderList"))
 const Login = lazy(() => import("~/pages/auth/Login"))
 const Register = lazy(() => import("~/pages/auth/Register"))
 const Account = lazy(() => import("~/pages/account/Account"))
@@ -41,7 +44,10 @@ const routeComponents = {
   "/account/*": <Account />,
   "/payment/callback": <PaymentCallback />,
   "/order-confirmation/:orderId": <OrderConfirmation />,
-  "/checkout/payment-failed": <PaymentFailed />
+  "/payment-failed": <PaymentFailed />,
+  // "/payment-success": <PaymentSuccess />,
+  "/account/orders": <OrderList />,
+  "/payment/bank-transfer/:orderId": <BankTransferInfo />
   // "/blog": <Blog />,
   // "/blog/:slug": <BlogPost />,
   // "/categories": <Categories />,
@@ -122,10 +128,11 @@ const AppRoutes = () => {
               ))}
           </Route>
         ))}
-        <Route path="/checkout" element={<Checkout />} />
+        {/* <Route path="/checkout" element={<Checkout />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
         <Route path="/checkout/payment-failed" element={<PaymentFailed />} />
+        <Route path="/account/orders" element={<OrderList />} /> */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

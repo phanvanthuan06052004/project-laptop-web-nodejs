@@ -3,8 +3,8 @@ import { orderService } from '~/services/orderService'
 
 const createNew = async (req, res, next) => {
   try {
-    const { order, qrCode, couponResults } = await orderService.createNewOrder(req.body)
-    res.status(StatusCodes.CREATED).json({ order, qrCode, couponResults })
+    const { order, qrCode, couponResults, payment } = await orderService.createNewOrder(req.body)
+    res.status(StatusCodes.CREATED).json({ order, qrCode, couponResults, payment })
   } catch (error) {
     console.log('Error object:', error) // Debug: Kiểm tra toàn bộ error
     console.log('Error details:', error.details) // Debug: Kiểm tra details

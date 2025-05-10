@@ -3,15 +3,10 @@ import { paymentController } from '~/controllers/paymentController'
 
 const Router = express.Router()
 
-Router.post('/momo-ipn', paymentController.handleMomoIPN)
-Router.get('/momo-return', paymentController.handleMomoReturn)
+// cancel transaction
+Router.post('/cancel-transaction', paymentController.cancelTransaction)
 
-// Public routes
-Router.post('/webhook', paymentController.handlePaymentWebhook)
-Router.get('/momo/ipn', paymentController.handleMomoIPN)
-Router.get('/momo/return', paymentController.handleMomoReturn)
-
-// Protected routes
-Router.get('/status/:orderId', paymentController.checkPaymentStatus)
+// webhook routes
+Router.post('/webhook/payos', paymentController.handlePaymentWebhook)
 
 export const paymentRoute = Router

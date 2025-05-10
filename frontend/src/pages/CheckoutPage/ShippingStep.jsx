@@ -51,24 +51,70 @@ const ShippingStep = ({
           </div>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-                        Email Address *
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-            value={shippingDetails.email}
-            onChange={handleShippingChange}
-            required
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
+                        Email *
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+              value={shippingDetails.email}
+              onChange={handleShippingChange}
+              required
+            /></div>
+          <div>
+            <label htmlFor="ward" className="block text-sm font-medium mb-1">
+                            Ward *
+            </label>
+            <input
+              type="text"
+              id="ward"
+              name="ward"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+              value={shippingDetails.ward}
+              onChange={handleShippingChange}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label htmlFor="district" className="block text-sm font-medium mb-1">
+                            District *
+            </label>
+            <input
+              type="text"
+              id="district"
+              name="district"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+              value={shippingDetails.district}
+              onChange={handleShippingChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="province" className="block text-sm font-medium mb-1">
+                            Province *
+            </label>
+            <input
+              type="text"
+              id="province"
+              name="province"
+              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+              value={shippingDetails.province}
+              onChange={handleShippingChange}
+              required
+            />
+          </div>
         </div>
 
         <div className="mb-4">
           <label htmlFor="address" className="block text-sm font-medium mb-1">
-                        Street Address *
+                        Address *
           </label>
           <input
             type="text"
@@ -79,69 +125,6 @@ const ShippingStep = ({
             onChange={handleShippingChange}
             required
           />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label htmlFor="city" className="block text-sm font-medium mb-1">
-                            City *
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-              value={shippingDetails.city}
-              onChange={handleShippingChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="state" className="block text-sm font-medium mb-1">
-                            State/Province *
-            </label>
-            <input
-              type="text"
-              id="state"
-              name="state"
-              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-              value={shippingDetails.state}
-              onChange={handleShippingChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="zipCode" className="block text-sm font-medium mb-1">
-                            Postal Code *
-            </label>
-            <input
-              type="text"
-              id="zipCode"
-              name="zipCode"
-              className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-              value={shippingDetails.zipCode}
-              onChange={handleShippingChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="country" className="block text-sm font-medium mb-1">
-                        Country *
-          </label>
-          <select
-            id="country"
-            name="country"
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-            value={shippingDetails.country}
-            onChange={handleShippingChange}
-            required
-          >
-            <option value="United States">United States</option>
-            <option value="Canada">Canada</option>
-            <option value="Mexico">Mexico</option>
-          </select>
         </div>
 
         <div className="mb-6">
@@ -159,6 +142,19 @@ const ShippingStep = ({
           />
         </div>
 
+        <div className="mb-6">
+          <label htmlFor="note" className="block text-sm font-medium mb-1">
+                        Note
+          </label>
+          <input
+            type="text"
+            id="note"
+            name="note"
+            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+            value={shippingDetails.notes}
+            onChange={handleShippingChange}
+          />
+        </div>
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-3">Shipping Method</h3>
           <div className="space-y-3">

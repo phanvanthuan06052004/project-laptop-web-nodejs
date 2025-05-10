@@ -4,16 +4,15 @@ import { couponService } from '~/services/couponService/couponService'
 import { couponModel } from '~/models/couponModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
-import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
-import { momoPaymentService } from './paymentService'
 import { payosService } from './payosService'
 import { paymentModel } from '~/models/paymentModel'
 import { env } from '~/config/environment'
+import { method } from 'lodash'
+import { stat } from 'fs'
 
 // Payment method constants - Sync with orderModel and paymentModel
 const PAYMENT_METHODS = {
-  MOMO: 'MOMO',
   COD: 'COD',
   BANK: 'BANK'
 }
@@ -33,6 +32,13 @@ const PAYMENT_PROVIDER_STATUS = {
   FAILED: 'FAILED',
   REFUNDED: 'REFUNDED',
   CANCELLED: 'CANCELLED'
+}
+
+// Hàm tạo mã đơn hàng dạng số
+const generateOrderCode = () => {
+  const timestamp = Date.now()
+  const random = Math.floor(Math.random() * 1000)
+  return parseInt(`${timestamp}${random}`)
 }
 
 const createNewOrder = async (orderData) => {
@@ -201,7 +207,8 @@ const createNewOrder = async (orderData) => {
     // 4. Chuẩn bị dữ liệu đơn hàng
     const newOrderData = {
       ...orderData,
-      orderCode: orderData.orderCode || uuidv4().slice(0, 8).toUpperCase(),
+      status: orderData.paymentMethod === PAYMENT_METHODS.COD ? 'Processing' : 'Pending',
+      orderCode: orderData.orderCode || generateOrderCode(),
       totalAmount,
       couponCodes: appliedCouponCodes,
       paymentStatus: PAYMENT_STATUS.PENDING,
@@ -219,47 +226,14 @@ const createNewOrder = async (orderData) => {
     let paymentRecord = null
 
     switch (orderData.paymentMethod) {
-    case PAYMENT_METHODS.MOMO: {
-      const momoResponse = await momoPaymentService.createPaymentRequest({
-        _id: createdOrder.insertedId.toString(),
-        orderCode: newOrderData.orderCode,
-        totalAmount: newOrderData.totalAmount
-      })
-
-      // Tạo bản ghi thanh toán
-      paymentRecord = await paymentModel.createNew({
-        orderId: createdOrder.insertedId.toString(),
-        provider: PAYMENT_METHODS.MOMO,
-        amount: newOrderData.totalAmount,
-        status: PAYMENT_PROVIDER_STATUS.PENDING,
-        paymentDetails: {
-          partnerCode: momoResponse.partnerCode,
-          orderId: momoResponse.orderId,
-          requestId: momoResponse.requestId,
-          amount: newOrderData.totalAmount,
-          orderInfo: `Thanh toan don hang ${newOrderData.orderCode}`,
-          orderType: 'momo_wallet'
-        }
-      })
-
-      paymentResponse = {
-        paymentUrl: momoResponse.payUrl,
-        paymentId: momoResponse.paymentId,
-        paymentMethod: PAYMENT_METHODS.MOMO
-      }
-      break
-    }
 
     case PAYMENT_METHODS.COD: {
       // Tạo bản ghi thanh toán cho COD
       paymentRecord = await paymentModel.createNew({
         orderId: createdOrder.insertedId.toString(),
-        provider: PAYMENT_METHODS.COD,
+        method: PAYMENT_METHODS.COD,
         amount: newOrderData.totalAmount,
-        status: PAYMENT_PROVIDER_STATUS.PENDING,
-        paymentDetails: {
-          orderInfo: `Thanh toan khi nhan hang - Don hang ${newOrderData.orderCode}`
-        }
+        status: PAYMENT_PROVIDER_STATUS.PROCESSING
       })
 
       paymentResponse = {
@@ -270,32 +244,44 @@ const createNewOrder = async (orderData) => {
     }
 
     case PAYMENT_METHODS.BANK: {
+      // Lấy 8 kí tự đầu tiên của orderCode để làm description (PayOS giới hạn 9 ký tự)
+      const orderCodeStr = String(newOrderData.orderCode)
+      // const shortDescription = orderCodeStr.slice(-5)
       const payosResponse = await payosService.createPaymentRequest({
         orderId: createdOrder.insertedId.toString(),
         orderCode: newOrderData.orderCode,
         amount: newOrderData.totalAmount,
-        description: `Thanh toan don hang ${newOrderData.orderCode}`,
-        returnUrl: `${env.FRONTEND_URL}/payment/result`,
-        cancelUrl: `${env.FRONTEND_URL}/payment/cancel`
+        // amount: 5000,
+        description: `${orderCodeStr}`,
+        returnUrl: `${env.FRONTEND_URL}/order-confirmation`,
+        cancelUrl: `${env.FRONTEND_URL}/payment-failed`
       })
 
       // Tạo bản ghi thanh toán
       paymentRecord = await paymentModel.createNew({
         orderId: createdOrder.insertedId.toString(),
-        provider: PAYMENT_METHODS.BANK,
+        method: PAYMENT_METHODS.BANK,
         amount: newOrderData.totalAmount,
         status: PAYMENT_PROVIDER_STATUS.PENDING,
-        paymentDetails: {
-          orderInfo: `Chuyen khoan ngan hang - Don hang ${newOrderData.orderCode}`,
-          bankAccounts: payosResponse.bankAccounts
+        payosTransaction: {
+          checkoutUrl: payosResponse.data.checkoutUrl,
+          bin: payosResponse.data.bin,
+          accountNumber: payosResponse.data.accountNumber,
+          description: payosResponse.data.description,
+          transactionId: payosResponse.data.paymentLinkId,
+          expiredAt: payosResponse.data.expiredAt,
+          signedData: payosResponse.signature
         }
       })
-
       paymentResponse = {
-        paymentUrl: payosResponse.paymentUrl,
-        paymentId: payosResponse.paymentId,
+        paymentUrl: payosResponse.data.checkoutUrl,
+        paymentLinkId: payosResponse.data.paymentLinkId,
         paymentMethod: PAYMENT_METHODS.BANK,
-        bankAccounts: payosResponse.bankAccounts
+        bankAccounts: payosResponse.data.accountNumber,
+        qrCode: payosResponse.data.qrCode,
+        amount: payosResponse.data.amount,
+        accountName: payosResponse.data.accountName,
+        description: payosResponse.data.description,
       }
       break
     }
@@ -432,20 +418,40 @@ const updatePaymentStatus = async (orderId, paymentStatus, paymentDetails = {}) 
           break
         }
 
-        await paymentModel.updateOneById(order.paymentId, {
+        // Cập nhật payment record theo đúng schema
+        const paymentUpdate = {
           status: providerStatus,
-          paymentDetails: {
-            ...payment.paymentDetails,
-            ...paymentDetails,
-            updatedAt: new Date()
-          },
-          completedAt: paymentStatus === PAYMENT_STATUS.PAID ? new Date() : null
-        })
+          updatedAt: new Date(),
+          completedAt: paymentStatus === PAYMENT_STATUS.PAID ? new Date() : null,
+          payosTransaction: {
+            ...payment.payosTransaction,
+            paymentTime: paymentStatus === PAYMENT_STATUS.PAID ? new Date() : null
+          }
+        }
+
+        await paymentModel.updateOneById(order.paymentId, paymentUpdate)
       }
     }
 
     const updatedOrder = await orderModel.updateOneById(orderId, orderUpdateData)
     return updatedOrder
+  } catch (error) {
+    throw error
+  }
+}
+
+const updatePaymentStatusByOrderCode = async (orderCode, payosResponse) => {
+  try {
+    const order = await orderModel.findOneByOrderCode(orderCode)
+    if (!order) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đơn hàng không tồn tại')
+    }
+
+    await orderModel.updateOneById(order._id, {
+      paymentStatus: PAYMENT_STATUS.FAILED,
+      cancellationReason: payosResponse.cancellationReason,
+      updatedAt: new Date()
+    })
   } catch (error) {
     throw error
   }
@@ -466,6 +472,7 @@ export const orderService = {
   updateOrder,
   deleteOrder,
   updatePaymentStatus,
+  updatePaymentStatusByOrderCode,
   getByUserId,
   PAYMENT_METHODS,
   PAYMENT_STATUS,

@@ -9,7 +9,9 @@ import OrderConfirmation from "~/pages/OrderConfirmation"
 import ProductDetail from "~/pages/ProductDetail"
 import ProductListing from "~/pages/ProductListing"
 import EmailVerification from "~/pages/EmailVerification"
-
+import OrderList from "~/pages/Order/OrderList"
+import BankTransferInfo from "~/components/payment/BankTransferInfo"
+import PaymentFailed from "~/pages/PaymentFailed"
 const publicRoutes = [
   { path: "/", element: <Home /> },
   { path: "/products", element: <ProductListing /> },
@@ -20,6 +22,10 @@ const publicRoutes = [
   { path: "/login", element: <Login />, },
   { path: "/register", element: <Register />, },
   { path: "/account/*", element: <Account /> },
+  { path: "/account/orders", element: <OrderList /> },
+  { path: "/order-confirmation/:orderId", element: <OrderConfirmation /> },
+  { path: "/payment/bank-transfer/:orderId", element: <BankTransferInfo /> },
+  { path: "/payment-failed", element: <PaymentFailed /> },
   // { path: "/blog", element: <Blog /> },
   // { path: "/blog/:slug", element: <BlogPost /> },
   // { path: "/categories", element: <Categories /> },
