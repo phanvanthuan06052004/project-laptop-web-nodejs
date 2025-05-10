@@ -155,7 +155,7 @@ const deleteOneById = async (id) => {
   }
 }
 
-export const commentModel = {
+export const reviewModel = {
   REVIEW_COLLECTION_NAME,
   REVIEW_COLLECTION_SCHEMA,
   createNew,
