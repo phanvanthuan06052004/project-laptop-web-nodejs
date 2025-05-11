@@ -77,7 +77,7 @@ const GENDER_OPTION = {
 const updateUser = async (req, res, next) => {
   const updateSchema = Joi.object({
     displayname: Joi.string().trim().strict(),
-    phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
+    phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE).allow(null),
     gender: Joi.string().valid(
       GENDER_OPTION.MEN,
       GENDER_OPTION.WOMAN,

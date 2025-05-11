@@ -120,7 +120,7 @@ const findOneById = async (id) => {
 }
 
 // Cập nhật thông tin comment
-const updateComment = async (id, data) => {
+const updateReview = async (id, data) => {
   try {
     // Lọc những field không cho phép update
     Object.keys(data).forEach((key) => {
@@ -162,6 +162,6 @@ export const reviewModel = {
   getAllWithPagination,
   countDocuments,
   findOneById,
-  updateComment,
+  updateReview,
   deleteOneById
 }

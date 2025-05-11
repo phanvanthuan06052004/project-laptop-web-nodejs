@@ -29,7 +29,7 @@ Router.use('/upload', uploadRoute)
 // API get user profile, update user profile
 Router.route('/profile')
   .get(authMiddlewares.authentication, userController.getUserProfile)
-  .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUser)
+  .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUserByUserId)
 
 // API to logout
 Router.route('/auth/logout')
