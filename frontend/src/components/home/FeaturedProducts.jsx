@@ -1,11 +1,19 @@
-import { Link } from "react-router-dom"
+import { useGetProductsQuery } from "~/store/apis/productSlice"
 import { ArrowRight } from "lucide-react"
-
-import { getFeaturedProducts } from "~/data/product"
 import ProductCard from "~/components/products/ProductCard"
+import { Link } from "react-router-dom"
 
 const FeaturedProducts = () => {
-  const featuredProducts = getFeaturedProducts()
+  // Lấy 50 sản phẩm đầu tiên (hoặc nhiều hơn nếu muốn)
+  const { data, isLoading } = useGetProductsQuery({ page: 1, limit: 50 })
+  const products = data?.products || []
+
+  // Random 8 sản phẩm
+  const getRandomProducts = (arr, n) => {
+    const shuffled = arr.slice().sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, n)
+  }
+  const featuredProducts = getRandomProducts(products, 8)
 
   return (
     <section className="py-16">
@@ -19,11 +27,15 @@ const FeaturedProducts = () => {
             Xem tất cả <ArrowRight size={16} className="ml-1" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-8">Đang tải...</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

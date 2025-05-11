@@ -18,6 +18,7 @@ import { logOut, selectCurrentUser } from "~/store/slices/authSlice"
 import CartDrawer from "./CartDrawer"
 import ThemeToggle from "~/components/theme/ThemeToggle"
 import { useCountItemCartQuery } from "~/store/apis/cartSlice"
+import Avatar from "~/components/common/Avatar"
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -79,7 +80,12 @@ const Header = () => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="p-2 hover:bg-muted rounded-full">
-                  <User size={20} />
+                  {/* <User size={20} /> */}
+                  <Avatar 
+                    src={userInfo?.avatar}
+                    name={userInfo?.displayname}
+                    size="sm"
+                  />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">

@@ -70,9 +70,6 @@ const Account = () => {
         setAvatarPreview(dataUrl)
         setAvatarFile(file)
         setIsAvatarChanged(true)
-        toast.info("Ảnh đại diện sẽ được cập nhật khi bạn lưu thay đổi", {
-          position: "top-right"
-        })
       }
       reader.onerror = () => {
         toast.error("Không thể đọc file ảnh")
@@ -125,6 +122,7 @@ const Account = () => {
       const updateData = {
         ...formData,
         avatar: avatarUrl,
+        phone: formData.phone === "" ? null : formData.phone,
         dateOfBirth: formData.dateOfBirth === "" ? null : formData.dateOfBirth
       }
       // Unwrap to get data from API
