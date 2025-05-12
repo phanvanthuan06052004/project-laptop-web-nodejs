@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Filter, SlidersHorizontal, ChevronDown, X } from "lucide-react"
+import { useSearchParams } from "react-router-dom"
 
 import { FilterOptions } from "~/components/products/FilterOptions"
 import { ProductsGrid } from "~/components/products/ProductsGrid"
 import { Pagination } from "~/components/ui/Pagination"
 import { usePagination } from "~/hooks/usePagination"
-import { useGetProductsQuery, useLazyGetProductsQuery } from "~/store/apis/productApi"
+import { useGetAllProductsQuery, useLazyGetAllProductsQuery } from "~/store/apis/productSlice"
 import { setPage, setFilters, setSort } from "~/store/slices/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
 import MetaTags from "~/components/seo/MetaTags"
@@ -16,14 +17,17 @@ export default function ProductListing() {
   const [allProducts, setAllProducts] = useState([])
   const filterRef = useRef(null)
 
+  const [searchParams] = useSearchParams()
+  const searchQuery = searchParams.get("search")
+
   const dispatch = useDispatch()
   const { page, filters, sort: sortBy } = useSelector((state) => state.product)
 
   // Lấy danh sách thương hiệu để làm tuỳ chọn lọc
-  const { data: brandsData } = useGetBrandsQuery({ limit: 100 })
+  const { data: brandsData } = useGetBrandsQuery({ limit: 20 })
   console.log("brandsData product listing", brandsData)
   // Lấy toàn bộ sản phẩm để làm dữ liệu lọc (dùng limit lớn)
-  const [fetchAllProducts, { data: allProductsData }] = useLazyGetProductsQuery()
+  const [fetchAllProducts, { data: allProductsData }] = useLazyGetAllProductsQuery()
 
   // Gọi API lấy toàn bộ sản phẩm khi component được mount
   useEffect(() => {
@@ -36,6 +40,22 @@ export default function ProductListing() {
       setAllProducts(allProductsData.products)
     }
   }, [allProductsData])
+
+  useEffect(() => {
+    if (searchQuery) {
+      // Reset any existing filters when coming from search
+      dispatch(
+        setFilters({
+          brands: [],
+          price: [],
+          ram: [],
+          cpu: [],
+          storage: []
+        })
+      )
+      dispatch(setPage(1))
+    }
+  }, [searchQuery, dispatch])
 
   // Xoá tất cả các bộ lọc
   const clearAllFilters = () => {
@@ -105,6 +125,11 @@ export default function ProductListing() {
     // Xây dựng chuỗi tìm kiếm cho các bộ lọc (brand, CPU, RAM, storage)
     const searchTerms = []
 
+    // Thêm từ khóa tìm kiếm từ URL nếu có
+    if (searchQuery) {
+      searchTerms.push(searchQuery)
+    }
+
     // Thêm tên thương hiệu vào searchTerms
     if (filters.brands && filters.brands.length > 0) {
       searchTerms.push(...filters.brands)
@@ -151,7 +176,7 @@ export default function ProductListing() {
   }
 
   const queryParams = buildQueryParams()
-  const { data, isLoading, isFetching, error } = useGetProductsQuery(queryParams)
+  const { data, isLoading, isFetching, error } = useGetAllProductsQuery(queryParams)
 
   // Lọc phía client để chính xác hơn
   const [filteredProducts, setFilteredProducts] = useState([])

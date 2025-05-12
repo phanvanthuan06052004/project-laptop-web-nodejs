@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/Button"
 import {
   useGetProductByIdQuery,
   useUpdateProductMutation
-} from "~/store/apis/productApi"
+} from "~/store/apis/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
 
 const ManagementLaptopDetail = () => {

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import {
   useGetProductsQuery,
   useDeleteProductMutation
-} from "~/store/apis/productApi"
+} from "~/store/apis/productSlice"
 
 const PAGE_SIZE = 5
 

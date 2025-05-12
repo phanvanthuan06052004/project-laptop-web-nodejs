@@ -68,7 +68,7 @@ const Header = () => {
             <Link to="/deals" className="font-medium hover:text-primary">Ưu đãi</Link>
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             <div className="relative">
               <ThemeToggle />
             </div>

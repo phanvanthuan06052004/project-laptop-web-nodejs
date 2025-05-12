@@ -4,23 +4,20 @@ import { useNavigate } from "react-router-dom"
 import { Search, X } from "lucide-react"
 import { toast } from "react-toastify"
 
-import { useLazySearchProductsQuery } from "~/store/apis/productApi"
+import { useLazySearchProductsQuery } from "~/store/apis/productSlice"
 import useDebounce from "~/hooks/useDebounce"
 import { useLazyGetBrandsQuery } from "~/store/apis/brandSlice"
 import { useLazyGetTypesQuery } from "~/store/apis/typeSlice"
 import SearchResults from "./SearchResults"
-import SearchSuggestions from "./SearchSuggestions"
 import { extractBrandName, extractTypeName } from "~/utils/searchUtils"
 
 const SearchBar = ({ onClose }) => {
   const [query, setQuery] = useState("")
-  const [suggestions, setSuggestions] = useState([])
   const [showResults, setShowResults] = useState(false)
   const [searchResults, setSearchResults] = useState([])
   const [isSearching, setIsSearching] = useState(false)
   const [brandMap, setBrandMap] = useState({})
   const [typeMap, setTypeMap] = useState({})
-  const [suggestionToProductMap, setSuggestionToProductMap] = useState({})
 
   const inputRef = useRef(null)
   const searchContainerRef = useRef(null)
@@ -108,7 +105,6 @@ const SearchBar = ({ onClose }) => {
   // Xử lý tìm kiếm khi query thay đổi
   useEffect(() => {
     if (!debouncedQuery.trim()) {
-      setSuggestions([])
       setSearchResults([])
       return
     }
@@ -138,28 +134,13 @@ const SearchBar = ({ onClose }) => {
           }))
 
           setSearchResults(formattedResults)
-
-          // Tạo gợi ý và mapping
-          const newSuggestions = []
-          const newSuggestionMap = {}
-
-          formattedResults.slice(0, 5).forEach((product) => {
-            newSuggestions.push(product.name)
-            newSuggestionMap[product.name] = product.slug
-          })
-
-          setSuggestions(newSuggestions)
-          setSuggestionToProductMap(newSuggestionMap)
         } else {
           setSearchResults([])
-          setSuggestions([])
-          setSuggestionToProductMap({})
         }
       } catch (error) {
         console.error("Search error:", error)
         toast.error("Lỗi khi tìm kiếm sản phẩm")
         setSearchResults([])
-        setSuggestions([])
       } finally {
         setIsSearching(false)
       }
@@ -178,27 +159,8 @@ const SearchBar = ({ onClose }) => {
     }
   }
 
-  const handleSuggestionClick = useCallback(
-    (suggestion) => {
-      if (suggestionToProductMap[suggestion]) {
-        // Chuyển hướng đến URL slug thay vì id
-        navigate(`/product/slug/${suggestionToProductMap[suggestion]}`)
-        onClose()
-      } else {
-        setQuery(suggestion)
-      }
-    },
-    [suggestionToProductMap, navigate, onClose]
-  )
-
   const handleSearch = useCallback(() => {
     if (!query.trim()) return
-
-    if (suggestionToProductMap[query]) {
-      navigate(`/product/slug/${suggestionToProductMap[query]}`)
-      onClose()
-      return
-    }
 
     if (searchResults.length === 0) {
       toast.error(`Không tìm thấy bất kì sản phẩm nào phù hợp với "${query}"`)
@@ -212,7 +174,7 @@ const SearchBar = ({ onClose }) => {
       navigate(`/products?search=${encodeURIComponent(query)}`)
       onClose()
     }
-  }, [query, searchResults, suggestionToProductMap, navigate, onClose])
+  }, [query, searchResults, navigate, onClose])
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -227,7 +189,6 @@ const SearchBar = ({ onClose }) => {
   )
   const handleClearSearch = () => {
     setQuery("")
-    setSuggestions([])
     setSearchResults([])
     inputRef.current?.focus()
   }
@@ -271,10 +232,6 @@ const SearchBar = ({ onClose }) => {
       {/* Search Dropdown */}
       {showResults && query.trim().length > 0 && (
         <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-xl overflow-hidden">
-          {suggestions.length > 0 && (
-            <SearchSuggestions suggestions={suggestions} query={query} onSuggestionClick={handleSuggestionClick} />
-          )}
-
           {searchResults.length > 0 ? (
             <SearchResults results={searchResults} query={query} onResultClick={onClose} />
           ) : (
