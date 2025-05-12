@@ -184,7 +184,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
           <div className="mt-auto border-t">
             <div className="py-4 px-4 space-y-4">
               {isAuthenticated ? (
-                <>
+                <div className="dark:bg-gray-800">
                   <Link
                     to="/account"
                     className="flex items-center space-x-2 py-2"
@@ -217,7 +217,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                     <LogOut size={20} className="mr-2" />
                     <span>Đăng xuất</span>
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <Link

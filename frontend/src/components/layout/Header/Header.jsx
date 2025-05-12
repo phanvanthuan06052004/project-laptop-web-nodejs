@@ -87,7 +87,7 @@ const Header = () => {
                     size="sm"
                   />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 dark:bg-gray-800 dark:hover:text-black cursor-pointer">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{userInfo?.displayname}</p>

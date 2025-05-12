@@ -41,8 +41,8 @@ Router.route('/')
 
 // Get detail, update, and delete user
 Router.route('/:id')
-  .put(userValidation.updateUserByUserId, userController.updateUserByUserId)
-  .get(userValidation.getUserById, userController.getUserById)
+  .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUser)
+  .get(authMiddlewares.authentication, userValidation.getUserById, userController.getUserById)
   .delete(authMiddlewares.authentication, userValidation.deleteAccount, userController.deleteAccount)
 
 export const userRoute = Router
