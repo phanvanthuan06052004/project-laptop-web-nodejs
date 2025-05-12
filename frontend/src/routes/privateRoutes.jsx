@@ -32,7 +32,7 @@ const privateRoutes = [
       { path: "support", element: <CustomerSupport /> },
       { path: "promotions", element: <CouponManagement /> },
       { path: "promotions/create", element: <CreateCoupon /> },
-      { path: "promotions/edit/:id", element: <EditCoupon /> }
+      { path: "promotions/edit/:id", element: <EditCoupon /> },
       { path: "coupons", element: <ManagementCoupon /> },
       { path: "coupons/:id", element: <CouponEdit /> }
     ]
