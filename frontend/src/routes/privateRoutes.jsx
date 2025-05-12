@@ -20,9 +20,9 @@ const privateRoutes = [
       { path: "orders", element: <ManageOrders /> },
       { path: "reviews", element: <ManageReviews /> },
       { path: "reports", element: <SalesReports /> },
-      { path: "support", element: <CustomerSupport /> }
-    ]
-  }
+      { path: "support", element: <CustomerSupport /> },
+    ],
+  },
 ]
 
 export default privateRoutes

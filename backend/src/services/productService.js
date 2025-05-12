@@ -2,6 +2,8 @@ import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { productModel } from '~/models/productModel'
 import slugify from 'slugify'
+import { brandModel } from '~/models/brandModel'
+import { typeModel } from '~/models/typeModel'
 
 /**
  * Lấy danh sách sản phẩm dựa trên các tham số truy vấn.
@@ -11,7 +13,8 @@ import slugify from 'slugify'
  */
 const getAll = async (queryParams) => {
   try {
-    let { page, limit, search, sort, order, brand, minPrice, maxPrice } = queryParams
+    let { page, limit, search, sort, order, brand, minPrice, maxPrice } =
+      queryParams
 
     // Chuyển đổi page và limit sang số nguyên, sử dụng giá trị mặc định nếu không hợp lệ
     page = parseInt(page, 10) || 1
@@ -44,7 +47,12 @@ const getAll = async (queryParams) => {
     sortOptions[sort] = order === 'asc' ? 1 : -1 // Sắp xếp tăng dần hoặc giảm dần
 
     // Lấy dữ liệu sản phẩm từ database
-    const products = await productModel.getAllWithPagination({ filter, sort: sortOptions, skip, limit })
+    const products = await productModel.getAllWithPagination({
+      filter,
+      sort: sortOptions,
+      skip,
+      limit
+    })
 
     // Đếm tổng số sản phẩm phù hợp với bộ lọc
     const totalCount = await productModel.countDocuments(filter)
@@ -82,7 +90,10 @@ const createNew = async (reqBody) => {
     // Kiểm tra xem sản phẩm với slug này đã tồn tại chưa
     const existingProduct = await productModel.findOneByNameSlug(nameSlug)
     if (existingProduct) {
-      throw new ApiError(StatusCodes.CONFLICT, 'Product with this nameSlug already exists')
+      throw new ApiError(
+        StatusCodes.CONFLICT,
+        'Product with this nameSlug already exists'
+      )
     }
 
     // Tạo đối tượng sản phẩm mới
@@ -99,7 +110,10 @@ const createNew = async (reqBody) => {
     // Kiểm tra xem sản phẩm đã được tạo thành công chưa
     const createdProduct = await productModel.findOneById(result.insertedId)
     if (!createdProduct) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to create product')
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to create product'
+      )
     }
     return createdProduct
   } catch (error) {
@@ -153,7 +167,10 @@ const updateProduct = async (id, data) => {
     const updatedProduct = await productModel.updateOneById(id, updatedData)
 
     if (!updatedProduct) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update product')
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to update product'
+      )
     }
     return updatedProduct
   } catch (error) {
@@ -162,11 +179,11 @@ const updateProduct = async (id, data) => {
 }
 
 /**
-  * Xóa một sản phẩm theo ID (thực chất là cập nhật trạng thái xóa).
-  * @param {string} id - ID của sản phẩm cần xóa.
-  * @returns {Promise<Object>} - Kết quả xóa.
-  * @throws {Error} - Nếu không tìm thấy sản phẩm hoặc có lỗi xảy ra trong quá trình xóa.
-  */
+ * Xóa một sản phẩm theo ID (thực chất là cập nhật trạng thái xóa).
+ * @param {string} id - ID của sản phẩm cần xóa.
+ * @returns {Promise<Object>} - Kết quả xóa.
+ * @throws {Error} - Nếu không tìm thấy sản phẩm hoặc có lỗi xảy ra trong quá trình xóa.
+ */
 const deleteProduct = async (id) => {
   try {
     const checkExistProduct = await productModel.findOneById(id)
@@ -216,63 +233,102 @@ const getProductByNameSlug = async (nameSlug) => {
  * @returns {Promise<Object>} - Danh sách sản phẩm và thông tin phân trang.
  * @throws {Error} - Nếu có lỗi xảy ra trong quá trình truy vấn.
  */
+
 const getPageProduct = async (queryParams) => {
   try {
-    let { page, limit, name, minPrice, maxPrice, brand, specs, avgRating } = queryParams
+    let { page, limit, name, minPrice, maxPrice, brand, type, specs, avgRating } = queryParams;
 
-    // Chuyển đổi các tham số tùy chọn sang kiểu số
-    page = parseInt(page, 10) || 1
-    limit = parseInt(limit, 10) || 10
-    minPrice = minPrice !== undefined ? parseFloat(minPrice) : undefined
-    maxPrice = maxPrice !== undefined ? parseFloat(maxPrice) : undefined
-    avgRating = avgRating !== undefined ? parseFloat(avgRating) : undefined
+    // Chuyển đổi các tham số
+    page = parseInt(page, 10) || 1;
+    limit = parseInt(limit, 10) || 10;
+    minPrice = minPrice !== undefined ? parseFloat(minPrice) : undefined;
+    maxPrice = maxPrice !== undefined ? parseFloat(maxPrice) : undefined;
+    avgRating = avgRating !== undefined ? parseFloat(avgRating) : undefined;
 
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
-    const filter = { isDeleted: false, isPublish: true } // Chỉ lấy sản phẩm chưa xóa và đã publish
+    const filter = { isDeleted: false, isPublish: true };
+
     if (name) {
-      filter.name = { $regex: name, $options: 'i' }
+      filter.name = { $regex: name, $options: 'i' };
     }
     if (minPrice !== undefined) {
-      filter.price = { ...filter.price, $gte: minPrice }
+      filter.price = { ...filter.price, $gte: minPrice };
     }
     if (maxPrice !== undefined) {
-      filter.price = { ...filter.price, $lte: maxPrice }
-    }
-    if (brand) {
-      filter.brand = brand
+      filter.price = { ...filter.price, $lte: maxPrice };
     }
 
-    // Xử lý lọc theo specs (thông số kỹ thuật)
+    // Lọc theo brand (dựa trên name)
+    if (brand) {
+      const brandDoc = await brandModel.findOneByName(brand);
+      if (!brandDoc) {
+        return {
+          products: [],
+          pagination: {
+            totalItems: 0,
+            currentPage: page,
+            totalPages: 0,
+            itemsPerPage: limit,
+          },
+          message: `No brand found with name: ${brand}`,
+        };
+      }
+      filter['brand._id'] = brandDoc._id.toString(); // Filter on brand._id
+    }
+
+    // Lọc theo type (dựa trên name)
+    if (type) {
+      const typeDoc = await typeModel.findOneByName(type);
+      if (!typeDoc) {
+        return {
+          products: [],
+          pagination: {
+            totalItems: 0,
+            currentPage: page,
+            totalPages: 0,
+            itemsPerPage: limit,
+          },
+          message: `No type found with name: ${type}`,
+        };
+      }
+      filter['type._id'] = typeDoc._id.toString(); // Filter on type._id
+    }
+
+    // Lọc theo specs
     if (specs && Array.isArray(specs) && specs.length > 0) {
       filter.specs = {
         $elemMatch: {
-          $or: specs.map((spec) => {
-            const specFilters = []
-            if (spec.cpu) specFilters.push({ 'cpu': spec.cpu })
-            if (spec.ram) specFilters.push({ 'ram': spec.ram })
-            if (spec.storage) specFilters.push({ 'storage': spec.storage })
-            if (spec.gpu) specFilters.push({ 'gpu': spec.gpu })
-            if (spec.screen) specFilters.push({ 'screen': spec.screen })
-            return { $or: specFilters }
-          }).filter(orCondition => orCondition.$or.length > 0) // Loại bỏ các $or rỗng
-        }
-      }
+          $or: specs
+            .map((spec) => {
+              const specFilters = [];
+              if (spec.cpu) specFilters.push({ cpu: spec.cpu });
+              if (spec.ram) specFilters.push({ ram: spec.ram });
+              if (spec.storage) specFilters.push({ storage: spec.storage });
+              if (spec.gpu) specFilters.push({ gpu: spec.gpu });
+              if (spec.screen) specFilters.push({ screen: spec.screen });
+              return { $or: specFilters };
+            })
+            .filter((orCondition) => orCondition.$or.length > 0),
+        },
+      };
     }
 
     if (avgRating !== undefined) {
-      filter.avgRating = { $gte: avgRating }
+      filter.avgRating = { $gte: avgRating };
     }
-    // Lấy danh sách sản phẩm từ database
+
+    console.log('Filter:', JSON.stringify(filter, null, 2));
+
     const products = await productModel.getAllWithPagination({
       filter,
-      sort: { createdAt: -1 }, // Sắp xếp theo thời gian tạo mới nhất
+      sort: { createdAt: -1 },
       skip,
-      limit
-    })
+      limit,
+    });
 
-    const totalCount = await productModel.countDocuments(filter)
-    const totalPages = Math.ceil(totalCount / limit)
+    const totalCount = await productModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limit);
 
     return {
       products,
@@ -280,14 +336,16 @@ const getPageProduct = async (queryParams) => {
         totalItems: totalCount,
         currentPage: page,
         totalPages,
-        itemsPerPage: limit
-      }
-    }
+        itemsPerPage: limit,
+      },
+    };
   } catch (error) {
-    throw error
+    console.error('Error in getPageProduct:', error);
+    throw error;
   }
-}
+};
 
+export default getPageProduct;
 export const productService = {
   getAll,
   createNew,

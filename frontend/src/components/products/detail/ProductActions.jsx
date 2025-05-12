@@ -84,7 +84,7 @@ const ProductActions = ({ inStock, product }) => {
         </div>
         <button
           className={`flex-grow flex items-center justify-center py-3 px-4 rounded-md ${inStock ? "bg-primary hover:bg-primary-dark dark:hover:bg-blue-700 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+          }`}
           disabled={!inStock}
           onClick={handleAddToCart}
         >
@@ -102,7 +102,7 @@ const ProductActions = ({ inStock, product }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
           className={`py-3 px-4 rounded-md flex items-center justify-center ${inStock ? "bg-gray-800 hover:bg-gray-900 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+          }`}
           disabled={!inStock}
           onClick={handleBuyNow}
         >
