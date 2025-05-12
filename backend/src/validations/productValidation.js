@@ -165,5 +165,23 @@ export const productValidation = {
     } catch (error) {
       next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
     }
+  },
+
+  getPageProductIdAndName: async (req, res, next) => {
+    const correctCondition = Joi.object({
+      page: Joi.number().integer().min(1).default(1),
+      limit: Joi.number().integer().min(1).max(1000).default(10),
+      name: Joi.string().trim().allow(''),
+      brand: Joi.string().trim().allow(''),
+      type: Joi.string().trim().allow('')
+    })
+
+    try {
+      const validatedValue = await correctCondition.validateAsync(req.query, { abortEarly: false })
+      req.query = validatedValue // Chuẩn hóa dữ liệu
+      next()
+    } catch (error) {
+      next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
+    }
   }
 }

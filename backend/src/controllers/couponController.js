@@ -20,6 +20,15 @@ const getAll = async (req, res, next) => {
   }
 }
 
+const getAllAdmin = async (req, res, next) => {
+  try {
+    const result = await couponService.getAllAdmin(req.query)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const getCouponById = async (req, res, next) => {
   try {
     const result = await couponService.findOneById(req.params.id)
@@ -84,5 +93,6 @@ export const couponController = {
   updateCoupon,
   deleteCoupon,
   applyCoupon,
-  cancelCoupon
+  cancelCoupon,
+  getAllAdmin
 }

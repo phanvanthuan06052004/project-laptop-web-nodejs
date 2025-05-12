@@ -2,6 +2,7 @@
 import express from 'express'
 import { couponController } from '~/controllers/couponController'
 import { couponValidation } from '../../validations/couponValidation'
+import { authMiddlewares } from '~/middlewares/authMiddleware'
 // import { authMiddlewares } from '~/middlewares/authMiddleware'; // Nếu cần bảo vệ route
 
 const Router = express.Router()
@@ -9,6 +10,9 @@ const Router = express.Router()
 // Route to get all coupons with pagination, filtering, and sorting
 Router.route('/')
   .get(couponValidation.getAll, couponController.getAll)
+
+Router.route('/admin')
+  .get(authMiddlewares.authentication, authMiddlewares.authorization, couponValidation.getAll, couponController.getAllAdmin)
 
 // Route to create a new coupon
 Router.route('/')

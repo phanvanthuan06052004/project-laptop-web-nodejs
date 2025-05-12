@@ -236,32 +236,32 @@ const getProductByNameSlug = async (nameSlug) => {
 
 const getPageProduct = async (queryParams) => {
   try {
-    let { page, limit, name, minPrice, maxPrice, brand, type, specs, avgRating } = queryParams;
+    let { page, limit, name, minPrice, maxPrice, brand, type, specs, avgRating } = queryParams
 
     // Chuyển đổi các tham số
-    page = parseInt(page, 10) || 1;
-    limit = parseInt(limit, 10) || 10;
-    minPrice = minPrice !== undefined ? parseFloat(minPrice) : undefined;
-    maxPrice = maxPrice !== undefined ? parseFloat(maxPrice) : undefined;
-    avgRating = avgRating !== undefined ? parseFloat(avgRating) : undefined;
+    page = parseInt(page, 10) || 1
+    limit = parseInt(limit, 10) || 10
+    minPrice = minPrice !== undefined ? parseFloat(minPrice) : undefined
+    maxPrice = maxPrice !== undefined ? parseFloat(maxPrice) : undefined
+    avgRating = avgRating !== undefined ? parseFloat(avgRating) : undefined
 
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit
 
-    const filter = { isDeleted: false, isPublish: true };
+    const filter = { isDeleted: false, isPublish: true }
 
     if (name) {
-      filter.name = { $regex: name, $options: 'i' };
+      filter.name = { $regex: name, $options: 'i' }
     }
     if (minPrice !== undefined) {
-      filter.price = { ...filter.price, $gte: minPrice };
+      filter.price = { ...filter.price, $gte: minPrice }
     }
     if (maxPrice !== undefined) {
-      filter.price = { ...filter.price, $lte: maxPrice };
+      filter.price = { ...filter.price, $lte: maxPrice }
     }
 
     // Lọc theo brand (dựa trên name)
     if (brand) {
-      const brandDoc = await brandModel.findOneByName(brand);
+      const brandDoc = await brandModel.findOneByName(brand)
       if (!brandDoc) {
         return {
           products: [],
@@ -269,17 +269,17 @@ const getPageProduct = async (queryParams) => {
             totalItems: 0,
             currentPage: page,
             totalPages: 0,
-            itemsPerPage: limit,
+            itemsPerPage: limit
           },
-          message: `No brand found with name: ${brand}`,
-        };
+          message: `No brand found with name: ${brand}`
+        }
       }
-      filter['brand._id'] = brandDoc._id.toString(); // Filter on brand._id
+      filter['brand._id'] = brandDoc._id.toString() // Filter on brand._id
     }
 
     // Lọc theo type (dựa trên name)
     if (type) {
-      const typeDoc = await typeModel.findOneByName(type);
+      const typeDoc = await typeModel.findOneByName(type)
       if (!typeDoc) {
         return {
           products: [],
@@ -287,12 +287,12 @@ const getPageProduct = async (queryParams) => {
             totalItems: 0,
             currentPage: page,
             totalPages: 0,
-            itemsPerPage: limit,
+            itemsPerPage: limit
           },
-          message: `No type found with name: ${type}`,
-        };
+          message: `No type found with name: ${type}`
+        }
       }
-      filter['type._id'] = typeDoc._id.toString(); // Filter on type._id
+      filter['type._id'] = typeDoc._id.toString() // Filter on type._id
     }
 
     // Lọc theo specs
@@ -301,34 +301,33 @@ const getPageProduct = async (queryParams) => {
         $elemMatch: {
           $or: specs
             .map((spec) => {
-              const specFilters = [];
-              if (spec.cpu) specFilters.push({ cpu: spec.cpu });
-              if (spec.ram) specFilters.push({ ram: spec.ram });
-              if (spec.storage) specFilters.push({ storage: spec.storage });
-              if (spec.gpu) specFilters.push({ gpu: spec.gpu });
-              if (spec.screen) specFilters.push({ screen: spec.screen });
-              return { $or: specFilters };
+              const specFilters = []
+              if (spec.cpu) specFilters.push({ cpu: spec.cpu })
+              if (spec.ram) specFilters.push({ ram: spec.ram })
+              if (spec.storage) specFilters.push({ storage: spec.storage })
+              if (spec.gpu) specFilters.push({ gpu: spec.gpu })
+              if (spec.screen) specFilters.push({ screen: spec.screen })
+              return { $or: specFilters }
             })
-            .filter((orCondition) => orCondition.$or.length > 0),
-        },
-      };
+            .filter((orCondition) => orCondition.$or.length > 0)
+        }
+      }
     }
 
     if (avgRating !== undefined) {
-      filter.avgRating = { $gte: avgRating };
+      filter.avgRating = { $gte: avgRating }
     }
 
-    console.log('Filter:', JSON.stringify(filter, null, 2));
 
     const products = await productModel.getAllWithPagination({
       filter,
       sort: { createdAt: -1 },
       skip,
-      limit,
-    });
+      limit
+    })
 
-    const totalCount = await productModel.countDocuments(filter);
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalCount = await productModel.countDocuments(filter)
+    const totalPages = Math.ceil(totalCount / limit)
 
     return {
       products,
@@ -336,16 +335,94 @@ const getPageProduct = async (queryParams) => {
         totalItems: totalCount,
         currentPage: page,
         totalPages,
-        itemsPerPage: limit,
-      },
-    };
+        itemsPerPage: limit
+      }
+    }
   } catch (error) {
-    console.error('Error in getPageProduct:', error);
-    throw error;
+    throw error
   }
-};
+}
 
-export default getPageProduct;
+const getPageProductIdAndName = async (queryParams) => {
+  try {
+    let { page, limit, name, brand, type } = queryParams
+
+    // Chuyển đổi các tham số
+    page = parseInt(page, 10) || 1
+    limit = parseInt(limit, 10) || 10
+
+    const skip = (page - 1) * limit
+
+    const filter = { isDeleted: false, isPublish: true }
+
+    if (name) {
+      filter.name = { $regex: name, $options: 'i' }
+    }
+
+    // Lọc theo brand (dựa trên name)
+    if (brand) {
+      const brandDoc = await brandModel.findOneByName(brand)
+      if (!brandDoc) {
+        return {
+          products: [],
+          pagination: {
+            totalItems: 0,
+            currentPage: page,
+            totalPages: 0,
+            itemsPerPage: limit
+          },
+          message: `No brand found with name: ${brand}`
+        }
+      }
+      filter['brand._id'] = brandDoc._id.toString() // Filter on brand._id
+    }
+
+    // Lọc theo type (dựa trên name)
+    if (type) {
+      const typeDoc = await typeModel.findOneByName(type)
+      if (!typeDoc) {
+        return {
+          products: [],
+          pagination: {
+            totalItems: 0,
+            currentPage: page,
+            totalPages: 0,
+            itemsPerPage: limit
+          },
+          message: `No type found with name: ${type}`
+        }
+      }
+      filter['type._id'] = typeDoc._id.toString() // Filter on type._id
+    }
+
+
+    const products = await productModel.getAllWithPagination({
+      filter,
+      sort: { createdAt: -1 },
+      skip,
+      limit,
+      projection: { _id: 1, name: 1 } // Chỉ lấy _id và name
+    })
+
+    const totalCount = await productModel.countDocuments(filter)
+    const totalPages = Math.ceil(totalCount / limit)
+
+    return {
+      products,
+      pagination: {
+        totalItems: totalCount,
+        currentPage: page,
+        totalPages,
+        itemsPerPage: limit
+      }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+
+export default getPageProduct
 export const productService = {
   getAll,
   createNew,
@@ -353,5 +430,6 @@ export const productService = {
   updateProduct,
   deleteProduct,
   getProductByNameSlug,
-  getPageProduct
+  getPageProduct,
+  getPageProductIdAndName
 }

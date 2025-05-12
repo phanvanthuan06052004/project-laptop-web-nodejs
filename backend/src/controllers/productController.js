@@ -64,6 +64,16 @@ const getPageProduct = async (req, res, next) => {
   }
 }
 
+const getPageProductIdAndName = async (req, res, next) => {
+  try {
+    const result = await productService.getPageProductIdAndName(req.query)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 export const productController = {
   getAll,
   createNew,
@@ -71,5 +81,6 @@ export const productController = {
   updateProduct,
   deleteProduct,
   getProductByNameSlug,
-  getPageProduct
+  getPageProduct,
+  getPageProductIdAndName
 }
