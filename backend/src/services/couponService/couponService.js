@@ -36,11 +36,20 @@ export class CouponService {
     return coupon
   }
 
-  async getAllWithPagination({ page = 1, limit = 10, sort = 'createdAt', order = 'desc' }) {
+  async getAllWithPagination({ page = 1, limit = 10, sort = 'createdAt', order = 'desc', search = null }) {
     try {
       const skip = (page - 1) * limit
       const sortOptions = { [sort]: order === 'asc' ? 1 : -1 }
-      const filter = { is_active: true }
+      const filter = {}
+
+      // Thêm điều kiện tìm kiếm nếu có giá trị search
+      if (search) {
+        const searchRegex = { $regex: search, $options: 'i' }
+        filter.$or = [
+          { code: searchRegex },
+          { name: searchRegex }
+        ]
+      }
 
       const [coupons, totalCount] = await Promise.all([
         couponModel.getAllWithPagination({ filter, sort: sortOptions, skip, limit }),
@@ -60,6 +69,41 @@ export class CouponService {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
     }
   }
+
+  async getAllAdmin({ page = 1, limit = 10, sort = 'createdAt', order = 'desc', search = null }) {
+    try {
+      const skip = (page - 1) * limit
+      const sortOptions = { [sort]: order === 'asc' ? 1 : -1 }
+      const filter = {}
+
+      // Thêm điều kiện tìm kiếm nếu có giá trị search
+      if (search) {
+        const searchRegex = { $regex: search, $options: 'i' }
+        filter.$or = [
+          { code: searchRegex },
+          { name: searchRegex }
+        ]
+      }
+
+      const [coupons, totalCount] = await Promise.all([
+        couponModel.getAllWithPagination({ filter, sort: sortOptions, skip, limit }),
+        couponModel.countDocuments(filter)
+      ])
+
+      return {
+        coupons,
+        pagination: {
+          totalItems: totalCount,
+          currentPage: page,
+          totalPages: Math.ceil(totalCount / limit),
+          itemsPerPage: limit
+        }
+      }
+    } catch (error) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+    }
+  }
+
 
   async updateOneById(id, data) {
     try {

@@ -13,6 +13,8 @@ Router.route('/')
 Router.route('/all')
   .get(productValidation.getPageProduct, productController.getPageProduct)
 
+Router.route('/coupons')
+  .get(productValidation.getPageProductIdAndName, productController.getPageProductIdAndName)
 // Route to create a new product
 Router.route('/')
   .post(productValidation.createNew, productController.createNew)

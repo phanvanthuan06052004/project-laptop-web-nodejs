@@ -7,6 +7,9 @@ import ManageOrders from "~/pages/admin/ManageOrders"
 import ManageReviews from "~/pages/admin/ManageReviews"
 import SalesReports from "~/pages/admin/SalesReports"
 import CustomerSupport from "~/pages/admin/CustomerSupport"
+import CouponManagement from "~/pages/admin/ManageCoupon"
+import CreateCoupon from "~/pages/admin/CreateCoupon"
+import EditCoupon from "~/pages/admin/EditCoupon"
 
 const privateRoutes = [
   {
@@ -21,8 +24,11 @@ const privateRoutes = [
       { path: "reviews", element: <ManageReviews /> },
       { path: "reports", element: <SalesReports /> },
       { path: "support", element: <CustomerSupport /> },
-    ],
-  },
+      { path: "promotions", element: <CouponManagement /> },
+      { path: "promotions/create", element: <CreateCoupon /> },
+      { path: "promotions/edit/:id", element: <EditCoupon /> }
+    ]
+  }
 ]
 
 export default privateRoutes

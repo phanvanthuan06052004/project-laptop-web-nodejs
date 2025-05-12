@@ -83,11 +83,11 @@ const createNew = async (data) => {
 }
 
 // Lấy danh sách product với phân trang
-const getAllWithPagination = async ({ filter, sort, skip, limit }) => {
+const getAllWithPagination = async ({ filter, sort, skip, limit, projection }) => {
   try {
     return await GET_DB()
       .collection(PRODUCT_COLLECTION_NAME)
-      .find(filter) // Áp dụng bộ lọc
+      .find(filter, { projection })
       .sort(sort) // Sắp xếp
       .skip(skip) // Bỏ qua số bản ghi
       .limit(limit) // Giới hạn số bản ghi

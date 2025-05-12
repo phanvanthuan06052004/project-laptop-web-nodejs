@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 "use client"
 
 import { useState } from "react"
@@ -8,15 +9,15 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "~/components/ui/Table"
 import { Button } from "~/components/ui/Button"
 import { Input } from "~/components/ui/Input"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
 import {
-  useGetCouponsQuery,
-  useDeleteCouponMutation,
+  useGetAllAdminQuery,
+  useDeleteCouponMutation
 } from "~/store/apis/couponSlice"
 import { Trash2, Edit, AlertCircle } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -26,7 +27,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "~/components/ui/Select"
 
 const CouponManagement = () => {
@@ -38,7 +39,6 @@ const CouponManagement = () => {
   const [limit] = useState(10)
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState("createdAt")
-  const [order, setOrder] = useState("desc")
 
   // Fetch coupons
   const {
@@ -46,13 +46,16 @@ const CouponManagement = () => {
     isLoading,
     isError,
     error,
-    refetch,
-  } = useGetCouponsQuery({
-    filter: { is_active: true, code: { $regex: search, $options: "i" } },
-    sort: { [sort]: order === "desc" ? -1 : 1 },
-    skip: (page - 1) * limit,
+    refetch
+  } = useGetAllAdminQuery({
+    page,
     limit,
+    sort,
+    search
   })
+
+  console.log("couponsData:", couponsData)
+  console.log("error:", error)
 
   // Delete coupon mutation
   const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation()
@@ -62,7 +65,7 @@ const CouponManagement = () => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
       year: "numeric",
       month: "2-digit",
-      day: "2-digit",
+      day: "2-digit"
     })
   }
 
@@ -70,7 +73,7 @@ const CouponManagement = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "VND",
+      currency: "VND"
     }).format(amount)
   }
 
@@ -86,12 +89,21 @@ const CouponManagement = () => {
     }
   }
 
-  // Handle pagination
-  const totalPages = couponsData ? Math.ceil(couponsData.total / limit) : 1
-
   if (!isAdmin) {
     return <div>Bạn không có quyền truy cập trang này.</div>
   }
+
+  // Options for the Sort Select
+  const sortOptions = [
+    { value: "createdAt", label: "Ngày tạo" },
+    { value: "code", label: "Mã coupon" },
+    { value: "name", label: "Tên" },
+    { value: "updatedAt", label: "Ngày cập nhật" }
+  ]
+
+  // Find the label for the currently selected sort value
+  const selectedSortLabel =
+    sortOptions.find((option) => option.value === sort)?.label || "Sắp xếp theo"
 
   return (
     <div className="p-6">
@@ -115,29 +127,20 @@ const CouponManagement = () => {
           <Label htmlFor="sort">Sắp xếp theo</Label>
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger id="sort">
-              <SelectValue placeholder="Sắp xếp theo" />
+              <SelectValue>{selectedSortLabel}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="createdAt">Ngày tạo</SelectItem>
-              <SelectItem value="code">Mã coupon</SelectItem>
-              <SelectItem value="value">Giá trị</SelectItem>
+              {sortOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <Label htmlFor="order">Thứ tự</Label>
-          <Select value={order} onValueChange={setOrder}>
-            <SelectTrigger id="order">
-              <SelectValue placeholder="Thứ tự" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desc">Giảm dần</SelectItem>
-              <SelectItem value="asc">Tăng dần</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button className="mt-6">
-          <Link to="/admin/coupons/create">Tạo Coupon</Link>
+        {/* Removed the "Thứ tự" Select */}
+        <Button className="mt-6" asChild>
+          <Link to="/admin/promotions/create">Tạo Coupon</Link>
         </Button>
       </div>
 
@@ -171,6 +174,7 @@ const CouponManagement = () => {
                     <TableHead>Ngày kết thúc</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Hành động</TableHead>
+                    {/* Removed the "Thứ tự" TableHead */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -211,7 +215,7 @@ const CouponManagement = () => {
                         <TableCell>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm" asChild>
-                              <Link to={`/admin/coupons/edit/${coupon._id}`}>
+                              <Link to={`/admin/promotions/edit/${coupon._id}`}>
                                 <Edit className="h-4 w-4" />
                               </Link>
                             </Button>
@@ -225,6 +229,7 @@ const CouponManagement = () => {
                             </Button>
                           </div>
                         </TableCell>
+                        {/* Removed the TableCell for "Thứ tự" */}
                       </TableRow>
                     ))
                   )}
@@ -235,7 +240,7 @@ const CouponManagement = () => {
               <div className="flex justify-between items-center mt-4">
                 <div>
                   Hiển thị {couponsData?.coupons?.length || 0} /{" "}
-                  {couponsData?.total || 0} coupon
+                  {couponsData?.pagination?.totalItems || 0} coupon
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -245,7 +250,7 @@ const CouponManagement = () => {
                     Trước
                   </Button>
                   <Button
-                    disabled={page >= totalPages}
+                    disabled={page >= couponsData?.pagination?.totalPages}
                     onClick={() => setPage((prev) => prev + 1)}
                   >
                     Sau
