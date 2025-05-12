@@ -143,13 +143,13 @@ const ShippingStep = ({
         </div>
 
         <div className="mb-6">
-          <label htmlFor="note" className="block text-sm font-medium mb-1">
-                        Note
+          <label htmlFor="notes" className="block text-sm font-medium mb-1">
+                        Notes
           </label>
           <input
             type="text"
-            id="note"
-            name="note"
+            id="notes"
+            name="notes"
             className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
             value={shippingDetails.notes}
             onChange={handleShippingChange}

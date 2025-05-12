@@ -146,6 +146,7 @@ const OrderList = () => {
           <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Địa chỉ giao hàng: <span className="font-semibold text-gray-700 dark:text-gray-300">{selectedOrder.shippingAddress.address}, {selectedOrder.shippingAddress.ward}, {selectedOrder.shippingAddress.district}, {selectedOrder.shippingAddress.province}</span></div>
           <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Số điện thoại: <span className="font-semibold text-gray-700 dark:text-gray-300">{selectedOrder.shippingAddress.phone}</span></div>
           <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Email: <span className="font-semibold text-gray-700 dark:text-gray-300">{selectedOrder.shippingAddress.email}</span></div>
+          <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Ghi chú: <span className="font-semibold text-gray-700 dark:text-gray-300">{selectedOrder.shippingAddress.notes ? selectedOrder.shippingAddress.notes : "Không có ghi chú"}</span></div>
           <div className="mt-4 mb-2 font-semibold text-blue-700 dark:text-blue-400">Danh sách sản phẩm</div>
           <div className="max-h-48 overflow-y-auto mb-4">
             {selectedOrder.items.map((item) => (
