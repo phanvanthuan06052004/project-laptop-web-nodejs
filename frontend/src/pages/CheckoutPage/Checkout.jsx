@@ -8,24 +8,29 @@ import ShippingStep from "./ShippingStep"
 import PaymentStep from "./PaymentStep"
 import ReviewStep from "./ReviewStep"
 import { useCreateOrderMutation } from "~/store/apis/orderSlice"
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
 import { useDeleteCartMutation } from "~/store/apis/cartSlice"
 import { useApplyCouponMutation } from "~/store/apis/couponSlice"
+import { selectCartItems, clearCart, removeItem } from "~/store/slices/cartSlice"
 
 const Checkout = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const location = useLocation()
   const currentUser = useSelector(selectCurrentUser)
   const [createOrder] = useCreateOrderMutation()
   const [deleteCart] = useDeleteCartMutation()
   const [applyCoupon] = useApplyCouponMutation()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const {
-    cartItems = [],
-    subtotal = 0,
-    shipping = 30000,
-    total = 0
-  } = location.state || {}
+
+  // Lấy cartItems từ location state (khi chuyển từ Cart.jsx)
+  const locationCartItems = location.state?.cartItems || []
+  // Lấy cartItems từ Redux store (khi chọn Buy Now từ ProductActions.jsx)
+  const reduxCartItems = useSelector(selectCartItems)
+
+  // Sử dụng cartItems từ location state nếu có, nếu không thì dùng từ Redux store
+  const cartItems = locationCartItems.length > 0 ? locationCartItems : reduxCartItems
+
   const [currentStep, setCurrentStep] = useState("shipping")
   const [shippingDetails, setShippingDetails] = useState({
     firstName: "",
@@ -46,9 +51,14 @@ const Checkout = () => {
   })
   const [shippingMethod, setShippingMethod] = useState("standard")
   const [paymentMethod, setPaymentMethod] = useState("COD")
-  const [shippingCost, setShippingCost] = useState(shipping)
+  const [shippingCost, setShippingCost] = useState(30000)
   const [couponCode, setCouponCode] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState(location.state?.appliedCoupon || null)
+
+  // Tính toán subtotal từ cartItems
+  const subtotal = cartItems.reduce((total, item) => {
+    return total + (item.price * item.quantity)
+  }, 0)
 
   // Chỉ cập nhật shipping cost khi thay đổi shipping method
   const updateShippingCost = (method) => {
@@ -86,7 +96,7 @@ const Checkout = () => {
   }
 
   // Calculate final total including new shipping cost
-  const finalTotal = (total ) + shippingCost - (appliedCoupon?.discount || 0)
+  const finalTotal = subtotal + shippingCost - (appliedCoupon?.discount || 0)
 
   // Handlers
   const handleShippingSubmit = (e) => {
@@ -113,25 +123,49 @@ const Checkout = () => {
   }
 
   const handleBankPayment = async () => {
-    console.log("bank submit total amount", finalTotal)
     try {
-      const response = await createOrder({
-        userId: currentUser._id,
-        shippingAddress: shippingDetails,
-        paymentMethod,
-        items: cartItems,
-        totalAmount: finalTotal,
-        shippingCost: shippingCost,
-        shippingMethod: shippingMethod,
-        couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
-      }).unwrap()
-      console.log("payos response", response)
-      await deleteCart(currentUser._id).unwrap()
+      let response = null
+      if (locationCartItems.length > 0) {
+        // Luồng từ Cart.jsx
+        response = await createOrder({
+          userId: currentUser._id,
+          shippingAddress: shippingDetails,
+          paymentMethod,
+          items: cartItems,
+          totalAmount: finalTotal,
+          shippingCost: shippingCost,
+          shippingMethod: shippingMethod,
+          couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
+        }).unwrap()
+        await deleteCart(currentUser._id).unwrap()
+      } else if (reduxCartItems.length > 0) {
+        // Luồng Buy Now
+        const items = reduxCartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          productName: item.name,
+          avatar: item.image
+        }))
+        response = await createOrder({
+          userId: currentUser._id,
+          shippingAddress: shippingDetails,
+          paymentMethod,
+          items,
+          totalAmount: finalTotal,
+          shippingCost: shippingCost,
+          shippingMethod: shippingMethod,
+          couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
+        }).unwrap()
+        dispatch(clearCart())
+      }
       // Nếu có paymentUrl từ PayOS, chuyển hướng người dùng đến trang thanh toán
-      if (response.payment) {
+      if (response?.payment) {
         navigate(`/payment/bank-transfer/${response.order.insertedId}`, { state: { paymentInfo: response.payment } })
+      } else if (response) {
+        navigate(`/order-confirmation/${response.order.insertedId}`)
       } else {
-        toast.error("Failed to create bank payment")
+        toast.error("Không thể tạo đơn hàng")
       }
     } catch (err) {
       console.log(err)
@@ -141,29 +175,56 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      console.log("cart item: ", cartItems)
-      // 1. Tạo order
-      const response = await createOrder({
-        userId: currentUser._id,
-        shippingAddress: shippingDetails,
-        paymentMethod,
-        items: cartItems,
-        totalAmount: finalTotal,
-        shippingCost: shippingCost,
-        shippingMethod: shippingMethod,
-        couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
-      }).unwrap()
-
-      // 1.1 Xóa cart
-      await deleteCart(currentUser._id).unwrap()
-      // 2. Xử lý theo payment method
-      navigate(`/order-confirmation/${response.order.insertedId}`)
+      let response = null
+      if (locationCartItems.length > 0) {
+        // Luồng từ Cart.jsx
+        response = await createOrder({
+          userId: currentUser._id,
+          shippingAddress: shippingDetails,
+          paymentMethod,
+          items: cartItems,
+          totalAmount: finalTotal,
+          shippingCost: shippingCost,
+          shippingMethod: shippingMethod,
+          couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
+        }).unwrap()
+        await deleteCart(currentUser._id).unwrap()
+      } else if (reduxCartItems.length > 0) {
+        // Luồng Buy Now
+        const items = reduxCartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          productName: item.name,
+          avatar: item.image
+        }))
+        response = await createOrder({
+          userId: currentUser._id,
+          shippingAddress: shippingDetails,
+          paymentMethod,
+          items,
+          totalAmount: finalTotal,
+          shippingCost: shippingCost,
+          shippingMethod: shippingMethod,
+          couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
+        }).unwrap()
+        dispatch(clearCart())
+      }
+      if (response) {
+        navigate(`/order-confirmation/${response.order.insertedId}`)
+      } else {
+        toast.error("Không thể tạo đơn hàng")
+      }
     } catch (err) {
       console.log(err)
       toast.error("Failed to place order")
     }
   }
 
+  // Hàm xóa item khỏi Redux cart
+  const handleRemoveItem = (id) => {
+    dispatch(removeItem(id))
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -257,7 +318,7 @@ const Checkout = () => {
                 <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
                 <div className="mb-4">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between py-2 border-b">
+                    <div key={item.id || item._id} className="flex justify-between py-2 border-b items-center">
                       <div className="flex items-center">
                         <span className="w-5 h-5 inline-flex items-center justify-center text-xl mr-2">
                           {item.quantity}
@@ -265,11 +326,23 @@ const Checkout = () => {
                         <span className="w-5 h-5 inline-flex items-center justify-center text-xs mr-2">
                           x
                         </span>
-                        <span className="text-sm">{item.name}</span>
+                        <span className="text-sm">{item.name || item.productName}</span>
                       </div>
-                      <span className="text-sm font-medium">
-                        ₫{(item.price * item.quantity).toLocaleString("vi-VN")}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">
+                          ₫{(item.price * item.quantity).toLocaleString("vi-VN")}
+                        </span>
+                        {/* Nút xóa chỉ hiển thị khi vào từ Buy Now (reduxCartItems) */}
+                        {locationCartItems.length === 0 && (
+                          <button
+                            className="ml-2 text-red-500 hover:text-red-700 font-bold text-lg"
+                            title="Xóa sản phẩm"
+                            onClick={() => handleRemoveItem(item.id || item._id)}
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
