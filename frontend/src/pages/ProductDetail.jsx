@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom"
 import { ChevronRight, CircleCheck, Loader2 } from "lucide-react"
 
-import { useGetProductBySlugQuery } from "~/store/apis/productSlice"
+import { useGetProductBySlugQuery } from "~/store/apis/productApi"
 import ProductImages from "~/components/products/detail/ProductImages"
 import ProductHeader from "~/components/products/detail/ProductHeader"
 import ProductPrice from "~/components/products/detail/ProductPrice"

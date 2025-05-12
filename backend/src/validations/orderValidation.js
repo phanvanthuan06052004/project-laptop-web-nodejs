@@ -102,7 +102,7 @@ export const orderValidation = {
     const getAllSchema = Joi.object({
       page: Joi.number().integer().min(1).default(1),
       limit: Joi.number().integer().min(1).max(1000).default(10),
-      sort: Joi.string().valid('orderDate', 'totalAmount').default('orderDate'),
+      sort: Joi.string().valid('createdAt', 'updatedAt').default('createdAt'),
       order: Joi.string().valid('asc', 'desc').default('desc'),
       userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(''),
       status: Joi.string().valid('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded').allow(''),
