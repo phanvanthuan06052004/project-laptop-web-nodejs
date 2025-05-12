@@ -78,7 +78,7 @@ const originalController = {
     proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] },
     async handler(req, res, next) {
       try {
-        const result = await userService.updateUser(req.userId, req.body)
+        const result = await userService.updateUser(req.params.id, req.body)
         res.status(StatusCodes.OK).json(result)
       } catch (error) {
         next(error)

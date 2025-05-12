@@ -10,6 +10,8 @@ import CustomerSupport from "~/pages/admin/CustomerSupport"
 import ManagementCoupon from "~/pages/admin/ManagementCoupon"
 import CouponEdit from "~/pages/admin/CouponEdit"
 import ManagementLaptopDetail from "~/pages/admin/ManagementLaptopDetail"
+import ManagementStaffDetail from "~/pages/admin/ManagementStaffDetail"
+
 const privateRoutes = [
   {
     path: "/admin",
@@ -20,6 +22,7 @@ const privateRoutes = [
       { path: "products/:id", element: <ManagementLaptopDetail /> },
       { path: "customers", element: <ManageCustomers /> },
       { path: "staff", element: <ManageStaff /> },
+      { path: "staff/:id", element: <ManagementStaffDetail /> },
       { path: "orders", element: <ManageOrders /> },
       { path: "reviews", element: <ManageReviews /> },
       { path: "reports", element: <SalesReports /> },
