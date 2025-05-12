@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { Search, X } from "lucide-react"
 import { toast } from "react-toastify"
 
-import { useLazySearchProductsQuery } from "~/store/apis/productSlice"
+import { useLazySearchProductsQuery } from "~/store/apis/productApi"
 import useDebounce from "~/hooks/useDebounce"
 import { useLazyGetBrandsQuery } from "~/store/apis/brandSlice"
 import { useLazyGetTypesQuery } from "~/store/apis/typeSlice"

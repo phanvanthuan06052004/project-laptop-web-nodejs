@@ -29,7 +29,7 @@ const originalController = {
   },
 
   refreshToken: {
-    proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] }, // Authenticated users
+    proxyConfig: { allowedRoles: [] }, // Authenticated users
     async handler(req, res) {
       try {
         const newAccessToken = await userService.refreshToken(req.cookies['refreshToken'])

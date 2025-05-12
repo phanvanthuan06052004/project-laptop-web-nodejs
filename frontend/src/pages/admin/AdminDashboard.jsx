@@ -25,7 +25,7 @@ const AdminDashboard = () => {
     page: 1,
     limit: 5,
     sort: "createdAt",
-    order: "desc",
+    order: "desc"
   })
 
   // State for dashboard stats
