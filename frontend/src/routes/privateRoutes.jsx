@@ -10,6 +10,10 @@ import CustomerSupport from "~/pages/admin/CustomerSupport"
 import CouponManagement from "~/pages/admin/ManageCoupon"
 import CreateCoupon from "~/pages/admin/CreateCoupon"
 import EditCoupon from "~/pages/admin/EditCoupon"
+import ManagementCoupon from "~/pages/admin/ManagementCoupon"
+import CouponEdit from "~/pages/admin/CouponEdit"
+import ManagementLaptopDetail from "~/pages/admin/ManagementLaptopDetail"
+import ManagementStaffDetail from "~/pages/admin/ManagementStaffDetail"
 
 const privateRoutes = [
   {
@@ -17,9 +21,11 @@ const privateRoutes = [
     element: <AdminLayout />,
     children: [
       { path: "", element: <AdminDashboard /> },
-      { path: "laptops", element: <ManageLaptops /> },
+      { path: "products", element: <ManageLaptops /> },
+      { path: "products/:id", element: <ManagementLaptopDetail /> },
       { path: "customers", element: <ManageCustomers /> },
       { path: "staff", element: <ManageStaff /> },
+      { path: "staff/:id", element: <ManagementStaffDetail /> },
       { path: "orders", element: <ManageOrders /> },
       { path: "reviews", element: <ManageReviews /> },
       { path: "reports", element: <SalesReports /> },
@@ -27,6 +33,8 @@ const privateRoutes = [
       { path: "promotions", element: <CouponManagement /> },
       { path: "promotions/create", element: <CreateCoupon /> },
       { path: "promotions/edit/:id", element: <EditCoupon /> }
+      { path: "coupons", element: <ManagementCoupon /> },
+      { path: "coupons/:id", element: <CouponEdit /> }
     ]
   }
 ]

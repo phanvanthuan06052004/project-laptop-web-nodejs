@@ -167,20 +167,20 @@ const Register = () => {
               </Button>
             </form>
           </div>
-          <div className="text-center text-sm">
+          <div className="text-center text-sm mb-3">
             <p className="text-sm text-muted-foreground">
               <span>Bạn đã có tài khoản ư? </span>
               <Link to="/login" className="text-primary hover:underline">Đăng nhập ngay</Link>
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3 p-6">
+          {/* <div className="grid grid-cols-2 gap-3 p-6">
             <Button variant="outline" type="button" className="w-full">
               <Facebook size={16} className="mr-2" /> Facebook
             </Button>
             <Button variant="outline" type="button" className="w-full">
               <Mail size={16} className="mr-2" /> Google
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

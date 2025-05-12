@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
+import Avatar from "../common/Avatar"
 
 const AdminSidebar = () => {
   const location = useLocation()
@@ -77,6 +78,17 @@ const AdminSidebar = () => {
       adminOnly: true,
     },
     {
+      title: "Nhân viên",
+      icon: Users,
+      path: "/admin/staff",
+      adminOnly: true,
+    },
+    {
+      title: "Đánh giá",
+      icon: FileText,
+      path: "/admin/reviews"
+    },
+    {
       title: "Nội dung",
       icon: FileText,
       group: "content",
@@ -109,7 +121,7 @@ const AdminSidebar = () => {
       icon: Tag,
       path: "/admin/coupons",
       adminOnly: true,
-    },
+    }
   ]
 
   // Check if a path is active
@@ -128,10 +140,10 @@ const AdminSidebar = () => {
       <div className="p-4">
         <div className="mb-6">
           <div className="flex items-center space-x-2 mb-2">
-            <img
-              src={user?.avatar || "/placeholder.svg?height=40&width=40"}
-              alt="Profile"
-              className="w-10 h-10 rounded-full"
+            <Avatar
+              src={user?.avatar}
+              name={user?.displayname}
+              size="md"
             />
             <div>
               <p className="font-medium">{user?.displayname || "Admin User"}</p>

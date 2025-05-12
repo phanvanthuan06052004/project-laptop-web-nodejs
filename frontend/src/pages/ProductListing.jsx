@@ -6,7 +6,7 @@ import { FilterOptions } from "~/components/products/FilterOptions"
 import { ProductsGrid } from "~/components/products/ProductsGrid"
 import { Pagination } from "~/components/ui/Pagination"
 import { usePagination } from "~/hooks/usePagination"
-import { useGetProductsQuery, useLazyGetProductsQuery } from "~/store/apis/productSlice"
+import { useGetProductsQuery, useLazyGetProductsQuery } from "~/store/apis/productApi"
 import { setPage, setFilters, setSort } from "~/store/slices/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
 import MetaTags from "~/components/seo/MetaTags"
@@ -21,7 +21,7 @@ export default function ProductListing() {
 
   // Lấy danh sách thương hiệu để làm tuỳ chọn lọc
   const { data: brandsData } = useGetBrandsQuery({ limit: 100 })
-
+  console.log("brandsData product listing", brandsData)
   // Lấy toàn bộ sản phẩm để làm dữ liệu lọc (dùng limit lớn)
   const [fetchAllProducts, { data: allProductsData }] = useLazyGetProductsQuery()
 
