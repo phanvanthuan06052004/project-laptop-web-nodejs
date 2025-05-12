@@ -15,6 +15,7 @@ const Comment = ({ comment, depth = 0, productId, currentUser }) => {
   const [editForm, setEditForm] = useState({ content: "", isOpen: false })
   const [showReplies, setShowReplies] = useState(false)
 
+
   const isOwnComment = currentUser?._id === comment.userId.toString()
   const hasReplies = (comment.comment_right - comment.comment_left) > 1 || showReplies
   const { data: repliesData = { comments: [] }, isLoading: isLoadingReplies } = useGetCommentsByParentIdQuery(
@@ -114,7 +115,7 @@ const Comment = ({ comment, depth = 0, productId, currentUser }) => {
             <span className="font-medium text-gray-900 dark:text-gray-100">
               {comment.username}
             </span>
-            {isOwnComment && (
+            {isOwnComment && currentUser?.role === "admin" && (
               <div className="flex space-x-2">
                 <button
                   onClick={toggleEditForm}

@@ -7,13 +7,22 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 const PRODUCT_COLLECTION_NAME = 'Product'
 const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   _id: Joi.object({}).keys({
-    _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required()
+    _id: Joi.string()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE)
+      .required()
   }),
   name: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(), // Tên hiển thị
-  type: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(), // Tham chiếu đến collection Type bằng _id
+  type: Joi.string()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE)
+    .required(), // Tham chiếu đến collection Type bằng _id
   nameSlug: Joi.string().required().trim().strict(),
-  brand: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(), // Tham chiếu đến collection Brand bằng _id
+  brand: Joi.string()
+    .pattern(OBJECT_ID_RULE)
+    .message(OBJECT_ID_RULE_MESSAGE)
+    .required(), // Tham chiếu đến collection Brand bằng _id
   description: Joi.string().required().trim().strict(),
   purchasePrice: Joi.number().min(0).default(0), // Giá nhập
   discount: Joi.number().min(0).max(100).default(0), // Giảm giá
@@ -21,24 +30,26 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   quantity: Joi.number().min(0).default(0),
   mainImg: Joi.string().trim().strict().allow(''), // Đường dẫn ảnh chính
   images: Joi.array().items(Joi.string()).default([]),
-  attributeGroup: Joi.array().items(
-    Joi.object({
-      name: Joi.string().trim().strict(),
-      values: Joi.string().trim().strict()
-    }).default({})
-  ).default([]),
-  specs: Joi.array().items(
-    Joi.object({
-      cpu: Joi.string().trim().strict(),
-      ram: Joi.string().trim().strict(),
-      storage: Joi.string().trim().strict(),
-      gpu: Joi.string().trim().strict(),
-      screen: Joi.string().trim().strict()
-    }).default({})
-  ).default([]),
-  options: Joi.array().items(
-    Joi.object({}).default({})
-  ).default([]),
+  attributeGroup: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().trim().strict(),
+        values: Joi.string().trim().strict()
+      }).default({})
+    )
+    .default([]),
+  specs: Joi.array()
+    .items(
+      Joi.object({
+        cpu: Joi.string().trim().strict(),
+        ram: Joi.string().trim().strict(),
+        storage: Joi.string().trim().strict(),
+        gpu: Joi.string().trim().strict(),
+        screen: Joi.string().trim().strict()
+      }).default({})
+    )
+    .default([]),
+  options: Joi.array().items(Joi.object({}).default({})).default([]),
   avgRating: Joi.number().min(0).max(5).default(0),
   numberRating: Joi.number().min(0).default(0),
   isPublish: Joi.boolean().default(false),
@@ -72,7 +83,7 @@ const createNew = async (data) => {
 }
 
 // Lấy danh sách product với phân trang
-const getAllWithPagination = async ({ filter, sort, skip, limit, projection = {} }) => {
+const getAllWithPagination = async ({ filter, sort, skip, limit }) => {
   try {
     return await GET_DB()
       .collection(PRODUCT_COLLECTION_NAME)
@@ -80,7 +91,6 @@ const getAllWithPagination = async ({ filter, sort, skip, limit, projection = {}
       .sort(sort) // Sắp xếp
       .skip(skip) // Bỏ qua số bản ghi
       .limit(limit) // Giới hạn số bản ghi
-      .project(projection) // Sử dụng projection
       .toArray()
   } catch (error) {
     throw new Error(error)
@@ -138,7 +148,7 @@ const updateOneById = async (id, data) => {
         { $set: data },
         { returnDocument: 'after' } // Trả về kết quả mới sau khi update
       )
-    return result// Trả về product đã được cập nhật
+    return result // Trả về product đã được cập nhật
   } catch (error) {
     throw new Error(error)
   }
@@ -149,7 +159,10 @@ const deleteOneById = async (id) => {
   try {
     const result = await GET_DB()
       .collection(PRODUCT_COLLECTION_NAME)
-      .updateOne({ _id: new ObjectId(id) }, { $set: { isDeleted: true, isPublish: false, updatedAt: Date.now() } })
+      .updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isDeleted: true, isPublish: false, updatedAt: Date.now() } }
+      )
     return result
   } catch (error) {
     throw new Error(error)
