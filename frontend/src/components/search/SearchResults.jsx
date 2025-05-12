@@ -3,9 +3,9 @@ import { Link } from "react-router-dom"
 import { highlightMatch } from "~/utils/searchUtils"
 
 const SearchResults = ({ results, query, onResultClick }) => {
-
-  const limitedResults = useMemo(() => results.slice(0, 3), [results])
-  const hasMoreResults = useMemo(() => results.length > 3, [results])
+  // Limit to 4 results as requested
+  const limitedResults = useMemo(() => results.slice(0, 4), [results])
+  const hasMoreResults = useMemo(() => results.length > 4, [results])
 
   return (
     <div className="bg-white dark:bg-gray-800">
@@ -13,7 +13,7 @@ const SearchResults = ({ results, query, onResultClick }) => {
         <span>Sản phẩm</span>
         <span className="text-xs text-gray-500">{results.length} kết quả</span>
       </div>
-      <div className="max-h-[40vh] sm:max-h-[50vh] overflow-y-auto" style={{ WebkitOverflowScrolling: "touch" }}>
+      <div className="max-h-[65vh] sm:max-h-[70vh] overflow-y-auto" style={{ WebkitOverflowScrolling: "touch" }}>
         {limitedResults.map((product) => (
           <Link
             to={`/product/slug/${product.slug}`}
@@ -56,6 +56,7 @@ const SearchResults = ({ results, query, onResultClick }) => {
               to={`/products?search=${encodeURIComponent(query)}`}
               className="text-sm text-primary hover:underline"
               onClick={onResultClick}
+              state={{ fromSearch: true }}
             >
               Xem tất cả {results.length} kết quả
             </Link>

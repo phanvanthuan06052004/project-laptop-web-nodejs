@@ -1,4 +1,4 @@
-import { useGetProductsQuery } from "~/store/apis/productApi"
+import { useGetProductsQuery } from "~/store/apis/productSlice"
 import { ArrowRight } from "lucide-react"
 import ProductCard from "~/components/products/ProductCard"
 import { Link } from "react-router-dom"
