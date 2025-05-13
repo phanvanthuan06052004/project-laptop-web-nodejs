@@ -184,7 +184,7 @@ const EditCoupon = () => {
         end_day: new Date(formData.end_day).getTime()
       }
       await updateCoupon({ id, data: payload }).unwrap()
-      toast.success("Cập nhật coupon thành công!")
+      toast.success("Cập nhật thành công!")
       navigate("/admin/promotions")
     } catch (err) {
       toast.error(

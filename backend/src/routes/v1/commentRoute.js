@@ -8,7 +8,7 @@ const Router = express.Router()
 Router.route('/')
   .post(authMiddlewares.authentication, commentValidation.createNew, commentController.createNew)
   .get(commentValidation.getCommentByParentId, commentController.getCommentsByParentId)
-  .delete(commentValidation.deleteNestedById, commentController.deleteNesstedById)
+  .delete(commentValidation.deleteNestedById, commentController.deleteNestedById)
 
 
 Router.route('/:id')

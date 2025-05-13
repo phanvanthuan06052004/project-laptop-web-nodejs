@@ -1,20 +1,17 @@
 /* eslint-disable no-console */
 import React, { useState } from "react"
-import { Loader2, Send, X, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react"
+import { Loader2, Send, X, Trash2, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { toast } from "react-toastify"
 import {
   useGetCommentsByParentIdQuery,
   useCreateCommentMutation,
-  useUpdateCommentMutation,
   useDeleteCommentMutation
 } from "~/store/apis/commentSlice"
 
 const Comment = ({ comment, depth = 0, productId, currentUser }) => {
   const [replyForm, setReplyForm] = useState({ content: "", isOpen: false })
-  const [editForm, setEditForm] = useState({ content: "", isOpen: false })
   const [showReplies, setShowReplies] = useState(false)
-
 
   const isOwnComment = currentUser?._id === comment.userId.toString()
   const hasReplies = (comment.comment_right - comment.comment_left) > 1 || showReplies
@@ -24,7 +21,6 @@ const Comment = ({ comment, depth = 0, productId, currentUser }) => {
   )
 
   const [createComment, { isLoading: isCreating }] = useCreateCommentMutation()
-  const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation()
   const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation()
 
   const toggleReplyForm = () => {
@@ -60,34 +56,6 @@ const Comment = ({ comment, depth = 0, productId, currentUser }) => {
     }
   }
 
-  const toggleEditForm = () => {
-    setEditForm((prev) => ({
-      content: prev.isOpen ? "" : comment.content,
-      isOpen: !prev.isOpen
-    }))
-  }
-
-  const handleEditChange = (e) => {
-    setEditForm((prev) => ({ ...prev, content: e.target.value }))
-  }
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault()
-    if (!editForm.content.trim()) {
-      toast.error("Bình luận không được để trống.")
-      return
-    }
-
-    try {
-      await updateComment({ id: comment._id, content: editForm.content }).unwrap()
-      toast.success("Bình luận đã được cập nhật!")
-      setEditForm({ content: "", isOpen: false })
-    } catch (err) {
-      console.error("Failed to update comment:", err)
-      toast.error("Không thể cập nhật bình luận. Vui lòng thử lại.")
-    }
-  }
-
   const handleDeleteComment = async () => {
     try {
       await deleteComment({ productId: productId, commentId: comment._id }).unwrap()
@@ -116,14 +84,7 @@ const Comment = ({ comment, depth = 0, productId, currentUser }) => {
               {comment.username}
             </span>
             {isOwnComment && currentUser?.role === "admin" && (
-              <div className="flex space-x-2">
-                <button
-                  onClick={toggleEditForm}
-                  className="text-sm text-primary hover:underline"
-                >
-                  <Edit className="w-4 h-4 inline mr-1" />
-                  {editForm.isOpen ? "Hủy" : "Sửa"}
-                </button>
+              <div>
                 <button
                   onClick={handleDeleteComment}
                   className="text-sm text-red-500 hover:underline"
@@ -135,37 +96,7 @@ const Comment = ({ comment, depth = 0, productId, currentUser }) => {
               </div>
             )}
           </div>
-          {editForm.isOpen ? (
-            <form onSubmit={handleEditSubmit} className="mt-3">
-              <textarea
-                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-200"
-                rows="3"
-                value={editForm.content}
-                onChange={handleEditChange}
-                disabled={isUpdating}
-              />
-              <div className="mt-2 flex space-x-2">
-                <Button type="submit" size="sm" disabled={isUpdating}>
-                  {isUpdating ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-1" />
-                  )}
-                  Cập nhật
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleEditForm}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <p className="mt-1 text-gray-700 dark:text-gray-300">{comment.content}</p>
-          )}
+          <p className="mt-1 text-gray-700 dark:text-gray-300">{comment.content}</p>
           <button
             onClick={toggleReplyForm}
             className="mt-2 text-sm text-primary hover:underline"

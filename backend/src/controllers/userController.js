@@ -146,12 +146,24 @@ const originalController = {
     }
   },
 
+  confirmCode: {
+    proxyConfig: { allowedRoles: [] }, // Public access
+    async handler(req, res, next) {
+      try {
+        const result = await userService.confirmCode(req.body.email, req.body.code)
+        res.status(StatusCodes.OK).json(result)
+      } catch (error) {
+        next(error)
+      }
+    }
+  },
+
   resetPassword: {
     proxyConfig: { allowedRoles: [] }, // Public access
     async handler(req, res, next) {
       try {
-        const { email, code, newPassword } = req.body
-        const result = await userService.resetPassword(email, code, newPassword)
+        const { email, newPassword } = req.body
+        const result = await userService.resetPassword(email, newPassword)
         res.status(StatusCodes.OK).json(result)
       } catch (error) {
         next(error)

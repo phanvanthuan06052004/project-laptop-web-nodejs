@@ -14,6 +14,30 @@ export class CouponService {
       if (existingCoupon) {
         throw new ApiError(StatusCodes.CONFLICT, 'Coupon code already exists')
       }
+      const todayStart = new Date().setHours(0, 0, 0, 0) // Start of today
+      if (!Number.isInteger(data.start_day)) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'start_day must be a valid integer timestamp.')
+      } else if (data.start_day < todayStart) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'start_day must not be earlier than today.')
+      }
+      if (!Number.isInteger(data.end_day)) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'end_day must be a valid timestamp.')
+      }
+      if (data.end_day <= data.start_day) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'end_day must be after start_day.')
+      }
+      const value = parseFloat(data.value)
+      const maxValue = parseFloat(data.max_value)
+      const minValue = parseFloat(data.min_value)
+      if (!isNaN(maxValue) && maxValue < 0) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'max_value must be a non-negative number.')
+      }
+      if (!isNaN(minValue) && minValue < 0) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'min_value must be a non-negative number.')
+      }
+      if (data.type === 'AMOUNT' && minValue < value) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'min_value must be greater than or equal to value for AMOUNT type.')
+      }
       return await couponModel.createNew(data)
     } catch (error) {
       throw new ApiError(StatusCodes.BAD_REQUEST, error.message)

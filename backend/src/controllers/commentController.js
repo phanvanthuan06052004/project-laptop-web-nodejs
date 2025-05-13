@@ -42,7 +42,7 @@ const deleteComment = async (req, res, next) => {
   }
 }
 
-const deleteNesstedById = async (req, res, next) => {
+const deleteNestedById = async (req, res, next) => {
   try {
     const result = await commentService.deleteNestedById(req.query.productId, req.query.commentId)
     res.status(StatusCodes.OK).json(result)
@@ -57,5 +57,5 @@ export const commentController = {
   updateComment,
   getCommentsByParentId,
   deleteComment,
-  deleteNesstedById
+  deleteNestedById
 }
