@@ -34,7 +34,7 @@ const Cart = () => {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Failed to update quantity:", err)
-      toast.error("Failed to update quantity. Please try again.")
+      toast.error("Sản phẩm không đủ hàng")
     }
   }
 

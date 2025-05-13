@@ -34,8 +34,9 @@ const baseQuery = fetchBaseQuery({
 
 const baseQueryWithAuth = async (args, api, extraOptions) => {
   try {
+    console.log("Args:", args)
     let result = await baseQuery(args, api, extraOptions)
-
+    console.log("Result:", result)
     if (result?.error?.status === 401) {
       const { token, userInfo } = api.getState().auth
       const isLoggedIn = token && userInfo
