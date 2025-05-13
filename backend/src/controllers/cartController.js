@@ -12,6 +12,7 @@ const getAll = async (req, res, next) => {
 
 const getByUserId = async (req, res, next) => {
   try {
+    //console.log(req.params.userId)
     const result = await cartService.getByUserId(req.params.userId)
     res.status(StatusCodes.OK).json(result)
   } catch (error) {

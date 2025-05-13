@@ -26,7 +26,6 @@ const authentication = (async (req, res, next) => {
     }
     req.userId = decodedUser?.id
     req.userRole = decodedUser?.role
-
     return next()
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

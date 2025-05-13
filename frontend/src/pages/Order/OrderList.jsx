@@ -41,6 +41,7 @@ const OrderList = () => {
     skip: !user?._id
   })
 
+
   // useMemo luôn được gọi, không phụ thuộc vào điều kiện
   const filteredOrders = useMemo(() => {
     if (!ordersData) return []
@@ -61,69 +62,171 @@ const OrderList = () => {
 
   // Badge trạng thái thanh toán
   const PaymentStatusBadge = ({ status }) => (
-    <span className={`inline-block px-3 py-1 rounded-full border text-xs font-semibold ${PAYMENT_STATUS_COLORS[status] || "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"}`}>
-      {status === "Paid" ? "Đã thanh toán" : status === "Pending" ? "Chờ thanh toán" : "Thất bại"}
+    <span className={`inline-block px-3 py-1 rounded-full border text-xs font-semibold ${STATUS_COLORS[status] || "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"}`}>
+      {STATUS_TABS.find(t => t.key === status)?.label || status}
     </span>
   )
 
   // Card đơn hàng
-  const OrderCard = ({ order }) => (
+  const OrderCard = ({ order }) => {
+  const renderActionButtons = () => {
+    switch (order.status) {
+      case "Pending":
+      case "Processing":
+        return (
+          <>
+            <button
+              className="px-4 py-1 rounded border border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+              onClick={() => setModalVisible(true) || setSelectedOrder(order)}
+            >
+              Xem chi tiết
+            </button>
+            <button
+              className="px-4 py-1 rounded border border-red-500 dark:border-red-400 text-red-600 dark:text-red-400 font-semibold hover:bg-red-50 dark:hover:bg-red-900/30 transition"
+              onClick={() => {
+                // Replace with your Cancel Laptop useCase logic
+                console.log("Trigger Cancel Laptop useCase for order:", order.orderCode);
+              }}
+            >
+              Hủy đơn
+            </button>
+          </>
+        );
+      case "Shipped":
+        return (
+          <button
+            className="px-4 py-1 rounded border border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+            onClick={() => setModalVisible(true) || setSelectedOrder(order)}
+          >
+            Xem chi tiết
+          </button>
+        );
+      case "Delivered":
+        return (
+          <>
+            <button
+              className="px-4 py-1 rounded border border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+              onClick={() => setModalVisible(true) || setSelectedOrder(order)}
+            >
+              Xem chi tiết
+            </button>
+            <button
+              className="px-4 py-1 rounded border border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 font-semibold hover:bg-green-50 dark:hover:bg-green-900/30 transition"
+            >
+              Đánh giá
+            </button>
+            <button
+              className="px-4 py-1 rounded border border-orange-500 dark:border-orange-400 text-orange-600 dark:text-orange-400 font-semibold hover:bg-orange-50 dark:hover:bg-orange-900/30 transition"
+              onClick={() => {
+                // Replace with your Return Laptop useCase logic
+                console.log("Trigger Return Laptop useCase for order:", order.orderCode);
+              }}
+            >
+              Yêu cầu hoàn tiền
+            </button>
+            <button
+              className="px-4 py-1 rounded border border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+              onClick={() => {
+                // Replace with logic to "Mua lại" (e.g., redirect to product page or add to cart)
+                console.log("Trigger Mua lại for order:", order.orderCode);
+              }}
+            >
+              Mua lại
+            </button>
+          </>
+        );
+      case "Cancelled":
+        return (
+          <>
+            <button
+              className="px-4 py-1 rounded border border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+              onClick={() => setModalVisible(true) || setSelectedOrder(order)}
+            >
+              Xem chi tiết
+            </button>
+            <button
+              className="px-4 py-1 rounded border border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+              onClick={() => {
+                // Replace with logic to "Mua lại"
+                console.log("Trigger Mua lại for order:", order.orderCode);
+              }}
+            >
+              Mua lại
+            </button>
+          </>
+        );
+      case "Refunded":
+        return (
+          <button
+            className="px-4 py-1 rounded border border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+            onClick={() => setModalVisible(true) || setSelectedOrder(order)}
+          >
+            Xem chi tiết
+          </button>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 mb-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b dark:border-gray-700">
         <div className="flex flex-col md:flex-row md:items-center gap-2">
           <StatusBadge status={order.paymentMethod} />
-          <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{dayjs(order.createdAt).format("DD/MM/YYYY HH:mm")}</span>
-          <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">Mã đơn: <span className="font-semibold text-gray-700 dark:text-gray-300">{order.orderCode}</span></span>
+          <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+            {dayjs(order.createdAt).format("DD/MM/YYYY HH:mm")}
+          </span>
+          <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+            Mã đơn:{" "}
+            <span className="font-semibold text-gray-700 dark:text-gray-300">
+              {order.orderCode}
+            </span>
+          </span>
         </div>
         <div className="flex flex-col md:flex-row md:items-center gap-2 mt-2 md:mt-0">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Tổng tiền:</span>
-          <span className="font-bold text-lg text-blue-700 dark:text-blue-400">{formatPrice(order.totalAmount)}</span>
-          <PaymentStatusBadge status={order.paymentStatus} />
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            Tổng tiền:
+          </span>
+          <span className="font-bold text-lg text-blue-700 dark:text-blue-400">
+            {formatPrice(order.totalAmount)}
+          </span>
+          <PaymentStatusBadge status={order.status} />
         </div>
       </div>
       <div className="px-6 py-4">
         {order.items.map((item) => (
-          <div key={item.productId} className="flex items-center gap-4 py-2 border-b dark:border-gray-700 last:border-b-0">
+          <div
+            key={item.productId}
+            className="flex items-center gap-4 py-2 border-b dark:border-gray-700 last:border-b-0"
+          >
             <img
               src={item.avatar || "/laptop-default.png"}
               alt={item.productName}
               className="w-16 h-16 object-cover rounded border dark:border-gray-700"
             />
             <div className="flex-1">
-              <div className="font-medium text-gray-800 dark:text-gray-200">{item.productName}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Số lượng: {item.quantity}</div>
+              <div className="font-medium text-gray-800 dark:text-gray-200">
+                {item.productName}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Số lượng: {item.quantity}
+              </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-700 dark:text-gray-300">{formatPrice(item.price)}</div>
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                {formatPrice(item.price)}
+              </div>
             </div>
           </div>
         ))}
       </div>
       <div className="flex flex-wrap gap-2 justify-end px-6 py-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
-        <button
-          className="px-4 py-1 rounded border border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
-          onClick={() => setModalVisible(true) || setSelectedOrder(order)}
-        >
-          Xem chi tiết
-        </button>
-        <button
-          className="px-4 py-1 rounded border border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 font-semibold hover:bg-green-50 dark:hover:bg-green-900/30 transition"
-        >
-          Đánh giá
-        </button>
-        <button
-          className="px-4 py-1 rounded border border-orange-500 dark:border-orange-400 text-orange-600 dark:text-orange-400 font-semibold hover:bg-orange-50 dark:hover:bg-orange-900/30 transition"
-        >
-          Yêu cầu hoàn tiền
-        </button>
-        <button
-          className="px-4 py-1 rounded border border-red-500 dark:border-red-400 text-red-600 dark:text-red-400 font-semibold hover:bg-red-50 dark:hover:bg-red-900/30 transition"
-        >
-          Hủy đơn
-        </button>
+        {renderActionButtons()}
       </div>
     </div>
-  )
+  );
+};
 
   // Modal chi tiết đơn hàng
   const OrderDetailModal = () => {

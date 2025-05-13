@@ -33,18 +33,16 @@ const getByUserId = async (userId) => {
     if (!cart) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
     }
-
     // Lấy các sản phẩm trong giỏ hàng
     const cartItems = await cartItemModel.getByCartId(cart._id.toString())
-
     // Lấy thông tin chi tiết sản phẩm và thương hiệu cho mỗi sản phẩm trong giỏ hàng
     const enrichedItems = await Promise.all(
       cartItems.map(async (item) => {
         const product = await productModel.findOneById(item.laptopId)
         let brand = null
-
         if (product?.brand) {
           brand = await brandModel.findOneById(product.brand._id) // Giả sử bạn có một brandModel
+          console.log(brand)
         }
         return {
           ...item,
@@ -58,7 +56,7 @@ const getByUserId = async (userId) => {
               price: product.price,
               discount: product.discount,
               purchasePrice: product.purchasePrice,
-              brand: brand.name,
+              brand: brand?.name,
               stock : product.quantity
             }
             : null // Xử lý trường hợp không tìm thấy sản phẩm
@@ -75,6 +73,7 @@ const getByUserId = async (userId) => {
       totalQuantity += item.quantity
       totalPrice += item.quantity * item.product.price // Sử dụng product.price
     })
+
 
     // Trả về giỏ hàng với các sản phẩm đã được làm phong phú, tổng số lượng và tổng giá
     return {

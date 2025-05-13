@@ -14,7 +14,6 @@ class DatabaseSingleton {
         deprecationErrors: true
       }
     })
-    
     this.dbInstance = null
     DatabaseSingleton.instance = this
   }
