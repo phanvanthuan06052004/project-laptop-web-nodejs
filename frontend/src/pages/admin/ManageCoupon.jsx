@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "~/components/ui/Select"
+import { toast } from "react-toastify"
 
 const CouponManagement = () => {
   const user = useSelector(selectCurrentUser)
@@ -82,6 +83,7 @@ const CouponManagement = () => {
     if (window.confirm("Bạn có chắc muốn xóa coupon này?")) {
       try {
         await deleteCoupon(id).unwrap()
+        toast.info("Xoá thành công")
         refetch()
       } catch (err) {
         console.error("Failed to delete coupon:", err)

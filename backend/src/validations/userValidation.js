@@ -200,13 +200,29 @@ const forgotPassword = async (req, res, next) => {
   }
 }
 
+const confirmCode = async (req, res, next) => {
+  const schema = Joi.object({
+    email: Joi.string()
+      .required()
+      .pattern(EMAIL_RULE)
+      .message(EMAIL_RULE_MESSAGE),
+    code: Joi.string().required()
+  })
+
+  try {
+    await schema.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
+  }
+}
+
 const resetPassword = async (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string()
       .required()
       .pattern(EMAIL_RULE)
       .message(EMAIL_RULE_MESSAGE),
-    code: Joi.string().required(),
     newPassword: Joi.string()
       .required()
       .pattern(PASSWORD_RULE)
@@ -231,5 +247,6 @@ export const userValidation = {
   signIn,
   refreshToken,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  confirmCode
 }

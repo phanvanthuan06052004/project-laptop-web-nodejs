@@ -7,7 +7,8 @@ import { toast } from "react-toastify"
 
 import {
   useForgotPasswordMutation,
-  useResetPasswordMutation
+  useResetPasswordMutation,
+  useConfirmCodeMutation // Add the confirmCode mutation hook
 } from "~/store/apis/authSlice.js"
 
 const ForgotPassword = () => {
@@ -24,6 +25,7 @@ const ForgotPassword = () => {
   const navigate = useNavigate()
   const [forgotPassword] = useForgotPasswordMutation()
   const [resetPassword] = useResetPasswordMutation()
+  const [confirmCode] = useConfirmCodeMutation() // Initialize confirmCode mutation
 
   useEffect(() => {
     let timer
@@ -71,8 +73,20 @@ const ForgotPassword = () => {
         setIsLoading(false)
         return
       }
-      setStage("reset") // Chuyển sang giai đoạn nhập mật khẩu mới sau khi nhập mã
-      setIsLoading(false)
+
+      try {
+        // Call the confirmCode API to validate the code
+        await confirmCode({ email, code }).unwrap()
+        toast.success("Mã xác nhận hợp lệ.")
+        setStage("reset") // Move to reset stage only if code is valid
+      } catch (err) {
+        setError(err?.data?.message || "Mã xác nhận không hợp lệ. Vui lòng thử lại.")
+        console.error("Confirm code error:", err)
+        setIsLoading(false)
+        return
+      } finally {
+        setIsLoading(false)
+      }
       return
     }
 
@@ -90,7 +104,7 @@ const ForgotPassword = () => {
       }
 
       try {
-        await resetPassword({ email, code, newPassword }).unwrap()
+        await resetPassword({ email, newPassword }).unwrap()
         toast.success("Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập.")
         navigate("/login")
       } catch (err) {
@@ -157,7 +171,7 @@ const ForgotPassword = () => {
                   {isLoading ? (
                     <div className="flex items-center">
                       <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                                            Đang xử lý...
+                      Đang xử lý...
                     </div>
                   ) : (
                     <span>Gửi mã xác nhận</span>
@@ -165,7 +179,7 @@ const ForgotPassword = () => {
                 </Button>
                 <div className="text-center pt-2 text-sm">
                   <Button variant="link" onClick={() => navigate("/login")}>
-                                        Quay lại đăng nhập
+                    Quay lại đăng nhập
                   </Button>
                 </div>
               </form>
@@ -221,7 +235,7 @@ const ForgotPassword = () => {
                   {isLoading ? (
                     <div className="flex items-center">
                       <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                                            Đang xử lý...
+                      Đang xử lý...
                     </div>
                   ) : (
                     <span>{stage === "code" ? "Tiếp tục" : "Đặt lại mật khẩu"}</span>
@@ -236,7 +250,7 @@ const ForgotPassword = () => {
                       variant="link"
                       className={`${resendCooldown > 0 || isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                                            Gửi lại mã {resendCooldown > 0 ? `(${resendCooldown}s)` : ""}
+                      Gửi lại mã {resendCooldown > 0 ? `(${resendCooldown}s)` : ""}
                     </Button>
                   </div>
                 )}

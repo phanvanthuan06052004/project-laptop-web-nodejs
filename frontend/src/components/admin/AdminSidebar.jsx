@@ -13,7 +13,7 @@ import {
   ChevronDown,
   ChevronRight,
   BarChart3,
-  Tag,
+  Tag
 } from "lucide-react"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
@@ -29,13 +29,13 @@ const AdminSidebar = () => {
     products: false,
     orders: false,
     users: false,
-    content: false,
+    content: false
   })
 
   const toggleGroup = (group) => {
     setExpandedGroups((prev) => ({
       ...prev,
-      [group]: !prev[group],
+      [group]: !prev[group]
     }))
   }
 
@@ -45,7 +45,7 @@ const AdminSidebar = () => {
       title: "Dashboard",
       icon: LayoutDashboard,
       path: "/admin",
-      exact: true,
+      exact: true
     },
     {
       title: "Sản phẩm",
@@ -56,8 +56,8 @@ const AdminSidebar = () => {
         { title: "Thêm sản phẩm", path: "/admin/products/new" },
         { title: "Danh mục", path: "/admin/categories" },
         { title: "Thương hiệu", path: "/admin/brands" },
-        { title: "Thuộc tính", path: "/admin/attributes" },
-      ],
+        { title: "Thuộc tính", path: "/admin/attributes" }
+      ]
     },
     {
       title: "Đơn hàng",
@@ -68,20 +68,20 @@ const AdminSidebar = () => {
         { title: "Đơn hàng mới", path: "/admin/orders/new" },
         { title: "Đang xử lý", path: "/admin/orders/processing" },
         { title: "Đã hoàn thành", path: "/admin/orders/completed" },
-        { title: "Đã hủy", path: "/admin/orders/cancelled" },
-      ],
+        { title: "Đã hủy", path: "/admin/orders/cancelled" }
+      ]
     },
     {
       title: "Khách hàng",
       icon: Users,
       path: "/admin/customers",
-      adminOnly: true,
+      adminOnly: true
     },
     {
       title: "Nhân viên",
       icon: Users,
       path: "/admin/staff",
-      adminOnly: true,
+      adminOnly: true
     },
     {
       title: "Đánh giá",
@@ -96,31 +96,31 @@ const AdminSidebar = () => {
         { title: "Bài viết", path: "/admin/blog" },
         { title: "Trang", path: "/admin/pages" },
         { title: "Banner", path: "/admin/banners" },
-        { title: "Khuyến mãi", path: "/admin/promotions" },
-      ],
+        { title: "Khuyến mãi", path: "/admin/promotions" }
+      ]
     },
     {
       title: "Báo cáo",
       icon: BarChart3,
       path: "/admin/reports",
-      adminOnly: true,
+      adminOnly: true
     },
     {
       title: "Hỗ trợ",
       icon: MessageSquare,
-      path: "/admin/support",
+      path: "/admin/support"
     },
     {
       title: "Cài đặt",
       icon: Settings,
       path: "/admin/settings",
-      adminOnly: true,
+      adminOnly: true
     },
     {
       title: "Mã giảm giá",
       icon: Tag,
-      path: "/admin/coupons",
-      adminOnly: true,
+      path: "/admin/promotions",
+      adminOnly: true
     }
   ]
 

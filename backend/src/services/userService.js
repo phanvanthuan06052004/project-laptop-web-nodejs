@@ -70,7 +70,7 @@ const createNew = async (reqBody) => {
 
     const getNewUser = await userModel.findOneById(result.insertedId)
     const userId = result.insertedId.toString()
-    await cartModel.createNew( userId )
+    await cartModel.createNew(userId)
     await mailService.sendVerificationEmail(reqBody.email)
     delete getNewUser.password
     return getNewUser
@@ -224,16 +224,14 @@ const forgotPassword = async (email) => {
   }
 }
 
-
-const resetPassword = async (email, code, newPassword) => {
+const confirmCode = async (email, code) => {
   try {
     const user = await userModel.findOneByEmail(email)
     if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Email not found!!')
     }
-
-    if (!user.account?.resetPasswordToken || user.account.resetPasswordToken !== code) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid reset code')
+    if (user?.account?.resetPasswordToken !== code) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Incorrect verification code')
     }
 
     const isCodeExpired = new Date() > user.account.resetPasswordExpires
@@ -245,11 +243,31 @@ const resetPassword = async (email, code, newPassword) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Reset code has expired')
     }
 
-    const hashedPassword = bcryptjs.hashSync(newPassword, 8)
     await userModel.updateUser(user._id, {
-      'account.password': hashedPassword,
       'account.resetPasswordToken': null,
       'account.resetPasswordExpires': null
+    })
+
+    return {
+      success: true,
+      message: 'Confirm Code successfully'
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+
+const resetPassword = async (email, newPassword) => {
+  try {
+    const user = await userModel.findOneByEmail(email)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    }
+
+    const hashedPassword = bcryptjs.hashSync(newPassword, 8)
+    await userModel.updateUser(user._id, {
+      'account.password': hashedPassword
     })
 
     return {
@@ -261,8 +279,6 @@ const resetPassword = async (email, code, newPassword) => {
   }
 }
 
-
-
 // Export thêm function mới
 export const userService = {
   getAll,
@@ -273,5 +289,6 @@ export const userService = {
   signIn,
   refreshToken,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  confirmCode
 }

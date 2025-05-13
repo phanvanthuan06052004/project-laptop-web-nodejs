@@ -21,6 +21,9 @@ Router.route('/auth/refresh-token')
 Router.route('/auth/forgot-password')
   .post(userValidation.forgotPassword, userController.forgotPassword)
 
+Router.route('/auth/confirm-code')
+  .post(userValidation.confirmCode, userController.confirmCode)
+
 Router.route('/auth/reset-password')
   .post(userValidation.resetPassword, userController.resetPassword)
 
