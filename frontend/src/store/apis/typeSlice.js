@@ -22,6 +22,19 @@ export const typeSlice = apiSlice.injectEndpoints({
           : [{ type: "Types", id: "LIST" }]
     }),
 
+    getAllType: builder.query({
+      query: () => {
+        return `${BASE_URL}/type`
+      },
+      providesTags: (result) =>
+        result
+          ? [
+            ...result.types.map(({ _id }) => ({ type: "Types", id: _id })),
+            { type: "Types", id: "LIST" }
+          ]
+          : [{ type: "Types", id: "LIST" }]
+    }),
+
     getTypeById: builder.query({
       query: (typeId) => `${BASE_URL}/type/${typeId}`,
       providesTags: (result, error, id) => [{ type: "Types", id }]
@@ -67,5 +80,6 @@ export const {
   useGetTypeByIdQuery,
   useCreateTypeMutation,
   useUpdateTypeMutation,
-  useDeleteTypeMutation
+  useDeleteTypeMutation,
+  useGetAllTypeQuery
 } = typeSlice

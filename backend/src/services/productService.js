@@ -107,15 +107,8 @@ const createNew = async (reqBody) => {
     }
     // Gọi model để thêm mới sản phẩm vào database
     const result = await productModel.createNew(newProduct)
-    // Kiểm tra xem sản phẩm đã được tạo thành công chưa
-    const createdProduct = await productModel.findOneById(result.insertedId)
-    if (!createdProduct) {
-      throw new ApiError(
-        StatusCodes.INTERNAL_SERVER_ERROR,
-        'Failed to create product'
-      )
-    }
-    return createdProduct
+
+    return result
   } catch (error) {
     // Xử lý lỗi bằng cách ném lại để controller xử lý
     throw error

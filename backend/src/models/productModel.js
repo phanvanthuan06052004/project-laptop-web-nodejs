@@ -12,40 +12,40 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
       .message(OBJECT_ID_RULE_MESSAGE)
       .required()
   }),
-  name: Joi.string().required().trim().strict(),
-  displayName: Joi.string().required().trim().strict(), // Tên hiển thị
+  name: Joi.string().required(),
+  displayName: Joi.string().required(), // Tên hiển thị
   type: Joi.string()
     .pattern(OBJECT_ID_RULE)
     .message(OBJECT_ID_RULE_MESSAGE)
     .required(), // Tham chiếu đến collection Type bằng _id
-  nameSlug: Joi.string().required().trim().strict(),
+  nameSlug: Joi.string().required(),
   brand: Joi.string()
     .pattern(OBJECT_ID_RULE)
     .message(OBJECT_ID_RULE_MESSAGE)
     .required(), // Tham chiếu đến collection Brand bằng _id
-  description: Joi.string().required().trim().strict(),
+  description: Joi.string().required(),
   purchasePrice: Joi.number().min(0).default(0), // Giá nhập
   discount: Joi.number().min(0).max(100).default(0), // Giảm giá
   price: Joi.number().min(0).default(0), // Giá bán
   quantity: Joi.number().min(0).default(0),
-  mainImg: Joi.string().trim().strict().allow(''), // Đường dẫn ảnh chính
+  mainImg: Joi.string().allow(''), // Đường dẫn ảnh chính
   images: Joi.array().items(Joi.string()).default([]),
   attributeGroup: Joi.array()
     .items(
       Joi.object({
-        name: Joi.string().trim().strict(),
-        values: Joi.string().trim().strict()
+        name: Joi.string(),
+        values: Joi.string()
       }).default({})
     )
     .default([]),
   specs: Joi.array()
     .items(
       Joi.object({
-        cpu: Joi.string().trim().strict(),
-        ram: Joi.string().trim().strict(),
-        storage: Joi.string().trim().strict(),
-        gpu: Joi.string().trim().strict(),
-        screen: Joi.string().trim().strict()
+        cpu: Joi.string(),
+        ram: Joi.string(),
+        storage: Joi.string(),
+        gpu: Joi.string().default(null),
+        screen: Joi.string().default(null)
       }).default({})
     )
     .default([]),
