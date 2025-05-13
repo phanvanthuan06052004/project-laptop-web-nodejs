@@ -36,7 +36,7 @@ const ProductActions = ({ inStock, product }) => {
         // )
         toast.success("Đã thêm vào giỏ hàng!")
       } else {
-        toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại!")
+        toast.error("Sản phẩm không đủ hàng")
       }
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error)
