@@ -14,6 +14,7 @@ import ManagementCoupon from "~/pages/admin/ManagementCoupon"
 import CouponEdit from "~/pages/admin/CouponEdit"
 import ManagementLaptopDetail from "~/pages/admin/ManagementLaptopDetail"
 import ManagementStaffDetail from "~/pages/admin/ManagementStaffDetail"
+import ManagementLaptopCreate from "~/pages/admin/ManagementLaptopCreate"
 
 const privateRoutes = [
   {
@@ -23,6 +24,7 @@ const privateRoutes = [
       { path: "", element: <AdminDashboard /> },
       { path: "products", element: <ManageLaptops /> },
       { path: "products/:id", element: <ManagementLaptopDetail /> },
+      { path: "laptops/new", element: <ManagementLaptopCreate /> },
       { path: "customers", element: <ManageCustomers /> },
       { path: "staff", element: <ManageStaff /> },
       { path: "staff/:id", element: <ManagementStaffDetail /> },

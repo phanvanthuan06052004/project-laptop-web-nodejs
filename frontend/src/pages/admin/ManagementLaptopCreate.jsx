@@ -1,23 +1,18 @@
 "use client"
 
-import { useNavigate, useParams } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 import { Button } from "~/components/ui/Button"
-import {
-  useGetProductByIdQuery,
-  useUpdateProductMutation
-} from "~/store/apis/productSlice"
+import { useCreateProductMutation } from "~/store/apis/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
 import { useGetAllTypeQuery } from "~/store/apis/typeSlice"
 
-const ManagementLaptopDetail = () => {
+const ManageLaptopCreate = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
-  const { data, isLoading, isError, error } = useGetProductByIdQuery(id)
   const { data: brandsData } = useGetBrandsQuery({ limit: 100 })
   const { data: typeData } = useGetAllTypeQuery()
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation()
 
-  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation()
   const [form, setForm] = useState({
     name: "",
     displayName: "",
@@ -35,45 +30,9 @@ const ManagementLaptopDetail = () => {
     options: [],
     isPublish: true
   })
-  const [originalSpecs, setOriginalSpecs] = useState([])
   const [message, setMessage] = useState("")
   const [newImage, setNewImage] = useState("")
 
-  useEffect(() => {
-    if (data && brandsData && brandsData.brands && typeData) {
-      const brand = brandsData.brands.find(
-        (b) => b._id === (data.brand._id || data.brand)
-      )
-      const typeId = data.type?._id || data.type || ""
-      const specs = data.specs && data.specs.length > 0
-        ? data.specs.map(spec => ({
-          cpu: spec.cpu?.trim() || "",
-          ram: spec.ram?.trim() || "",
-          storage: spec.storage?.trim() || "Unknown",
-          gpu: spec.gpu?.trim() || "Unknown",
-          screen: spec.screen?.trim() || ""
-        }))
-        : [{ cpu: "", ram: "", storage: "Unknown", gpu: "Unknown", screen: "" }]
-      setForm({
-        name: data.name || "",
-        displayName: data.displayName || "",
-        brand: brand?._id || "",
-        type: typeId,
-        purchasePrice: data.purchasePrice || 0,
-        discount: data.discount || 0,
-        price: data.price || 0,
-        quantity: data.quantity || 0,
-        description: data.description || "",
-        mainImg: data.mainImg || "",
-        images: data.images || [],
-        attributeGroup: data.attributeGroup || [],
-        specs,
-        options: data.options || [],
-        isPublish: data.isPublish !== undefined ? data.isPublish : true
-      })
-      setOriginalSpecs(specs)
-    }
-  }, [data, brandsData, typeData])
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({
@@ -85,11 +44,7 @@ const ManagementLaptopDetail = () => {
   const handleSpecChange = (index, field, value) => {
     setForm((prev) => {
       const newSpecs = [...prev.specs]
-      const trimmedValue = value.trim()
-      newSpecs[index] = {
-        ...newSpecs[index],
-        [field]: trimmedValue || originalSpecs[index]?.[field] || ""
-      }
+      newSpecs[index] = { ...newSpecs[index], [field]: value.trim() }
       return { ...prev, specs: newSpecs }
     })
   }
@@ -178,39 +133,35 @@ const ManagementLaptopDetail = () => {
       setMessage("Giảm giá phải từ 0 đến 100!")
       return
     }
+    if (!form.specs[0].storage?.trim() || !form.specs[0].gpu?.trim()) {
+      setMessage("Lưu trữ và GPU không được để trống!")
+      return
+    }
     // Transform specs before sending
-    const transformedSpecs = form.specs.map((spec, index) => ({
-      cpu: spec.cpu?.trim() || originalSpecs[index]?.cpu?.trim() || "",
-      ram: spec.ram?.trim() || originalSpecs[index]?.ram?.trim() || "",
-      storage: spec.storage?.trim() || originalSpecs[index]?.storage?.trim() || "Unknown",
-      gpu: spec.gpu?.trim() || originalSpecs[index]?.gpu?.trim() || "Unknown",
-      screen: spec.screen?.trim() || originalSpecs[index]?.screen?.trim() || ""
+    const transformedSpecs = form.specs.map((spec) => ({
+      cpu: spec.cpu?.trim() || "",
+      ram: spec.ram?.trim() || "",
+      storage: spec.storage?.trim() || "Unknown",
+      gpu: spec.gpu?.trim() || "Unknown",
+      screen: spec.screen?.trim() || ""
     }))
     try {
       const payload = { ...form, specs: transformedSpecs }
-      await updateProduct({ id, data: payload }).unwrap()
-      setMessage("Cập nhật thành công!")
+      await createProduct(payload).unwrap()
+      setMessage("Tạo sản phẩm thành công!")
       setTimeout(() => navigate(-1), 1000)
     } catch (err) {
       setMessage(
-        `Có lỗi xảy ra khi cập nhật: ${
+        `Có lỗi xảy ra khi tạo sản phẩm: ${
           err?.data?.message || "Vui lòng thử lại."
         }`
       )
     }
   }
 
-  if (isLoading) return <div className="p-6">Đang tải dữ liệu...</div>
-  if (isError)
-    return (
-      <div className="p-6 text-red-500">
-        Lỗi: {error?.data?.message || "Không thể tải dữ liệu"}
-      </div>
-    )
-
   return (
     <div className="mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow mt-8">
-      <h1 className="text-2xl font-bold mb-6">Chỉnh sửa Laptop</h1>
+      <h1 className="text-2xl font-bold mb-6">Tạo Laptop Mới</h1>
       {message && (
         <div
           className={`mb-4 text-center font-semibold ${
@@ -271,12 +222,6 @@ const ManagementLaptopDetail = () => {
             required
           >
             <option value="">Chọn loại</option>
-            {form.type &&
-              !typeData?.types?.some((type) => type._id === form.type) && (
-              <option value={form.type} disabled>
-                  Loại không khả dụng
-              </option>
-            )}
             {typeData?.types
               ?.filter((type) => type.is_active)
               .map((type) => (
@@ -334,7 +279,6 @@ const ManagementLaptopDetail = () => {
             required
           />
         </div>
-
         <div>
           <label className="block mb-1 font-medium">Ảnh chính</label>
           <input
@@ -437,6 +381,7 @@ const ManagementLaptopDetail = () => {
                   value={spec.storage}
                   onChange={(e) => handleSpecChange(index, "storage", e.target.value)}
                   className="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                  required
                 />
               </div>
               <div>
@@ -446,6 +391,7 @@ const ManagementLaptopDetail = () => {
                   value={spec.gpu}
                   onChange={(e) => handleSpecChange(index, "gpu", e.target.value)}
                   className="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                  required
                 />
               </div>
               <div>
@@ -493,11 +439,7 @@ const ManagementLaptopDetail = () => {
           ) : (
             <p className="text-gray-500">Không có thuộc tính nào.</p>
           )}
-          <Button
-            type="button"
-            onClick={addAttribute}
-            className="mt-2"
-          >
+          <Button type="button" onClick={addAttribute} className="mt-2">
             Thêm thuộc tính
           </Button>
         </div>
@@ -554,11 +496,7 @@ const ManagementLaptopDetail = () => {
           ) : (
             <p className="text-gray-500">Không có tùy chọn nào.</p>
           )}
-          <Button
-            type="button"
-            onClick={addOptionGroup}
-            className="mt-2"
-          >
+          <Button type="button" onClick={addOptionGroup} className="mt-2">
             Thêm nhóm tùy chọn
           </Button>
         </div>
@@ -581,15 +519,17 @@ const ManagementLaptopDetail = () => {
           <Button
             type="submit"
             disabled={
-              isUpdating ||
+              isCreating ||
               !form.name ||
               !form.brand ||
               !form.type ||
               form.price <= 0 ||
-              form.quantity < 0
+              form.quantity < 0 ||
+              !form.specs[0].storage?.trim() ||
+              !form.specs[0].gpu?.trim()
             }
           >
-            Lưu thay đổi
+            Tạo sản phẩm
           </Button>
         </div>
       </form>
@@ -597,4 +537,4 @@ const ManagementLaptopDetail = () => {
   )
 }
 
-export default ManagementLaptopDetail
+export default ManageLaptopCreate

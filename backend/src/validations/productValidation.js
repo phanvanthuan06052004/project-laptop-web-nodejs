@@ -7,28 +7,27 @@ import ApiError from '~/utils/ApiError'
 export const productValidation = {
   createNew: async (req, res, next) => {
     const correctCondition = Joi.object({
-      name: Joi.string().required().trim().strict(),
-      nameSlug: Joi.string().required().trim().strict(),
-      brand: Joi.string().required().trim().strict(),
-      description: Joi.string().required().trim().strict(),
+      name: Joi.string().required(),
+      brand: Joi.string().required(),
+      description: Joi.string(),
       purchasePrice: Joi.number().min(0).default(0),
       price: Joi.number().min(0).default(0),
       quantity: Joi.number().min(0).default(0),
       images: Joi.array().items(Joi.string()).default([]),
       specs: Joi.array().items(
         Joi.object({
-          cpu: Joi.string().trim().strict(),
-          ram: Joi.string().trim().strict(),
-          storage: Joi.string().trim().strict(),
-          gpu: Joi.string().trim().strict(),
-          screen: Joi.string().trim().strict()
+          cpu: Joi.string(),
+          ram: Joi.string(),
+          storage: Joi.string(),
+          gpu: Joi.string(),
+          screen: Joi.string()
         }).default({})
       ).default([]),
       avgRating: Joi.number().min(0).max(5).default(0),
       numberRating: Joi.number().min(0).default(0),
       isPublish: Joi.boolean().default(false),
       isDeleted: Joi.boolean().default(false),
-      category: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE) // Added category
+      type: Joi.string().required() // Added category
     })
     try {
       await correctCondition.validateAsync(req.body, {
@@ -61,20 +60,20 @@ export const productValidation = {
 
   updateProduct: async (req, res, next) => {
     const updateSchema = Joi.object({
-      name: Joi.string().trim().strict(),
-      brand: Joi.string().trim().strict(),
-      description: Joi.string().trim().strict(),
+      name: Joi.string(),
+      brand: Joi.string(),
+      description: Joi.string(),
       purchasePrice: Joi.number().min(0),
       price: Joi.number().min(0),
       quantity: Joi.number().min(0),
       images: Joi.array().items(Joi.string()),
       specs: Joi.array().items(
         Joi.object({
-          cpu: Joi.string().trim().strict(),
-          ram: Joi.string().trim().strict(),
-          storage: Joi.string().trim().strict(),
-          gpu: Joi.string().trim().strict(),
-          screen: Joi.string().trim().strict()
+          cpu: Joi.string(),
+          ram: Joi.string(),
+          storage: Joi.string(),
+          gpu: Joi.string(),
+          screen: Joi.string()
         })
       ),
       isPublish: Joi.boolean(),
@@ -130,7 +129,7 @@ export const productValidation = {
   },
   getByNameSlug: async (req, res, next) => {
     const correctCondition = Joi.object({
-      nameSlug: Joi.string().required().trim().strict()
+      nameSlug: Joi.string().required()
     })
     try {
       await correctCondition.validateAsync(req.params, { abortEarly: false })
@@ -149,11 +148,11 @@ export const productValidation = {
       brand: Joi.string().trim().allow(''),
       specs: Joi.array().items(
         Joi.object({
-          cpu: Joi.string().trim().strict(),
-          ram: Joi.string().trim().strict(),
-          storage: Joi.string().trim().strict(),
-          gpu: Joi.string().trim().strict(),
-          screen: Joi.string().trim().strict()
+          cpu: Joi.string(),
+          ram: Joi.string(),
+          storage: Joi.string(),
+          gpu: Joi.string(),
+          screen: Joi.string()
         }).default({})
       ).default([]),
       avgRating: Joi.number().min(0).max(5),
