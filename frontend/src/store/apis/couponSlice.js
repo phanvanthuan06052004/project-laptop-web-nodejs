@@ -15,17 +15,7 @@ export const couponApiSlice = apiSlice.injectEndpoints({
           ...(search && { search }) // Sử dụng 'search' thay vì 'code' để khớp với backend
         }
       }),
-      transformResponse: (response) => ({
-        data: response.data || [], // Map 'data' từ backend
-        total: response.total || 0 // Map 'total' từ backend
-      }),
-      providesTags: (result) =>
-        result && result.data
-          ? [
-            ...result.data.map(({ _id }) => ({ type: "Coupons", id: _id })),
-            { type: "Coupons", id: "LIST" }
-          ]
-          : [{ type: "Coupons", id: "LIST" }]
+      providesTags: [{ type: "Coupons", id: "LIST" }]
     }),
 
     getAllAdmin: builder.query({
