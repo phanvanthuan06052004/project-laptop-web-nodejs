@@ -62,7 +62,6 @@ export default function ProductListing() {
   // Fetch all products for client-side filtering (only once)
   useEffect(() => {
     if (needsClientSideFiltering && !hasInitiallyFetched.current) {
-      // console.log("Fetching all products for client filtering")
       fetchAllProducts(buildQueryParams(true))
       hasInitiallyFetched.current = true
     }
@@ -95,8 +94,6 @@ export default function ProductListing() {
       totalPages: totalPages,
       itemsPerPage: itemsPerPage
     })
-
-    // console.log(`Client filtering: ${sorted.length} total products, showing ${currentPageItems.length} on page ${page}`)
   }, [
     needsClientSideFiltering,
     allProductsData,

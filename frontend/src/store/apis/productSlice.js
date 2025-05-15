@@ -101,7 +101,6 @@ export const productSlice = apiSlice.injectEndpoints({
         // For specs filtering, we'll handle it client-side since the API doesn't support
         // complex specs filtering via query params
 
-        console.log("API Query:", `/products/all?${urlParams.toString()}`)
         return `/products/all?${urlParams.toString()}`
       },
       transformResponse: (response) => {
@@ -111,11 +110,11 @@ export const productSlice = apiSlice.injectEndpoints({
             totalItems: 0,
             currentPage: 1,
             totalPages: 1,
-            itemsPerPage: 10,
-          },
+            itemsPerPage: 10
+          }
         }
-      },
-    }),
+      }
+    })
   })
 })
 
