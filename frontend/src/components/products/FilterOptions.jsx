@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 
@@ -10,23 +8,25 @@ const filterOptions = {
     { id: "15000000-25000000", label: "15 - 25 triệu" },
     { id: "25000000-35000000", label: "25 - 35 triệu" },
     { id: "35000000-50000000", label: "35 - 50 triệu" },
-    { id: "over-50000000", label: "Trên 50 triệu" },
+    { id: "over-50000000", label: "Trên 50 triệu" }
   ],
   cpu: [
     { id: "intel-core-ultra", label: "Intel Core Ultra" },
+    { id: "intel-core-i9", label: "Intel Core i9" },
     { id: "intel-core-i7", label: "Intel Core i7" },
     { id: "intel-core-i5", label: "Intel Core i5" },
-    { id: "amd-ryzen", label: "AMD Ryzen" },
+    { id: "amd-ryzen", label: "AMD Ryzen" }
   ],
   ram: [
     { id: "32gb", label: "32GB" },
+    { id: "24gb", label: "24GB" },
     { id: "16gb", label: "16GB" },
-    { id: "8gb", label: "8GB" },
+    { id: "8gb", label: "8GB" }
   ],
   storage: [
     { id: "1tb", label: "1TB SSD" },
-    { id: "512gb", label: "512GB SSD" },
-  ],
+    { id: "512gb", label: "512GB SSD" }
+  ]
 }
 
 export function FilterOptions({ activeFilters, toggleFilter, brands }) {
@@ -36,14 +36,14 @@ export function FilterOptions({ activeFilters, toggleFilter, brands }) {
     price: true,
     cpu: false,
     ram: false,
-    storage: false,
+    storage: false
   })
 
   // Hàm toggle trạng thái đóng/mở
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section],
+      [section]: !prev[section]
     }))
   }
 
@@ -66,7 +66,7 @@ export function FilterOptions({ activeFilters, toggleFilter, brands }) {
         </button>
         {openSections.brands && (
           <div className="pt-2 pb-4">
-            <div className="space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="space-y-2 max-h-60  pr-2">
               {availableBrands.map((brand) => (
                 <div key={brand._id} className="flex items-center">
                   <input

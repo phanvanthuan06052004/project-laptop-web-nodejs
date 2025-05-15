@@ -1,6 +1,5 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import { Filter, SlidersHorizontal, ChevronDown, X } from "lucide-react"
 
 import { FilterOptions } from "~/components/products/FilterOptions"
@@ -10,7 +9,6 @@ import { usePagination } from "~/hooks/usePagination"
 import { useGetAllProductsQuery, useLazyGetAllProductsQuery } from "~/store/apis/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
 import { useProductFilter } from "~/hooks/useProductFilter"
-import { useDispatch, useSelector } from "react-redux"
 import { setPage } from "~/store/slices/productSlice"
 import MetaTags from "~/components/seo/MetaTags"
 
@@ -24,7 +22,7 @@ export default function ProductListing() {
   const { page, filters, sort: sortBy } = useSelector((state) => state.product)
 
   // Get brands for filter options
-  const { data: brandsData } = useGetBrandsQuery({ limit: 20 })
+  const { data: brandsData } = useGetBrandsQuery({ limit: 10 })
 
   // Get filter methods from custom hook
   const {
@@ -36,7 +34,7 @@ export default function ProductListing() {
     paginateProducts,
     sortProducts,
     getDisplayValue,
-    needsClientFiltering,
+    needsClientFiltering
   } = useProductFilter()
 
   // Determine if we need client-side filtering
@@ -49,9 +47,9 @@ export default function ProductListing() {
     data: apiFilteredData,
     isLoading: isLoadingApi,
     isFetching,
-    error,
+    error
   } = useGetAllProductsQuery(buildQueryParams(), {
-    skip: needsClientSideFiltering,
+    skip: needsClientSideFiltering
   })
 
   // State for client-side filtered data
@@ -64,7 +62,7 @@ export default function ProductListing() {
   // Fetch all products for client-side filtering (only once)
   useEffect(() => {
     if (needsClientSideFiltering && !hasInitiallyFetched.current) {
-      console.log("Fetching all products for client filtering")
+      // console.log("Fetching all products for client filtering")
       fetchAllProducts(buildQueryParams(true))
       hasInitiallyFetched.current = true
     }
@@ -95,10 +93,10 @@ export default function ProductListing() {
       totalItems: sorted.length,
       currentPage: page,
       totalPages: totalPages,
-      itemsPerPage: itemsPerPage,
+      itemsPerPage: itemsPerPage
     })
 
-    console.log(`Client filtering: ${sorted.length} total products, showing ${currentPageItems.length} on page ${page}`)
+    // console.log(`Client filtering: ${sorted.length} total products, showing ${currentPageItems.length} on page ${page}`)
   }, [
     needsClientSideFiltering,
     allProductsData,
@@ -107,7 +105,7 @@ export default function ProductListing() {
     page,
     filterProductsClientSide,
     sortProducts,
-    paginateProducts,
+    paginateProducts
   ])
 
   // Determine which products to display
@@ -155,7 +153,7 @@ export default function ProductListing() {
   useEffect(() => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: "smooth"
     })
   }, [page])
 
@@ -170,7 +168,7 @@ export default function ProductListing() {
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Mua Laptop</h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Khám phá bộ sưu tập laptop đa dạng từ các thương hiệu hàng đầu
+            Khám phá bộ sưu tập Laptop đa dạng từ các thương hiệu hàng đầu
           </p>
         </div>
       </div>
@@ -253,7 +251,7 @@ export default function ProductListing() {
                         </div>
                       ))}
                     </div>
-                  ),
+                  )
               )}
             </div>
 

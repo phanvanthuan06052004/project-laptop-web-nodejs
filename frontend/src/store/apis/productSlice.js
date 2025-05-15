@@ -37,7 +37,7 @@ export const productSlice = apiSlice.injectEndpoints({
       query: (searchTerm) => {
         const params = new URLSearchParams()
         params.append("search", searchTerm)
-        params.append("limit", "100")
+        params.append("limit", "300")
         return `${BASE_URL}/products?${params.toString()}`
       },
       providesTags: [{ type: "Products", id: "SEARCH" }]
