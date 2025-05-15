@@ -168,7 +168,11 @@ export default function ProductDetail() {
               inStock={product.quantity > 0}
             />
 
-            <ProductActions inStock={product.quantity > 0} product={productData} />
+            <ProductActions
+              inStock={product.quantity > 0}
+              product={productData}
+              quantity={product.quantity}
+            />
 
             <ProductFeatures warranty={warranty} />
           </div>
@@ -183,7 +187,7 @@ export default function ProductDetail() {
           attributeGroup={product.attributeGroup || []}
         />
 
-        <hr className="mt-5"/>
+        <hr className="mt-5" />
         <DiscussionSection productId={productData?.id} />
       </div>
     </div>

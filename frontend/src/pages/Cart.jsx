@@ -123,7 +123,6 @@ const Cart = () => {
                               <h3 className="font-medium text-gray-900 dark:text-white">
                                 {item.product.name}
                               </h3>
-
                               <p className="text-sm text-gray-500 dark:text-gray-400">
                                 {item.product.brand || "Unknown Brand"}
                               </p>
@@ -132,10 +131,11 @@ const Cart = () => {
                               ₫{(item.product.price * item.quantity).toLocaleString("vi-VN")}
                             </p>
                           </div>
-                          <span className="text-xl font-semibold text-red-500">Còn lại {item?.product?.stock || "Unknown Brand"} sản phẩm</span>
+                          <span className="text-xl font-semibold text-red-500">
+                            Còn lại {item?.product?.stock || "Unknown"} sản phẩm
+                          </span>
                           <div className="mt-auto flex justify-between items-center pt-4">
                             <div className="flex items-center border border-gray-300 rounded">
-
                               <button
                                 className="px-3 py-1"
                                 onClick={() =>
@@ -181,6 +181,33 @@ const Cart = () => {
               <div>
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+                  <div className="mb-4">
+                    {cartItems.map((item) => (
+                      <div key={item._id} className="flex justify-between py-2 border-b items-center">
+                        <div className="flex items-center">
+                          <span className="w-5 h-5 inline-flex items-center justify-center text-xl mr-2">
+                            {item.quantity}
+                          </span>
+                          <span className="w-5 h-5 inline-flex items-center justify-center text-xs mr-2">
+                            x
+                          </span>
+                          <span className="text-sm">{item.product.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">
+                            ₫{(item.product.price * item.quantity).toLocaleString("vi-VN")}
+                          </span>
+                          <button
+                            className="ml-2 text-red-500 hover:text-red-700 font-bold text-lg"
+                            title="Xóa sản phẩm"
+                            onClick={() => removeItem(item._id)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                   <div className="space-y-4 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">
@@ -188,8 +215,6 @@ const Cart = () => {
                       </span>
                       <span>₫{subtotal.toLocaleString("vi-VN")}</span>
                     </div>
-
-                    {/* Total sau cùng */}
                     <div className="border-t pt-4 flex justify-between font-semibold">
                       <span>Total</span>
                       <span>₫{total.toLocaleString("vi-VN")}</span>
