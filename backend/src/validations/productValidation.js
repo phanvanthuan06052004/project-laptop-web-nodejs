@@ -156,15 +156,21 @@ export const productValidation = {
         }).default({})
       ).default([]),
       avgRating: Joi.number().min(0).max(5),
-      category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow('') // Added category
+      category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(''),
+
+      // Thêm các trường sort và order giống như getAll
+      sort: Joi.string().valid('name', 'price', 'createdAt', 'updatedAt').default('createdAt'),
+      order: Joi.string().valid('asc', 'desc').default('desc')
     })
+
     try {
       await correctCondition.validateAsync(req.query, { abortEarly: false })
       next()
     } catch (error) {
       next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
     }
-  },
+  }
+  ,
 
   getPageProductIdAndName: async (req, res, next) => {
     const correctCondition = Joi.object({
