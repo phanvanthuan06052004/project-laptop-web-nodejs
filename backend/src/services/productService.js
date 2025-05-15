@@ -229,7 +229,19 @@ const getProductByNameSlug = async (nameSlug) => {
 
 const getPageProduct = async (queryParams) => {
   try {
-    let { page, limit, name, minPrice, maxPrice, brand, type, specs, avgRating } = queryParams
+    let {
+      page,
+      limit,
+      name,
+      minPrice,
+      maxPrice,
+      brand,
+      type,
+      specs,
+      avgRating,
+      sort,
+      order
+    } = queryParams
 
     // Chuyển đổi các tham số
     page = parseInt(page, 10) || 1
@@ -252,7 +264,7 @@ const getPageProduct = async (queryParams) => {
       filter.price = { ...filter.price, $lte: maxPrice }
     }
 
-    // Lọc theo brand (dựa trên name)
+    // Lọc theo brand
     if (brand) {
       const brandDoc = await brandModel.findOneByName(brand)
       if (!brandDoc) {
@@ -267,10 +279,10 @@ const getPageProduct = async (queryParams) => {
           message: `No brand found with name: ${brand}`
         }
       }
-      filter['brand._id'] = brandDoc._id.toString() // Filter on brand._id
+      filter['brand._id'] = brandDoc._id.toString()
     }
 
-    // Lọc theo type (dựa trên name)
+    // Lọc theo type
     if (type) {
       const typeDoc = await typeModel.findOneByName(type)
       if (!typeDoc) {
@@ -285,7 +297,7 @@ const getPageProduct = async (queryParams) => {
           message: `No type found with name: ${type}`
         }
       }
-      filter['type._id'] = typeDoc._id.toString() // Filter on type._id
+      filter['type._id'] = typeDoc._id.toString()
     }
 
     // Lọc theo specs
@@ -311,10 +323,17 @@ const getPageProduct = async (queryParams) => {
       filter.avgRating = { $gte: avgRating }
     }
 
+    // Xử lý sắp xếp (sort)
+    const sortOptions = {}
+    if (sort) {
+      sortOptions[sort] = order === 'asc' ? 1 : -1
+    } else {
+      sortOptions.createdAt = -1 // Mặc định: mới nhất trước
+    }
 
     const products = await productModel.getAllWithPagination({
       filter,
-      sort: { createdAt: -1 },
+      sort: sortOptions,
       skip,
       limit
     })
@@ -335,6 +354,7 @@ const getPageProduct = async (queryParams) => {
     throw error
   }
 }
+
 
 const getPageProductIdAndName = async (queryParams) => {
   try {
