@@ -37,7 +37,7 @@ export const productSlice = apiSlice.injectEndpoints({
       query: (searchTerm) => {
         const params = new URLSearchParams()
         params.append("search", searchTerm)
-        params.append("limit", "100")
+        params.append("limit", "300")
         return `${BASE_URL}/products?${params.toString()}`
       },
       providesTags: [{ type: "Products", id: "SEARCH" }]
@@ -76,37 +76,33 @@ export const productSlice = apiSlice.injectEndpoints({
     }),
     getAllProducts: builder.query({
       query: (params) => {
-        const queryParams = new URLSearchParams()
+        // Create a copy of params to avoid modifying the original
+        const queryParams = { ...params }
+        const urlParams = new URLSearchParams()
 
         // Add pagination params
-        if (params.page) queryParams.append("page", params.page)
-        if (params.limit) queryParams.append("limit", params.limit)
+        if (queryParams.page) urlParams.append("page", queryParams.page.toString())
+        if (queryParams.limit) urlParams.append("limit", queryParams.limit.toString())
 
         // Add search param
-        if (params.search) queryParams.append("name", params.search)
+        if (queryParams.name) urlParams.append("name", queryParams.name)
 
         // Add price range
-        if (params.minPrice) queryParams.append("minPrice", params.minPrice)
-        if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice)
+        if (queryParams.minPrice !== undefined) urlParams.append("minPrice", queryParams.minPrice.toString())
+        if (queryParams.maxPrice !== undefined) urlParams.append("maxPrice", queryParams.maxPrice.toString())
 
         // Add sort params
-        if (params.sort) queryParams.append("sort", params.sort)
-        if (params.order) queryParams.append("order", params.order)
+        if (queryParams.sort) urlParams.append("sort", queryParams.sort)
+        if (queryParams.order) urlParams.append("order", queryParams.order)
 
-        // Add brand and type if needed
-        if (params.brand) queryParams.append("brand", params.brand)
-        if (params.type) queryParams.append("type", params.type)
+        // Add brand if needed
+        if (queryParams.brand) urlParams.append("brand", queryParams.brand)
 
-        // Add specs if needed
-        if (params.specs) {
-          const specsParam = JSON.stringify(params.specs)
-          queryParams.append("specs", specsParam)
-        }
+        // For specs filtering, we'll handle it client-side since the API doesn't support
+        // complex specs filtering via query params
 
-        return {
-          url: `/products/all?${queryParams.toString()}`,
-          method: "GET"
-        }
+        console.log("API Query:", `/products/all?${urlParams.toString()}`)
+        return `/products/all?${urlParams.toString()}`
       },
       transformResponse: (response) => {
         return {
@@ -115,11 +111,11 @@ export const productSlice = apiSlice.injectEndpoints({
             totalItems: 0,
             currentPage: 1,
             totalPages: 1,
-            itemsPerPage: 10
-          }
+            itemsPerPage: 10,
+          },
         }
-      }
-    })
+      },
+    }),
   })
 })
 

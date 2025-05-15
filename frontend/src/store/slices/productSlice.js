@@ -5,11 +5,11 @@ const initialState = {
   filters: {
     brands: [],
     price: [],
-    ram: [],
     cpu: [],
-    storage: [],
+    ram: [],
+    storage: []
   },
-  sort: "featured",
+  sort: "featured"
 }
 
 const productSlice = createSlice({
@@ -27,9 +27,9 @@ const productSlice = createSlice({
     },
     resetFilters: (state) => {
       state.filters = initialState.filters
-      state.page = 1
-    },
-  },
+      state.sort = initialState.sort
+    }
+  }
 })
 
 export const { setPage, setFilters, setSort, resetFilters } = productSlice.actions
