@@ -1,201 +1,226 @@
-import { useState, useEffect } from "react"
-import { ChevronDown, ChevronUp } from "lucide-react"
+"use client"
 
-const FilterSection = ({ title, isOpen, toggleSection, options, activeValues, onToggleFilter, filterKey }) => {
-  return (
-    <div className="border-b pb-2">
-      <button
-        className="flex items-center justify-between w-full py-2 font-medium text-sm"
-        onClick={() => toggleSection(filterKey)}
-      >
-        <span>{title}</span>
-        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-      </button>
+import { useState } from "react"
+import { ChevronDown } from "lucide-react"
 
-      {isOpen && (
-        <div className="space-y-1 mt-1 pl-1">
-          {options.map((option) => (
-            <label key={option.value} className="flex items-center cursor-pointer py-1">
-              <input
-                type="checkbox"
-                className="form-checkbox rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
-                checked={activeValues?.includes(option.value)}
-                onChange={() => onToggleFilter(filterKey, option.value)}
-              />
-              <span className="ml-2 text-sm">{option.label}</span>
-            </label>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+// Định nghĩa các tùy chọn lọc
+const filterOptions = {
+  price: [
+    { id: "under-15000000", label: "Dưới 15 triệu" },
+    { id: "15000000-25000000", label: "15 - 25 triệu" },
+    { id: "25000000-35000000", label: "25 - 35 triệu" },
+    { id: "35000000-50000000", label: "35 - 50 triệu" },
+    { id: "over-50000000", label: "Trên 50 triệu" },
+  ],
+  cpu: [
+    { id: "intel-core-ultra", label: "Intel Core Ultra" },
+    { id: "intel-core-i7", label: "Intel Core i7" },
+    { id: "intel-core-i5", label: "Intel Core i5" },
+    { id: "amd-ryzen", label: "AMD Ryzen" },
+  ],
+  ram: [
+    { id: "32gb", label: "32GB" },
+    { id: "16gb", label: "16GB" },
+    { id: "8gb", label: "8GB" },
+  ],
+  storage: [
+    { id: "1tb", label: "1TB SSD" },
+    { id: "512gb", label: "512GB SSD" },
+  ],
 }
 
-export const FilterOptions = ({ activeFilters, toggleFilter, brands = [], allProducts = [] }) => {
+export function FilterOptions({ activeFilters, toggleFilter, brands }) {
+  // State để quản lý trạng thái đóng/mở của các mục lọc
   const [openSections, setOpenSections] = useState({
     brands: true,
     price: true,
-    cpu: true,
-    ram: true,
-    storage: true
+    cpu: false,
+    ram: false,
+    storage: false,
   })
 
-  // Hàm bật/tắt hiển thị từng nhóm bộ lọc
+  // Hàm toggle trạng thái đóng/mở
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }))
   }
 
-  const [filterOptions, setFilterOptions] = useState({
-    priceRanges: [
-      { value: "under-15000000", label: "Dưới 15.000.000₫" },
-      { value: "15000000-25000000", label: "15.000.000₫ - 25.000.000₫" },
-      { value: "25000000-35000000", label: "25.000.000₫ - 35.000.000₫" },
-      { value: "35000000-50000000", label: "35.000.000₫ - 50.000.000₫" },
-      { value: "over-50000000", label: "Trên 50.000.000₫" }
-    ],
-    cpuOptions: [],
-    ramOptions: [],
-    storageOptions: []
-  })
-
-  // Tạo các tùy chọn từ dữ liệu sản phẩm
-  const extractFilterOptions = (products) => {
-    const cpuSet = new Set()
-    const ramSet = new Set()
-    const storageSet = new Set()
-
-    products.forEach((product) => {
-      if (!product.specs || product.specs.length === 0) return
-
-      // Trích xuất loại CPU
-      const cpuInfo = product.specs[0].cpu?.toLowerCase() || ""
-      if (cpuInfo.includes("ultra")) {
-        cpuSet.add("intel-core-ultra")
-      } else if (cpuInfo.includes("i7")) {
-        cpuSet.add("intel-core-i7")
-      } else if (cpuInfo.includes("i5")) {
-        cpuSet.add("intel-core-i5")
-      }
-
-      // Trích xuất dung lượng RAM
-      const ramInfo = product.specs[0].ram?.toLowerCase() || ""
-      if (ramInfo.includes("32gb")) {
-        ramSet.add("32gb")
-      } else if (ramInfo.includes("16gb")) {
-        ramSet.add("16gb")
-      } else if (ramInfo.includes("8gb")) {
-        ramSet.add("8gb")
-      }
-
-      // Trích xuất dung lượng lưu trữ
-      const storageInfo = product.specs[0].storage?.toLowerCase() || ""
-      if (storageInfo.includes("1tb")) {
-        storageSet.add("1tb")
-      } else if (storageInfo.includes("512gb")) {
-        storageSet.add("512gb")
-      }
-    })
-
-    // Ánh xạ các bộ lọc CPU
-    const cpuOptions = Array.from(cpuSet).map((value) => {
-      const labels = {
-        "intel-core-ultra": "Intel Core Ultra",
-        "intel-core-i7": "Intel Core i7",
-        "intel-core-i5": "Intel Core i5"
-      }
-      return { value, label: labels[value] || "CPU không xác định" }
-    })
-
-    // Ánh xạ các bộ lọc RAM
-    const ramOptions = Array.from(ramSet).map((value) => {
-      const labels = {
-        "32gb": "32GB",
-        "16gb": "16GB",
-        "8gb": "8GB"
-      }
-      return { value, label: labels[value] || "RAM không xác định" }
-    })
-
-    // Ánh xạ các bộ lọc lưu trữ
-    const storageOptions = Array.from(storageSet).map((value) => {
-      const labels = {
-        "1tb": "1TB SSD",
-        "512gb": "512GB SSD"
-      }
-      return { value, label: labels[value] || "Lưu trữ không xác định" }
-    })
-
-    return { cpuOptions, ramOptions, storageOptions }
-  }
-
-  // Cập nhật bộ lọc khi dữ liệu sản phẩm thay đổi
-  useEffect(() => {
-    if (allProducts && allProducts.length > 0) {
-      const options = extractFilterOptions(allProducts)
-      setFilterOptions(prev => ({
-        ...prev,
-        ...options
-      }))
-    }
-  }, [allProducts])
-
-  // Chuẩn bị dữ liệu thương hiệu để hiển thị
-  const brandOptions = brands.map(brand => ({
-    value: brand.name,
-    label: brand.name
-  }))
-
-  // Định nghĩa cấu trúc các section lọc
-  const filterSections = [
-    {
-      key: "brands",
-      title: "Thương hiệu",
-      options: brandOptions,
-      activeValues: activeFilters.brands
-    },
-    {
-      key: "price",
-      title: "Giá",
-      options: filterOptions.priceRanges,
-      activeValues: activeFilters.price
-    },
-    {
-      key: "cpu",
-      title: "CPU",
-      options: filterOptions.cpuOptions,
-      activeValues: activeFilters.cpu
-    },
-    {
-      key: "ram",
-      title: "RAM",
-      options: filterOptions.ramOptions,
-      activeValues: activeFilters.ram
-    },
-    {
-      key: "storage",
-      title: "Lưu trữ",
-      options: filterOptions.storageOptions,
-      activeValues: activeFilters.storage
-    }
-  ]
+  // Lọc ra các thương hiệu có sản phẩm
+  const availableBrands = brands || []
 
   return (
-    <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 pb-4">
-      {filterSections.map((section) => (
-        <FilterSection
-          key={section.key}
-          title={section.title}
-          isOpen={openSections[section.key]}
-          toggleSection={toggleSection}
-          options={section.options}
-          activeValues={section.activeValues}
-          onToggleFilter={toggleFilter}
-          filterKey={section.key}
-        />
-      ))}
+    <div className="space-y-4">
+      {/* Lọc theo thương hiệu */}
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+        <button
+          onClick={() => toggleSection("brands")}
+          className="flex w-full justify-between items-center py-2 text-left text-sm font-medium"
+        >
+          <span className="text-gray-900 dark:text-gray-100">Thương hiệu</span>
+          <ChevronDown
+            size={16}
+            className={`${openSections.brands ? "transform rotate-180" : ""} text-gray-500 transition-transform`}
+          />
+        </button>
+        {openSections.brands && (
+          <div className="pt-2 pb-4">
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {availableBrands.map((brand) => (
+                <div key={brand._id} className="flex items-center">
+                  <input
+                    id={`brand-${brand._id}`}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={(activeFilters.brands || []).includes(brand.name)}
+                    onChange={() => toggleFilter("brands", brand.name)}
+                  />
+                  <label htmlFor={`brand-${brand._id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {brand.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Lọc theo giá */}
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+        <button
+          onClick={() => toggleSection("price")}
+          className="flex w-full justify-between items-center py-2 text-left text-sm font-medium"
+        >
+          <span className="text-gray-900 dark:text-gray-100">Giá</span>
+          <ChevronDown
+            size={16}
+            className={`${openSections.price ? "transform rotate-180" : ""} text-gray-500 transition-transform`}
+          />
+        </button>
+        {openSections.price && (
+          <div className="pt-2 pb-4">
+            <div className="space-y-2">
+              {filterOptions.price.map((option) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    id={`price-${option.id}`}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={(activeFilters.price || []).includes(option.id)}
+                    onChange={() => toggleFilter("price", option.id)}
+                  />
+                  <label htmlFor={`price-${option.id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Lọc theo CPU */}
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+        <button
+          onClick={() => toggleSection("cpu")}
+          className="flex w-full justify-between items-center py-2 text-left text-sm font-medium"
+        >
+          <span className="text-gray-900 dark:text-gray-100">CPU</span>
+          <ChevronDown
+            size={16}
+            className={`${openSections.cpu ? "transform rotate-180" : ""} text-gray-500 transition-transform`}
+          />
+        </button>
+        {openSections.cpu && (
+          <div className="pt-2 pb-4">
+            <div className="space-y-2">
+              {filterOptions.cpu.map((option) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    id={`cpu-${option.id}`}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={(activeFilters.cpu || []).includes(option.id)}
+                    onChange={() => toggleFilter("cpu", option.id)}
+                  />
+                  <label htmlFor={`cpu-${option.id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Lọc theo RAM */}
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+        <button
+          onClick={() => toggleSection("ram")}
+          className="flex w-full justify-between items-center py-2 text-left text-sm font-medium"
+        >
+          <span className="text-gray-900 dark:text-gray-100">RAM</span>
+          <ChevronDown
+            size={16}
+            className={`${openSections.ram ? "transform rotate-180" : ""} text-gray-500 transition-transform`}
+          />
+        </button>
+        {openSections.ram && (
+          <div className="pt-2 pb-4">
+            <div className="space-y-2">
+              {filterOptions.ram.map((option) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    id={`ram-${option.id}`}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={(activeFilters.ram || []).includes(option.id)}
+                    onChange={() => toggleFilter("ram", option.id)}
+                  />
+                  <label htmlFor={`ram-${option.id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Lọc theo Storage */}
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+        <button
+          onClick={() => toggleSection("storage")}
+          className="flex w-full justify-between items-center py-2 text-left text-sm font-medium"
+        >
+          <span className="text-gray-900 dark:text-gray-100">Lưu trữ</span>
+          <ChevronDown
+            size={16}
+            className={`${openSections.storage ? "transform rotate-180" : ""} text-gray-500 transition-transform`}
+          />
+        </button>
+        {openSections.storage && (
+          <div className="pt-2 pb-4">
+            <div className="space-y-2">
+              {filterOptions.storage.map((option) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    id={`storage-${option.id}`}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={(activeFilters.storage || []).includes(option.id)}
+                    onChange={() => toggleFilter("storage", option.id)}
+                  />
+                  <label htmlFor={`storage-${option.id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
