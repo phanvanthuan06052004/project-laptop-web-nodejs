@@ -191,9 +191,18 @@ export const useProductFilter = () => {
       // Filter by brands
       if (filters.brands && filters.brands.length > 0) {
         filteredProducts = filteredProducts.filter((product) => {
-          const brandAttribute = product.attributeGroup?.find((attr) => attr.name === "Thương hiệu")
-          const brandName = brandAttribute?.values || ""
-          return filters.brands.some((brand) => brandName === brand)
+          const brandAttribute = product.attributeGroup?.find(
+            (attr) => attr.name === "Thương hiệu"
+          )
+          const brandDisplay = brandAttribute?.values.toLowerCase() || ""
+          return filters.brands.some((brand) => {
+            // Nếu chọn "macbook" thì khớp với "apple"
+            if (brand === "macbook" && brandDisplay === "apple") {
+              return true
+            }
+            // Các trường hợp khác
+            return brand === brandDisplay
+          })
         })
       }
 
@@ -370,7 +379,6 @@ export const useProductFilter = () => {
 
     return value
   }, [])
-
   return {
     filters,
     sortBy,
