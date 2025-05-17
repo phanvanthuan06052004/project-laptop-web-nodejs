@@ -1,5 +1,5 @@
 import { orderModel } from '~/models/orderModel'
-import { productService } from '~/services/productService'
+import { productService } from '~/services/productService/productService'
 import { couponService } from '~/services/couponService/couponService'
 import { couponModel } from '~/models/couponModel'
 import { StatusCodes } from 'http-status-codes'

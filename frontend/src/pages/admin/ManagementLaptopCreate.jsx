@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/Button"
 import { useCreateProductMutation } from "~/store/apis/productSlice"
 import { useGetBrandsQuery } from "~/store/apis/brandSlice"
 import { useGetAllTypeQuery } from "~/store/apis/typeSlice"
+import { toast } from "react-toastify"
 
 const ManageLaptopCreate = () => {
   const navigate = useNavigate()
@@ -126,15 +127,15 @@ const ManageLaptopCreate = () => {
     e.preventDefault()
     setMessage("")
     if (!form.name || !form.brand || !form.type || form.price <= 0 || form.quantity < 0) {
-      setMessage("Vui lòng điền đầy đủ các trường bắt buộc!")
+      toast.error("Vui lòng điền đầy đủ các trường bắt buộc!")
       return
     }
     if (form.discount < 0 || form.discount > 100 || isNaN(form.discount)) {
-      setMessage("Giảm giá phải từ 0 đến 100!")
+      toast.error("Giảm giá phải từ 0 đến 100!")
       return
     }
     if (!form.specs[0].storage?.trim() || !form.specs[0].gpu?.trim()) {
-      setMessage("Lưu trữ và GPU không được để trống!")
+      toast.error("Lưu trữ và GPU không được để trống!")
       return
     }
     // Transform specs before sending
@@ -148,10 +149,10 @@ const ManageLaptopCreate = () => {
     try {
       const payload = { ...form, specs: transformedSpecs }
       await createProduct(payload).unwrap()
-      setMessage("Tạo sản phẩm thành công!")
+      toast.success("Tạo sản phẩm thành công!")
       setTimeout(() => navigate(-1), 1000)
     } catch (err) {
-      setMessage(
+      toast.error(
         `Có lỗi xảy ra khi tạo sản phẩm: ${
           err?.data?.message || "Vui lòng thử lại."
         }`
