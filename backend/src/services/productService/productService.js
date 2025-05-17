@@ -4,7 +4,7 @@ import { productModel } from '~/models/productModel'
 import slugify from 'slugify'
 import { brandModel } from '~/models/brandModel'
 import { typeModel } from '~/models/typeModel'
-
+import { laptopService } from './productBuilder'
 /**
  * Lấy danh sách sản phẩm dựa trên các tham số truy vấn.
  * @param {Object} queryParams - Các tham số truy vấn bao gồm page, limit, search, sort, order, brand, minPrice, maxPrice.
@@ -96,16 +96,12 @@ const createNew = async (reqBody) => {
       )
     }
 
-    // Tạo đối tượng sản phẩm mới
-    const newProduct = {
+    // Sử dụng Builder Pattern để tạo sản phẩm
+    const newProduct = laptopService.createLaptop({
       ...reqBody,
-      nameSlug, // Sử dụng slug đã tạo
-      createdAt: Date.now(),
-      updatedAt: null,
-      isDeleted: false,
-      isPublish: false
-    }
-    // Gọi model để thêm mới sản phẩm vào database
+      nameSlug
+    })
+
     const result = await productModel.createNew(newProduct)
 
     return result
