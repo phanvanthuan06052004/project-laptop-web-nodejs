@@ -13,7 +13,8 @@ import {
   ChevronDown,
   ChevronRight,
   BarChart3,
-  Tag
+  Tag,
+  TreePalm
 } from "lucide-react"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "~/store/slices/authSlice"
@@ -55,7 +56,6 @@ const AdminSidebar = () => {
         { title: "Tất cả sản phẩm", path: "/admin/products" },
         { title: "Thêm sản phẩm", path: "/admin/products/new" },
         { title: "Danh mục", path: "/admin/categories" },
-        { title: "Thương hiệu", path: "/admin/brands" },
         { title: "Thuộc tính", path: "/admin/attributes" }
       ]
     },
@@ -81,6 +81,12 @@ const AdminSidebar = () => {
       title: "Nhân viên",
       icon: Users,
       path: "/admin/staff",
+      adminOnly: true
+    },
+    {
+      title: "Chi nhánh",
+      icon: TreePalm,
+      path: "/admin/brand",
       adminOnly: true
     },
     {
