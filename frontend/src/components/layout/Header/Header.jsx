@@ -60,12 +60,10 @@ const Header = () => {
             <span className="text-2xl font-bold text-primary">LapVibe</span>
           </Link>
           {/* Navigation */}
-          <nav className="hidden md:flex space-x-6">
-            <Link to="/" className="font-medium hover:text-primary">Trang chủ</Link>
-            <Link to="/products" className="font-medium hover:text-primary">Laptop </Link>
-            <Link to="/blog" className="font-medium hover:text-primary">Bài viết</Link>
-            <Link to="/categories" className="font-medium hover:text-primary">Danh mục</Link>
-            <Link to="/deals" className="font-medium hover:text-primary">Ưu đãi</Link>
+          <nav className="hidden md:flex space-x-8 ">
+            <Link to="/" className="font-medium hover:text-primary">Trang Chủ</Link>
+            <Link to="/products" className="font-medium hover:text-primary">Laptop</Link>
+            <Link to="/blog" className="font-medium hover:text-primary">Bài Viết</Link>
           </nav>
 
           <div className="flex items-center space-x-1 sm:space-x-4">
