@@ -84,7 +84,8 @@ export const brandValidation = {
       sort: Joi.string()
         .valid('name', 'slug', 'createdAt', 'updatedAt')
         .default('createdAt'),
-      order: Joi.string().valid('asc', 'desc').default('desc')
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+      search: Joi.string().allow('').default('')
     })
 
     try {

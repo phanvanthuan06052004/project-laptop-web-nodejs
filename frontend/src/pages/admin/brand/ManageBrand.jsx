@@ -1,37 +1,21 @@
-/* eslint-disable no-console */
-"use client"
-
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/Card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "~/components/ui/Table"
-import { Button } from "~/components/ui/Button"
-import { Input } from "~/components/ui/Input"
-import { useSelector } from "react-redux"
-import { selectCurrentUser } from "~/store/slices/authSlice"
-import {
-  useGetAllAdminQuery,
-  useDeleteCouponMutation
-} from "~/store/apis/couponSlice"
-import { Trash2, Edit, AlertCircle } from "lucide-react"
-import { Link } from "react-router-dom"
-import { Label } from "~/components/ui/Label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "~/components/ui/Select"
 import { toast } from "react-toastify"
+import { Link } from "react-router-dom"
+import { useSelector } from "react-redux"
+import { Trash2, Edit, AlertCircle, Plus } from "lucide-react"
 
-const CouponManagement = () => {
+import { selectCurrentUser } from "~/store/slices/authSlice"
+import { useGetBrandsQuery, useDeleteBrandMutation } from "~/store/apis/brandSlice"
+
+import { Input } from "~/components/ui/Input"
+import { Label } from "~/components/ui/Label"
+import { Button } from "~/components/ui/Button"
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/Card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/Table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select"
+import { formatDate } from "~/utils/dateHelpers"
+
+const BrandManagement = () => {
   const user = useSelector(selectCurrentUser)
   const isAdmin = user?.role === "admin"
 
@@ -41,49 +25,28 @@ const CouponManagement = () => {
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState("createdAt")
 
-  // Fetch coupons
+  // Fetch brands
   const {
-    data: couponsData,
+    data: brandsData,
     isLoading,
     isError,
     error,
     refetch
-  } = useGetAllAdminQuery({
-    page,
-    limit,
-    sort,
-    search
-  })
-
-  // Delete coupon mutation
-  const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation()
-
-  // Format date
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    })
-  }
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND"
-    }).format(amount)
-  }
+  } = useGetBrandsQuery({ page, limit, sort, search })
+  // Delete brand mutation
+  const [deleteBrand, { isLoading: isDeleting }] = useDeleteBrandMutation()
 
   // Handle delete
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa coupon này?")) {
+    if (window.confirm("Bạn có chắc muốn xóa thương hiệu này?")) {
       try {
-        await deleteCoupon(id).unwrap()
+        await deleteBrand(id).unwrap()
         toast.info("Xoá thành công")
         refetch()
       } catch (err) {
-        console.error("Failed to delete coupon:", err)
+        // eslint-disable-next-line no-console
+        console.error("Failed to delete brand:", err)
+        toast.error("Xoá thất bại")
       }
     }
   }
@@ -95,8 +58,7 @@ const CouponManagement = () => {
   // Options for the Sort Select
   const sortOptions = [
     { value: "createdAt", label: "Ngày tạo" },
-    { value: "code", label: "Mã coupon" },
-    { value: "name", label: "Tên" },
+    { value: "name", label: "Tên thương hiệu" },
     { value: "updatedAt", label: "Ngày cập nhật" }
   ]
 
@@ -106,15 +68,15 @@ const CouponManagement = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Quản lý Coupon</h1>
+      <h1 className="text-3xl font-bold mb-6">Quản lý Thương hiệu</h1>
 
       {/* Search and Sort Controls */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex-1">
-          <Label htmlFor="search">Tìm kiếm mã coupon</Label>
+          <Label htmlFor="search" className="mb-2">Tìm kiếm thương hiệu</Label>
           <Input
             id="search"
-            placeholder="Nhập mã coupon..."
+            placeholder="Nhập tên thương hiệu..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value)
@@ -123,7 +85,7 @@ const CouponManagement = () => {
           />
         </div>
         <div>
-          <Label htmlFor="sort">Sắp xếp theo</Label>
+          <Label htmlFor="sort" className="mb-2">Sắp xếp theo</Label>
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger id="sort">
               <SelectValue>{selectedSortLabel}</SelectValue>
@@ -137,15 +99,16 @@ const CouponManagement = () => {
             </SelectContent>
           </Select>
         </div>
-        {/* Removed the "Thứ tự" Select */}
-        <Button className="mt-6" asChild>
-          <Link to="/admin/promotions/create">Tạo Coupon</Link>
+        <Button className="mt-7">
+          <Link to="/admin/brand/create">
+            Thêm Thương hiệu
+          </Link>
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách Coupon</CardTitle>
+          <CardTitle>Danh sách Thương hiệu</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -166,69 +129,71 @@ const CouponManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Mã Coupon</TableHead>
-                    <TableHead>Tên</TableHead>
-                    <TableHead>Giá trị</TableHead>
-                    <TableHead>Ngày bắt đầu</TableHead>
-                    <TableHead>Ngày kết thúc</TableHead>
+                    <TableHead>Logo</TableHead>
+                    <TableHead>Tên thương hiệu</TableHead>
+                    <TableHead>Slug</TableHead>
                     <TableHead>Trạng thái</TableHead>
+                    <TableHead>Ngày tạo</TableHead>
+                    <TableHead>Ngày cập nhật</TableHead>
                     <TableHead>Hành động</TableHead>
-                    {/* Removed the "Thứ tự" TableHead */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {couponsData?.coupons?.length === 0 ? (
+                  {brandsData?.brands?.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={7}
                         className="text-center py-8 text-muted-foreground"
                       >
-                        Không có coupon nào
+                        Không có thương hiệu nào
                       </TableCell>
                     </TableRow>
                   ) : (
-                    couponsData?.coupons?.map((coupon) => (
-                      <TableRow key={coupon._id}>
-                        <TableCell className="font-medium">
-                          {coupon.code}
-                        </TableCell>
-                        <TableCell>{coupon.name}</TableCell>
+                    brandsData?.brands?.map((brand) => (
+                      <TableRow key={brand._id}>
                         <TableCell>
-                          {coupon.type === "PERCENT"
-                            ? `${coupon.value}%`
-                            : formatCurrency(coupon.value)}
+                          <img
+                            src={brand.logo || "/images/laptop-placeholder.webp"}
+                            alt={brand.name}
+                            className="object-contain h-9 w-12"
+                            loading="lazy"
+                          />
+
                         </TableCell>
-                        <TableCell>{formatDate(coupon.start_day)}</TableCell>
-                        <TableCell>{formatDate(coupon.end_day)}</TableCell>
+                        <TableCell className="font-medium">
+                          {brand.name}
+                        </TableCell>
+                        <TableCell>{brand.slug}</TableCell>
                         <TableCell>
                           <span
                             className={`inline-block px-2 py-1 rounded-full text-xs ${
-                              coupon.is_active
+                              brand.is_active
                                 ? "bg-green-100 text-green-800"
                                 : "bg-red-100 text-red-800"
                             }`}
                           >
-                            {coupon.is_active ? "Hoạt động" : "Không hoạt động"}
+                            {brand.is_active ? "Hoạt động" : "Không hoạt động"}
                           </span>
                         </TableCell>
+                        <TableCell>{formatDate(brand.createdAt)}</TableCell>
+                        <TableCell>{formatDate(brand.updatedAt)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm" asChild>
-                              <Link to={`/admin/promotions/edit/${coupon._id}`}>
+                            <Button variant="outline" size="sm">
+                              <Link to={`/admin/brand/edit/${brand._id}`}>
                                 <Edit className="h-4 w-4" />
                               </Link>
                             </Button>
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => handleDelete(coupon._id)}
+                              onClick={() => handleDelete(brand._id)}
                               disabled={isDeleting}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
-                        {/* Removed the TableCell for "Thứ tự" */}
                       </TableRow>
                     ))
                   )}
@@ -238,8 +203,8 @@ const CouponManagement = () => {
               {/* Pagination */}
               <div className="flex justify-between items-center mt-4">
                 <div>
-                  Hiển thị {couponsData?.coupons?.length || 0} /{" "}
-                  {couponsData?.pagination?.totalItems || 0} coupon
+                  Hiển thị {brandsData?.brands?.length || 0} /{" "}
+                  {brandsData?.pagination?.totalItems || 0} thương hiệu
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -249,7 +214,7 @@ const CouponManagement = () => {
                     Trước
                   </Button>
                   <Button
-                    disabled={page >= couponsData?.pagination?.totalPages}
+                    disabled={page >= brandsData?.pagination?.totalPages}
                     onClick={() => setPage((prev) => prev + 1)}
                   >
                     Sau
@@ -264,4 +229,4 @@ const CouponManagement = () => {
   )
 }
 
-export default CouponManagement
+export default BrandManagement

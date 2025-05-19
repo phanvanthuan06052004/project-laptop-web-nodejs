@@ -1,68 +1,79 @@
-import { BASE_URL } from "~/constants/fe.constant"
 import { apiSlice } from "./apiSlice"
 
 export const brandSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // Get all brands with pagination, filtering, and sorting
     getBrands: builder.query({
-      query: ({ page = 1, limit = 10, search = "", sort = "name", order = "asc" }) => {
-        const params = new URLSearchParams()
-        params.append("page", page.toString())
-        params.append("limit", limit.toString())
-        if (search) params.append("search", search)
-        if (sort) params.append("sort", sort)
-        if (order) params.append("order", order)
-        return `${BASE_URL}/brand?${params.toString()}`
-      },
+      query: ({ page = 1, limit = 10, sort = "createdAt", order = "asc", search = "" }) => ({
+        url: "/brand",
+        params: {
+          page,
+          limit,
+          sort,
+          order,
+          ...(search && { search })
+        }
+      }),
+      transformResponse: (response) => ({
+        brands: response.brands || [], // Map 'brands' từ backend
+        pagination: response.pagination || {
+          totalItems: 0,
+          currentPage: 1,
+          totalPages: 0,
+          itemsPerPage: 10
+        }
+      }),
       providesTags: (result) =>
-        result
-          ? [...result.brands.map(({ _id }) => ({ type: "Brands", id: _id })), { type: "Brands", id: "LIST" }]
+        result && result.brands
+          ? [
+            ...result.brands.map(({ _id }) => ({ type: "Brands", id: _id })),
+            { type: "Brands", id: "LIST" }
+          ]
           : [{ type: "Brands", id: "LIST" }]
     }),
 
+    // Get a brand by ID
     getBrandById: builder.query({
-      query: (brandId) => `${BASE_URL}/brand/${brandId}`,
+      query: (id) => `/brand/${id}`,
       providesTags: (result, error, id) => [{ type: "Brands", id }]
     }),
 
+    // Create a new brand
     createBrand: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/brand`,
+        url: "/brand",
         method: "POST",
         body: data
       }),
       invalidatesTags: [{ type: "Brands", id: "LIST" }]
     }),
 
+    // Update a brand by ID
     updateBrand: builder.mutation({
       query: ({ id, data }) => ({
-        url: `${BASE_URL}/brand/${id}`,
+        url: `/brand/${id}`,
         method: "PUT",
         body: data
       }),
-      invalidatesTags: (result, error, arg) => [
-        { type: "Brands", id: arg.id },
-        { type: "Brands", id: "LIST" }
-      ]
+      invalidatesTags: (result, error, { id }) => [{ type: "Brands", id }, { type: "Brands", id: "LIST" }]
     }),
 
+    // Delete a brand by ID
     deleteBrand: builder.mutation({
       query: (id) => ({
-        url: `${BASE_URL}/brand/${id}`,
+        url: `/brand/${id}`,
         method: "DELETE"
       }),
-      invalidatesTags: (result, error, arg) => [
-        { type: "Brands", id: arg },
-        { type: "Brands", id: "LIST" }
-      ]
+      invalidatesTags: (result, error, id) => [{ type: "Brands", id }, { type: "Brands", id: "LIST" }]
     })
   })
 })
 
 export const {
   useGetBrandsQuery,
-  useLazyGetBrandsQuery,
   useGetBrandByIdQuery,
   useCreateBrandMutation,
   useUpdateBrandMutation,
-  useDeleteBrandMutation
+  useDeleteBrandMutation,
+  useLazyGetBrandsQuery
 } = brandSlice

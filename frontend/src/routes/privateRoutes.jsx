@@ -15,6 +15,9 @@ import CouponEdit from "~/pages/admin/CouponEdit"
 import ManagementLaptopDetail from "~/pages/admin/ManagementLaptopDetail"
 import ManagementStaffDetail from "~/pages/admin/ManagementStaffDetail"
 import ManagementLaptopCreate from "~/pages/admin/ManagementLaptopCreate"
+import BrandManagement from "~/pages/admin/brand/ManageBrand"
+import BrandCreate from "~/pages/admin/brand/BrandCreate"
+import BrandEdit from "~/pages/admin/brand/BrandEdit"
 
 const privateRoutes = [
   {
@@ -36,7 +39,10 @@ const privateRoutes = [
       { path: "promotions/create", element: <CreateCoupon /> },
       { path: "promotions/edit/:id", element: <EditCoupon /> },
       { path: "coupons", element: <ManagementCoupon /> },
-      { path: "coupons/:id", element: <CouponEdit /> }
+      { path: "coupons/:id", element: <CouponEdit /> },
+      { path: "brand", element: <BrandManagement /> },
+      { path: "brand/create", element: <BrandCreate /> },
+      { path: "brand/edit/:id", element: <BrandEdit /> }
     ]
   }
 ]
