@@ -161,10 +161,10 @@ export default function ProductListing() {
         description="Khám phá bộ sưu tập laptop toàn diện của chúng tôi. Lọc theo thương hiệu, hiệu năng, giá cả và tìm chiếc laptop lý tưởng cho công việc, chơi game hoặc sử dụng cá nhân."
       />
 
-      <div className="bg-gray-100 dark:bg-gray-800">
+      <div className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 transition-colors duration-500">
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Mua Laptop</h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300">Mua Laptop</h1>
+          <p className="text-gray-600 dark:text-gray-300 transition-colors duration-500">
             Khám phá bộ sưu tập Laptop đa dạng từ các thương hiệu hàng đầu
           </p>
         </div>

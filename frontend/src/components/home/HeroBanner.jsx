@@ -1,65 +1,82 @@
 import { Link } from "react-router-dom"
-
 import { Button } from "~/components/ui/Button"
-import { useIsMobile } from "~/hooks/useIsMobile"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay, Pagination } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/pagination"
+
+const slides = [
+  {
+    id: 1,
+    image: "https://lh3.googleusercontent.com/xXhdvJ0ghxHZI_JiZ4HKlBxFjeL9lXFC4UUp87W2Zqw7CDpNRct2iUnDAFa4FteHawV4hZ_ETgvpQLMML6Q8U5sGmB6LNw8EAw=w1920-rw",
+    title: "Laptop Mới 2024",
+    subtitle: "Ưu đãi lên đến 20% - Trả góp 0%",
+    description: "Sở hữu laptop mỏng nhẹ, hiệu năng mạnh mẽ, giá cực tốt. Đổi trả miễn phí 7 ngày.",
+    cta: "Xem Sản Phẩm"
+  },
+  {
+    id: 2,
+    image: "https://file.hstatic.net/200000722513/file/thang_04_pc_tang_man_banner_web_slider_800x400.jpg",
+    title: "Back To School",
+    subtitle: "Sinh viên mua laptop giảm thêm 1 triệu",
+    description: "Tặng balo, chuột không dây, bảo hành chính hãng toàn quốc.",
+    cta: "Mua Ngay"
+  },
+  {
+    id: 3,
+    image: "https://file.hstatic.net/200000722513/file/thang_04_laptop_gaming_banner_web_slider_800x400.jpg",
+    title: "Gaming Laptop",
+    subtitle: "Hiệu năng đỉnh cao - Giá sốc",
+    description: "Laptop gaming RTX series, màn hình 144Hz, tản nhiệt tối ưu, quà tặng hấp dẫn.",
+    cta: "Khám Phá Ngay"
+  }
+]
+
 
 const HeroBanner = () => {
-  const isMobile = useIsMobile()
-  return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-800 text-white min-h-screen">
-      <div className="absolute inset-0 opacity-30">
-        <img
-          src="https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
-          alt="Nền"
-          className="w-full h-full sm:h-auto object-cover object-center"
-        />
 
-      </div>
-      <div className="container mx-auto px-4 py-16 md:py-24 lg:py-32 relative z-10">
-        <div className="max-w-3xl mx-auto lg:mx-0">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight animate-fadeIn">
-            Khai Phá
-            <span className="block text-primary-300">Hiệu Suất Làm Việc Tối Ưu</span>
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8 text-gray-100 max-w-2xl animate-slideUp">
-            Khám phá bộ sưu tập laptop cao cấp của chúng tôi – hiệu năng mạnh mẽ, thiết kế tiện dụng, nâng tầm trải nghiệm số của bạn.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Link to="/products" className="w-full sm:w-auto">
-              <Button size={isMobile ? "default" : "lg"} className="w-full">
-                Mua Ngay
-              </Button>
-            </Link>
-            <Link to="/deals" className="w-full sm:w-auto">
-              <Button
-                variant="outline"
-                size={isMobile ? "default" : "lg"}
-                className="bg-white/10 hover:bg-white/20 text-white border-white w-full"
-              >
-                Ưu Đãi Đặc Biệt
-              </Button>
-            </Link>
-          </div>
-          <div className="mt-8 md:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 text-center">
-            <div>
-              <p className="text-2xl md:text-3xl font-bold">30+</p>
-              <p className="text-xs sm:text-sm text-gray-200">Thương hiệu hàng đầu</p>
+  return (
+    <div className="relative w-full min-h-[300px] md:min-h-[400px] lg:min-h-[500px] overflow-hidden">
+      <Swiper
+        modules={[Autoplay, Pagination]}
+        slidesPerView={1}
+        autoplay={{
+          delay: 5000,
+          disableOnInteraction: false,
+        }}
+        pagination={{
+          clickable: true,
+        }}
+        className="w-full h-full"
+      >
+        {slides.map((slide) => (
+          <SwiperSlide key={slide.id}>
+            <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] flex items-center justify-center">
+              {/* Background image */}
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+              {/* Content */}
+              {/* <div className="relative z-10 container mx-auto px-4 flex flex-col md:flex-row items-center h-full">
+                <div className="max-w-xl text-white py-8 md:py-0">
+                  <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 drop-shadow-lg">{slide.title}</h1>
+                  <h2 className="text-lg md:text-2xl font-semibold text-primary-300 mb-4 drop-shadow">{slide.subtitle}</h2>
+                  <p className="mb-6 text-sm md:text-base text-gray-100 drop-shadow">{slide.description}</p>
+                  <Link to="/products">
+                    <Button size={isMobile ? "default" : "lg"} className="bg-primary-500 hover:bg-primary-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition">
+                      {slide.cta}
+                    </Button>
+                  </Link>
+                </div> 
+              </div> */}
             </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-bold">500+</p>
-              <p className="text-xs sm:text-sm text-gray-200">Mẫu laptop</p>
-            </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-bold">90%</p>
-              <p className="text-xs sm:text-sm text-gray-200">Khách hàng hài lòng</p>
-            </div>
-            <div>
-              <p className="text-2xl md:text-3xl font-bold">24/7</p>
-              <p className="text-xs sm:text-sm text-gray-200">Hỗ trợ kỹ thuật</p>
-            </div>
-          </div>
-        </div>
-      </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </div>
   )
 }
