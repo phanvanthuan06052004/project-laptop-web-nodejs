@@ -1,16 +1,15 @@
-import { useDispatch } from "react-redux"
+import { useSelector } from "react-redux"
 import { toast } from "react-toastify"
 import { ShoppingCart } from "lucide-react"
 import { Link } from "react-router-dom"
 
-import { addItem } from "~/store/slices/cartSlice"
 import { formatPrice } from "~/utils/formatPrice"
-
+import { selectCurrentUser } from "~/store/slices/authSlice"
+import { useAddItemMutation } from "~/store/apis/cartSlice"
 const ProductCard = ({ product }) => {
   const { _id, name, displayName, price, discount, mainImg, nameSlug } = product
 
-  const dispatch = useDispatch()
-
+  const userId = useSelector(selectCurrentUser)?._id
   // Lấy thông số kỹ thuật chính từ mảng specs
   const specs = product.specs && product.specs.length > 0 ? product.specs[0] : null
 
@@ -20,21 +19,22 @@ const ProductCard = ({ product }) => {
   // Tính giá sau khi giảm
   const discountedPrice = discount ? price - (price * discount) / 100 : null
   const finalPrice = discountedPrice || price
-
-  const handleAddToCart = () => {
+  const [addItemApi] = useAddItemMutation()
+  const handleAddToCart = async () => {
     try {
-      dispatch(
-        addItem({
-          id: _id,
-          name: displayName || name,
-          price: finalPrice,
-          quantity: 1,
-          image: mainImg
-        })
-      )
-      toast.success("Đã thêm vào giỏ hàng!")
-    // eslint-disable-next-line no-unused-vars
+      const addData = await addItemApi({
+        userId: userId,
+        laptopId: _id,
+        quantity: 1
+      })
+
+      if (addData?.data) {
+        toast.success("Đã thêm vào giỏ hàng!")
+      } else {
+        toast.error("Sản phẩm không đủ hàng")
+      }
     } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error)
       toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại!")
     }
   }

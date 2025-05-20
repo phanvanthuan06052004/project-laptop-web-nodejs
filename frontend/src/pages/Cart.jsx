@@ -41,7 +41,7 @@ const Cart = () => {
   const removeItem = async (id) => {
     try {
       await removeCartItem(id).unwrap()
-      toast.success("Item removed from cart.")
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng.")
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Failed to remove item:", err)
@@ -120,9 +120,9 @@ const Cart = () => {
                         <div className="flex flex-col flex-1">
                           <div className="flex justify-between">
                             <div>
-                              <h3 className="font-medium text-gray-900 dark:text-white">
+                              <h4 className="font-medium text-gray-900 dark:text-white">
                                 {item.product.name}
-                              </h3>
+                              </h4>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
                                 {item.product.brand || "Unknown Brand"}
                               </p>
@@ -131,7 +131,7 @@ const Cart = () => {
                               ₫{(item.product.price * item.quantity).toLocaleString("vi-VN")}
                             </p>
                           </div>
-                          <span className="text-xl font-semibold text-red-500">
+                          <span className="text-md font-semibold text-red-500">
                             Còn lại {item?.product?.stock || "Unknown"} sản phẩm
                           </span>
                           <div className="mt-auto flex justify-between items-center pt-4">

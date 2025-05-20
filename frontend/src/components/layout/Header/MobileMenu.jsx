@@ -85,7 +85,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
               {[
                 { title: "Trang chủ", path: "/" },
                 { title: "Laptop ", path: "/products" },
-                { title: "Bài viết", path: "/blog" }
+                // { title: "Bài viết", path: "/blog" }
               ].map((item) => (
                 <li key={item.path}>
                   <Link
