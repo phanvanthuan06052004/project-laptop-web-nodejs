@@ -1,18 +1,17 @@
 import express from 'express'
 import { commentController } from '~/controllers/commentController.js'
 import { authMiddlewares } from '~/middlewares/authMiddleware'
-import { commentValidation } from '~/validations/commentValidation.js'
 
 const Router = express.Router()
 
 Router.route('/')
-  .post(authMiddlewares.authentication, commentValidation.createNew, commentController.createNew)
-  .get(commentValidation.getCommentByParentId, commentController.getCommentsByParentId)
-  .delete(commentValidation.deleteNestedById, commentController.deleteNestedById)
+  .post(authMiddlewares.authentication, commentController.createNew)
+  .get(commentController.getCommentsByParentId)
+  .delete(commentController.deleteNestedById)
 
 
 Router.route('/:id')
-  .patch(commentValidation.updateComment, commentController.updateComment)
-  .delete(commentValidation.deleteComment, commentController.deleteComment)
+  .patch(commentController.updateComment)
+  .delete(commentController.deleteComment)
 
 export const commentRoute = Router
