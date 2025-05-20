@@ -1,45 +1,45 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Check, ChevronRight } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import ShippingStep from "./ShippingStep";
-import PaymentStep from "./PaymentStep";
-import ReviewStep from "./ReviewStep";
-import { useCreateOrderMutation } from "~/store/apis/orderSlice";
-import { useSelector, useDispatch } from "react-redux";
-import { selectCurrentUser } from "~/store/slices/authSlice";
-import { useDeleteCartMutation } from "~/store/apis/cartSlice";
-import { useApplyCouponMutation } from "~/store/apis/couponSlice";
-import { selectCartItems, clearCart, removeItem } from "~/store/slices/cartSlice";
-import CouponModal from "~/components/CouponModal";
+import React, { useState, useCallback } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { Check, ChevronRight } from "lucide-react"
+import { Button } from "~/components/ui/button"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import ShippingStep from "./ShippingStep"
+import PaymentStep from "./PaymentStep"
+import ReviewStep from "./ReviewStep"
+import { useCreateOrderMutation } from "~/store/apis/orderSlice"
+import { useSelector, useDispatch } from "react-redux"
+import { selectCurrentUser } from "~/store/slices/authSlice"
+import { useDeleteCartMutation } from "~/store/apis/cartSlice"
+import { useApplyCouponMutation } from "~/store/apis/couponSlice"
+import { selectCartItems, clearCart, removeItem } from "~/store/slices/cartSlice"
+import CouponModal from "~/components/CouponModal"
 
 const Checkout = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const currentUser = useSelector(selectCurrentUser);
-  const [createOrder] = useCreateOrderMutation();
-  const [deleteCart] = useDeleteCartMutation();
-  const [applyCoupon] = useApplyCouponMutation();
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const currentUser = useSelector(selectCurrentUser)
+  const [createOrder] = useCreateOrderMutation()
+  const [deleteCart] = useDeleteCartMutation()
+  const [applyCoupon] = useApplyCouponMutation()
 
   // Lấy cartItems từ location state (khi chuyển từ Cart.jsx)
-  const locationCartItems = location.state?.cartItems || [];
+  const locationCartItems = location.state?.cartItems || []
   // Lấy cartItems từ Redux store (khi chọn Buy Now từ ProductActions.jsx)
-  const reduxCartItems = useSelector(selectCartItems);
+  const reduxCartItems = useSelector(selectCartItems)
 
   // Sử dụng cartItems từ location state nếu có, nếu không thì dùng từ Redux store
-  const cartItems = locationCartItems.length > 0 ? locationCartItems : reduxCartItems;
+  const cartItems = locationCartItems.length > 0 ? locationCartItems : reduxCartItems
 
   // Tính toán subtotal từ cartItems
   const subtotal = cartItems.reduce((total, item) => {
-    const price = item.price || 0;
-    const quantity = item.quantity || 0;
-    return total + (price * quantity);
-  }, 0);
+    const price = item.price || 0
+    const quantity = item.quantity || 0
+    return total + (price * quantity)
+  }, 0)
 
-  const [currentStep, setCurrentStep] = useState("shipping");
+  const [currentStep, setCurrentStep] = useState("shipping")
   const [shippingDetails, setShippingDetails] = useState({
     firstName: "",
     lastName: "",
@@ -50,29 +50,29 @@ const Checkout = () => {
     address: "",
     phone: "",
     notes: null
-  });
+  })
   const [paymentDetails, setPaymentDetails] = useState({
     cardNumber: "",
     cardName: "",
     expiryDate: "",
     cvv: ""
-  });
-  const [shippingMethod, setShippingMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("COD");
-  const [shippingCost, setShippingCost] = useState(30000);
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState(location.state?.appliedCoupon || null);
-  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  })
+  const [shippingMethod, setShippingMethod] = useState("standard")
+  const [paymentMethod, setPaymentMethod] = useState("COD")
+  const [shippingCost, setShippingCost] = useState(30000)
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState(location.state?.appliedCoupon || null)
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false)
 
   // Chỉ cập nhật shipping cost khi thay đổi shipping method
   const updateShippingCost = (method) => {
-    const newShippingCost = method === "express" ? 50000 : 30000;
-    setShippingCost(newShippingCost);
+    const newShippingCost = method === "express" ? 50000 : 30000
+    setShippingCost(newShippingCost)
   };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
-      toast.error("Vui lòng nhập mã giảm giá");
+      toast.error("Vui lòng nhập mã giảm giá")
       return;
     }
     try {
@@ -81,39 +81,42 @@ const Checkout = () => {
         userId: currentUser._id,
         orderTotal: subtotal,
         shippingCost: shippingCost
-      }).unwrap();
-      setAppliedCoupon(result);
-      toast.success("Áp dụng mã giảm giá thành công!");
-      setCouponCode("");
+      }).unwrap()
+      setAppliedCoupon(result)
+      toast.success("Áp dụng mã giảm giá thành công!")
+      setCouponCode("")
     } catch (error) {
-      toast.error(error?.data?.message || "Không thể áp dụng mã giảm giá");
-      setAppliedCoupon(null);
+      toast.error(error?.data?.message || "Không thể áp dụng mã giảm giá")
+      setAppliedCoupon(null)
     }
-  };
+  }
 
   const handleApplyCouponFromModal = (result) => {
-    setAppliedCoupon(result);
-    setCouponCode(""); // Xóa ô nhập mã sau khi áp dụng từ modal
+    setAppliedCoupon(result)
+    setCouponCode("") // Xóa ô nhập mã sau khi áp dụng từ modal
   };
 
   // Update shipping method handler
   const handleShippingMethodChange = (method) => {
-    setShippingMethod(method);
-    updateShippingCost(method);
+    setShippingMethod(method)
+    updateShippingCost(method)
   };
 
   // Calculate final total including new shipping cost
-  const finalTotal = subtotal + shippingCost - (appliedCoupon?.discount || 0);
+  const finalTotal = subtotal + shippingCost - (appliedCoupon?.discount || 0)
 
   // Handlers
-  const handleShippingSubmit = (e) => {
-    e.preventDefault();
+  const handleShippingSubmit = (shippingAddress) => {
+    // Cập nhật lại state shippingDetails với object mới (có tên)
+    setShippingDetails(shippingAddress);
+
+    // Tiếp tục xử lý đặt hàng
     switch (paymentMethod) {
       case "COD":
-        handlePlaceOrder();
+        handlePlaceOrder(shippingAddress);
         break;
       case "BANK":
-        handleBankPayment();
+        handleBankPayment(shippingAddress);
         break;
       default:
         toast.error("Vui lòng chọn phương thức thanh toán");
@@ -121,24 +124,24 @@ const Checkout = () => {
   };
 
   const handlePaymentSubmit = () => {
-    setCurrentStep("review");
+    setCurrentStep("review")
   };
 
-  const handleBankPayment = async () => {
+  const handleBankPayment = async (shippingAddress) => {
     try {
-      let response = null;
+      let response = null
       if (locationCartItems.length > 0) {
         response = await createOrder({
           userId: currentUser._id,
-          shippingAddress: shippingDetails,
+          shippingAddress: shippingAddress,
           paymentMethod,
           items: cartItems,
           totalAmount: finalTotal,
           shippingCost: shippingCost,
           shippingMethod: shippingMethod,
           couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
-        }).unwrap();
-        await deleteCart(currentUser._id).unwrap();
+        }).unwrap()
+        await deleteCart(currentUser._id).unwrap()
       } else if (reduxCartItems.length > 0) {
         const items = reduxCartItems.map((item) => ({
           productId: item.id,
@@ -146,47 +149,47 @@ const Checkout = () => {
           price: item.price,
           productName: item.name,
           avatar: item.image
-        }));
+        }))
         response = await createOrder({
           userId: currentUser._id,
-          shippingAddress: shippingDetails,
+          shippingAddress: shippingAddress,
           paymentMethod,
           items,
           totalAmount: finalTotal,
           shippingCost: shippingCost,
           shippingMethod: shippingMethod,
           couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
-        }).unwrap();
-        dispatch(clearCart());
+        }).unwrap()
+        dispatch(clearCart())
       }
       if (response?.payment) {
-        navigate(`/payment/bank-transfer/${response.order.insertedId}`, { state: { paymentInfo: response.payment } });
+        navigate(`/payment/bank-transfer/${response.order.insertedId}`, { state: { paymentInfo: response.payment } })
       } else if (response) {
-        navigate(`/order-confirmation/${response.order.insertedId}`);
+        navigate(`/order-confirmation/${response.order.insertedId}`)
       } else {
-        toast.error("Không thể tạo đơn hàng");
+        toast.error("Không thể tạo đơn hàng")
       }
     } catch (err) {
-      console.log(err);
-      toast.error("Không thể tạo thanh toán ngân hàng");
+      console.log(err)
+      toast.error("Không thể tạo thanh toán ngân hàng")
     }
-  };
+  }
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = async (shippingAddress) => {
     try {
-      let response = null;
+      let response = null
       if (locationCartItems.length > 0) {
         response = await createOrder({
           userId: currentUser._id,
-          shippingAddress: shippingDetails,
+          shippingAddress: shippingAddress,
           paymentMethod,
           items: cartItems,
           totalAmount: finalTotal,
           shippingCost: shippingCost,
           shippingMethod: shippingMethod,
           couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
-        }).unwrap();
-        await deleteCart(currentUser._id).unwrap();
+        }).unwrap()
+        await deleteCart(currentUser._id).unwrap()
       } else if (reduxCartItems.length > 0) {
         const items = reduxCartItems.map((item) => ({
           productId: item.id,
@@ -194,39 +197,39 @@ const Checkout = () => {
           price: item.price,
           productName: item.name,
           avatar: item.image
-        }));
+        }))
         response = await createOrder({
           userId: currentUser._id,
-          shippingAddress: shippingDetails,
+          shippingAddress: shippingAddress,
           paymentMethod,
           items,
           totalAmount: finalTotal,
           shippingCost: shippingCost,
           shippingMethod: shippingMethod,
           couponCodes: appliedCoupon ? [appliedCoupon.couponCode] : []
-        }).unwrap();
-        dispatch(clearCart());
+        }).unwrap()
+        dispatch(clearCart())
       }
       if (response) {
-        navigate(`/order-confirmation/${response.order.insertedId}`);
+        navigate(`/order-confirmation/${response.order.insertedId}`)
       } else {
-        toast.error("Không thể tạo đơn hàng");
+        toast.error("Không thể tạo đơn hàng")
       }
     } catch (err) {
-      console.log(err);
-      toast.error("Không thể đặt hàng");
+      console.log(err)
+      toast.error("Không thể đặt hàng")
     }
-  };
+  }
 
   // Hàm xóa item khỏi Redux cart
   const handleRemoveItem = (id) => {
-    dispatch(removeItem(id));
+    dispatch(removeItem(id))
   };
 
   // Đảm bảo dữ liệu đã sẵn sàng trước khi mở modal
   const handleOpenCouponModal = useCallback(() => {
-    setIsCouponModalOpen(true);
-  }, []);
+    setIsCouponModalOpen(true)
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -439,7 +442,7 @@ const Checkout = () => {
         </div>
       </main>
     </div>
-  );
+  )
 };
 
-export default Checkout;
+export default Checkout

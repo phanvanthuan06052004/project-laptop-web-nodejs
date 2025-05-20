@@ -56,6 +56,7 @@ Router.route('/')
       if (req.files && req.files.length > 0) {
         req.body.images = req.files.map(file =>
           `http://${env.LOCAL_APP_HOST}:${env.LOCAL_APP_PORT}/Uploads/reviews/${file.filename}`
+          // `https://laptop.thuandev.id.vn/Uploads/reviews/${file.filename}`
         )
       } else {
         req.body.images = []
