@@ -56,7 +56,7 @@ const AdminSidebar = () => {
         { title: "Tất cả sản phẩm", path: "/admin/products" },
         { title: "Thêm sản phẩm", path: "/admin/products/new" },
         { title: "Danh mục", path: "/admin/categories" },
-        { title: "Thuộc tính", path: "/admin/attributes" }
+        { title: "Thương hiệu", path: "/admin/brand" }
       ]
     },
     {

@@ -565,7 +565,10 @@ const EditCoupon = () => {
             <div className="col-span-2 flex justify-end gap-4">
               <Button
                 variant="outline"
-                onClick={() => navigate("/admin/coupons")}
+                onClick={(e) =>{
+                  e.preventDefault();
+                  navigate("/admin/promotions")
+                } }
               >
                 Hủy
               </Button>
