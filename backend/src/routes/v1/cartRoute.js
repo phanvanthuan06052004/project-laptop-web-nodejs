@@ -20,13 +20,13 @@ Router.route('/:userId')
   .delete(cartController.deleteCart)
 
 // Thêm hoặc cập nhật sản phẩm trong giỏ hàng
-Router.route('/items').post(cartController.addItem)
+Router.route('/items').post(cartValidation.addItem, cartController.addItem)
 
 // Cập nhật số lượng sản phẩm trong giỏ hàng
 // Xóa sản phẩm khỏi giỏ hàng
 Router.route('/items/:cartItemId')
-  .put(cartController.updateQuantity)
-  .delete(cartController.deleteItem)
+  .put(cartValidation.updateQuantity, cartController.updateQuantity)
+  .delete(cartValidation.deleteItem, cartController.deleteItem)
 
 
 export const cartRoute = Router

@@ -41,8 +41,8 @@ const getByUserId = async (userId) => {
         const product = await productModel.findOneById(item.laptopId)
         let brand = null
         if (product?.brand) {
-          brand = await brandModel.findOneById(product.brand._id) // Giả sử bạn có một brandModel
-          console.log(brand)
+          brand = await brandModel.findOneById(product.brand._id)
+          // console.log(brand)
         }
         return {
           ...item,
