@@ -264,8 +264,10 @@ const resetPassword = async (email, newPassword) => {
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
     }
+    if (user.password === newPassword) throw new ApiError(StatusCodes.CONFLICT, 'Password must be different from the current password.');
 
     const hashedPassword = bcryptjs.hashSync(newPassword, 8)
+
     await userModel.updateUser(user._id, {
       'account.password': hashedPassword
     })
