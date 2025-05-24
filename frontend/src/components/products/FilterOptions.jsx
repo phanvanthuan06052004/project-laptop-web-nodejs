@@ -73,8 +73,8 @@ export function FilterOptions({ activeFilters, toggleFilter, brands }) {
                     id={`brand-${brand._id}`}
                     type="checkbox"
                     className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                    checked={(activeFilters.brands || []).includes(brand.slug)}
-                    onChange={() => toggleFilter("brands", brand.slug)}
+                    checked={(activeFilters.brand || []).includes(brand.slug)}
+                    onChange={() => toggleFilter("brand", brand.slug)}
                   />
                   <label htmlFor={`brand-${brand._id}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                     {brand.name}
