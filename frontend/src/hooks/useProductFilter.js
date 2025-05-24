@@ -1,8 +1,8 @@
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-
 import { setPage, setFilters, setSort, resetFilters } from "~/store/slices/productSlice"
+import { createCompositeFilter } from "~/strategies/filters/createFilter"
 
 /**
  * Custom hook to handle product filtering logic
@@ -12,6 +12,9 @@ export const useProductFilter = () => {
   const { page, filters, sort: sortBy } = useSelector((state) => state.product)
   const [searchParams] = useSearchParams()
   const searchQuery = searchParams.get("search")
+
+  // Tạo composite filter và memoize nó
+  const compositeFilter = useMemo(() => createCompositeFilter(), [])
 
   /**
    * Toggle a filter value
@@ -185,135 +188,9 @@ export const useProductFilter = () => {
   const filterProductsClientSide = useCallback(
     (products) => {
       if (!products || !products.length) return []
-
-      let filteredProducts = [...products]
-
-      // Filter by brands
-      if (filters.brands && filters.brands.length > 0) {
-        filteredProducts = filteredProducts.filter((product) => {
-          const brandAttribute = product.attributeGroup?.find(
-            (attr) => attr.name === "Thương hiệu"
-          )
-          const brandDisplay = brandAttribute?.values.toLowerCase() || ""
-          return filters.brands.some((brand) => {
-            // Nếu chọn "macbook" thì khớp với "apple"
-            if (brand === "macbook" && brandDisplay === "apple") {
-              return true
-            }
-            // Các trường hợp khác
-            return brand === brandDisplay
-          })
-        })
-      }
-
-      // Filter by RAM
-      if (filters.ram && filters.ram.length > 0) {
-        filteredProducts = filteredProducts.filter((product) => {
-          if (!product.specs || !product.specs.length) return false
-          const ramInfo = product.specs[0].ram?.toLowerCase() || ""
-
-          return filters.ram.some((ram) => {
-            // For 32GB RAM filter
-            if (ram === "32gb") {
-              // Match exact 32GB configurations or 1 x 32GB
-              if (/\b32gb\b/.test(ramInfo) || /\b1\s*x\s*32gb\b/.test(ramInfo)) return true
-              // Match configurations like "2 x 16GB" (32GB total)
-              if (/\b2\s*x\s*16gb\b/.test(ramInfo)) return true
-              // Match configurations like "4 x 8GB" (32GB total)
-              if (/\b4\s*x\s*8gb\b/.test(ramInfo)) return true
-              // Match configurations like "16GB + 16GB" (32GB total)
-              if (/\b16gb\s*\+\s*16gb\b/.test(ramInfo)) return true
-              return false
-            }
-
-            // For 24GB RAM filter
-            if (ram === "24gb") {
-              // Match exact 24GB configurations or 1 x 24GB
-              if (/\b24gb\b/.test(ramInfo) || /\b1\s*x\s*24gb\b/.test(ramInfo)) return true
-              // Match configurations like "16GB + 8GB" (24GB total)
-              if (/\b16gb\s*\+\s*8gb\b/.test(ramInfo) || /\b8gb\s*\+\s*16gb\b/.test(ramInfo)) return true
-              // Match configurations like "3 x 8GB" (24GB total)
-              if (/\b3\s*x\s*8gb\b/.test(ramInfo)) return true
-              return false
-            }
-
-            // For 16GB RAM filter
-            if (ram === "16gb") {
-              // Match exact 16GB configurations or 1 x 16GB
-              if (/\b16gb\b/.test(ramInfo) || /\b1\s*x\s*16gb\b/.test(ramInfo)) {
-                // Exclude configurations that are parts of larger setups
-                if (
-                  !/\b2\s*x\s*16gb\b/.test(ramInfo) && // Exclude "2 x 16GB" (32GB total)
-                  !/\b16gb\s*\+\s*16gb\b/.test(ramInfo) && // Exclude "16GB + 16GB" (32GB total)
-                  !/\b16gb\s*\+\s*8gb\b/.test(ramInfo) && // Exclude "16GB + 8GB" (24GB total)
-                  !/\b8gb\s*\+\s*16gb\b/.test(ramInfo) // Exclude "8GB + 16GB" (24GB total)
-                ) {
-                  return true
-                }
-              }
-              // Match configurations like "2 x 8GB" (16GB total)
-              if (/\b2\s*x\s*8gb\b/.test(ramInfo)) return true
-              return false
-            }
-
-            // For 8GB RAM filter
-            if (ram === "8gb") {
-              // Match exact 8GB configurations or 1 x 8GB
-              if (/\b8gb\b/.test(ramInfo) || /\b1\s*x\s*8gb\b/.test(ramInfo)) {
-                // Exclude configurations that are parts of larger setups
-                if (
-                  !/\b2\s*x\s*8gb\b/.test(ramInfo) && // Exclude "2 x 8GB" (16GB total)
-                  !/\b3\s*x\s*8gb\b/.test(ramInfo) && // Exclude "3 x 8GB" (24GB total)
-                  !/\b4\s*x\s*8gb\b/.test(ramInfo) && // Exclude "4 x 8GB" (32GB total)
-                  !/\b8gb\s*\+\s*8gb\b/.test(ramInfo) && // Exclude "8GB + 8GB" (16GB total)
-                  !/\b8gb\s*\+\s*16gb\b/.test(ramInfo) && // Exclude "8GB + 16GB" (24GB total)
-                  !/\b16gb\s*\+\s*8gb\b/.test(ramInfo) // Exclude "16GB + 8GB" (24GB total)
-                ) {
-                  return true
-                }
-              }
-              return false
-            }
-
-            return false
-          })
-        })
-      }
-
-      // Filter by CPU
-      if (filters.cpu && filters.cpu.length > 0) {
-        filteredProducts = filteredProducts.filter((product) => {
-          if (!product.specs || !product.specs.length) return false
-          const cpuInfo = product.specs[0].cpu?.toLowerCase() || ""
-
-          return filters.cpu.some((cpu) => {
-            if (cpu === "intel-core-ultra") return cpuInfo.includes("ultra")
-            if (cpu === "intel-core-i9") return cpuInfo.includes("i9")
-            if (cpu === "intel-core-i7") return cpuInfo.includes("i7")
-            if (cpu === "intel-core-i5") return cpuInfo.includes("i5")
-            if (cpu === "amd-ryzen") return cpuInfo.includes("ryzen")
-            return false
-          })
-        })
-      }
-
-      // Filter by Storage
-      if (filters.storage && filters.storage.length > 0) {
-        filteredProducts = filteredProducts.filter((product) => {
-          if (!product.specs || !product.specs.length) return false
-          const storageInfo = product.specs[0].storage?.toLowerCase() || ""
-
-          return filters.storage.some((storage) => {
-            if (storage === "1tb") return storageInfo.includes("1tb")
-            if (storage === "512gb") return storageInfo.includes("512gb")
-            return false
-          })
-        })
-      }
-
-      return filteredProducts
+      return compositeFilter.filter(products, filters)
     },
-    [filters]
+    [filters, compositeFilter]
   )
 
   /**
@@ -359,7 +236,7 @@ export const useProductFilter = () => {
 
     if (category === "ram") {
       if (value === "32gb") return "32GB"
-      if (value === "32gb") return "24GB"
+      if (value === "24gb") return "24GB"
       if (value === "16gb") return "16GB"
       if (value === "8gb") return "8GB"
     }
@@ -379,6 +256,7 @@ export const useProductFilter = () => {
 
     return value
   }, [])
+
   return {
     filters,
     sortBy,
