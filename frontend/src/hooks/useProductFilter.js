@@ -68,60 +68,7 @@ export const useProductFilter = () => {
    */
   const buildQueryParams = useCallback(
     (forAllProducts = false) => {
-      // If we're fetching all products for client-side filtering,
-      // use a large limit and skip pagination
-      if (forAllProducts) {
-        const params = {
-          limit: 300 // Fetch a large number of products
-        }
-
-        // Still apply price filters on the server to reduce data
-        if (filters.price && filters.price.length > 0) {
-          const priceRanges = {
-            "under-15000000": { min: 0, max: 15000000 },
-            "15000000-25000000": { min: 15000000, max: 25000000 },
-            "25000000-35000000": { min: 25000000, max: 35000000 },
-            "35000000-50000000": { min: 35000000, max: 50000000 },
-            "over-50000000": { min: 50000000, max: null }
-          }
-
-          let minPrice = Number.MAX_SAFE_INTEGER
-          let maxPrice = 0
-
-          filters.price.forEach((priceRange) => {
-            const range = priceRanges[priceRange]
-            if (range) {
-              minPrice = Math.min(minPrice, range.min)
-              if (range.max !== null) {
-                maxPrice = Math.max(maxPrice, range.max)
-              } else {
-                maxPrice = Number.MAX_SAFE_INTEGER
-              }
-            }
-          })
-
-          if (minPrice !== Number.MAX_SAFE_INTEGER) {
-            params.minPrice = minPrice
-          }
-
-          if (maxPrice !== Number.MAX_SAFE_INTEGER && maxPrice !== 0) {
-            params.maxPrice = maxPrice
-          }
-        }
-
-        // Add search query if present
-        if (searchQuery) {
-          params.name = searchQuery
-        }
-
-        return params
-      }
-
-      // Regular query params for standard API calls
-      const params = {
-        page,
-        limit: 9
-      }
+      const params = forAllProducts ? { limit: 300 } : { page, limit: 9 }
 
       // Handle sorting
       if (sortBy === "price-low") {
@@ -147,7 +94,6 @@ export const useProductFilter = () => {
           "over-50000000": { min: 50000000, max: null }
         }
 
-        // Find min and max from selected price ranges
         let minPrice = Number.MAX_SAFE_INTEGER
         let maxPrice = 0
 
@@ -173,7 +119,7 @@ export const useProductFilter = () => {
       }
 
       // Handle brand filters - only for regular API calls
-      if (filters.brands && filters.brands.length === 1) {
+      if (!forAllProducts && filters.brands && filters.brands.length === 1) {
         params.brand = filters.brands[0]
       }
 

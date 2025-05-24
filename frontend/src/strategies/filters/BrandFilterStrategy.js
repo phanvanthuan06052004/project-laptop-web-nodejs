@@ -1,24 +1,43 @@
 import FilterStrategy from "./FilterStrategy"
 
 class BrandFilterStrategy extends FilterStrategy {
-  filter(products, brandSlugs) {
-    if (!brandSlugs || !brandSlugs.length) return products
+  filter(products, filters) {
+    const brandSlugs = filters?.brands || []
+    
+    if (!brandSlugs.length) {
+      return products
+    }
 
-    return products.filter((product) => {
-      const brandAttribute = product.attributeGroup?.find(
+    const filteredProducts = products.filter((product) => {
+      if (!product.attributeGroup || !Array.isArray(product.attributeGroup)) {
+        return false
+      }
+
+      const brandAttribute = product.attributeGroup.find(
         (attr) => attr.name === "Thương hiệu"
       )
-      const brandDisplay = brandAttribute?.values.toLowerCase() || ""
+
+      if (!brandAttribute || !brandAttribute.values) {
+        return false
+      }
+
+      const brandValue = brandAttribute.values.toLowerCase().trim()
       
-      return brandSlugs.some((brand) => {
-        // Nếu chọn "macbook" thì khớp với "apple"
-        if (brand === "macbook" && brandDisplay === "apple") {
-          return true
+      return brandSlugs.some((brandSlug) => {
+        if (brandSlug === "macbook") {
+          return brandValue === "apple"
         }
-        // Các trường hợp khác
-        return brand === brandDisplay
+        
+        const brandValueSlug = brandValue
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+        
+        return brandSlug === brandValueSlug
       })
     })
+
+    return filteredProducts
   }
 }
 
