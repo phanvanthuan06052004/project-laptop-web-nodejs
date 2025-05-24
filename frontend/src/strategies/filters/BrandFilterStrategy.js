@@ -20,17 +20,17 @@ class BrandFilterStrategy extends FilterStrategy {
       }
 
       const brandValue = brandAttribute.values.toLowerCase().trim()
-      
+
       return brands.some((brandSlug) => {
         if (brandSlug === "macbook") {
           return brandValue === "apple"
         }
-        
+
         const brandValueSlug = brandValue
           .toLowerCase()
           .replace(/\s+/g, "-")
           .replace(/[^a-z0-9-]/g, "")
-        
+
         return brandSlug === brandValueSlug
       })
     })

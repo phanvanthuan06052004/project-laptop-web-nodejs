@@ -9,7 +9,7 @@ class FilterStrategy {
    * @returns {Array} - Danh sách sản phẩm đã được lọc
    */
   filter(products, filterValue) {
-    throw new Error('Method filter() must be implemented')
+    throw new Error("Method filter() must be implemented")
   }
 }
 
