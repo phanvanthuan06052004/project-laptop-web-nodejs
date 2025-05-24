@@ -79,7 +79,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger className="p-2 hover:bg-muted rounded-full">
                   {/* <User size={20} /> */}
-                  <Avatar 
+                  <Avatar
                     src={userInfo?.avatar}
                     name={userInfo?.displayname}
                     size="sm"
@@ -119,17 +119,20 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <Link to="/login" className="p-2 hover:bg-muted rounded-full">
-                <User size={20} />
+                <div className="flex items-center justify-center gap-2"> <User size={20} /> <h6>Đăng nhập</h6>  </div>
               </Link>
             )}
 
             {/* Cart */}
-            <button onClick={() => navigate("/cart")} className="p-2 hover:bg-muted rounded-full relative">
-              <ShoppingCart size={20} />
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartNumber ? cartNumber : 0}
-              </span>
-            </button>
+            {isAuthenticated && (
+              <button onClick={() => navigate("/cart")} className="p-2 hover:bg-muted rounded-full relative">
+                <ShoppingCart size={20} />
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartNumber ? cartNumber : 0}
+                </span>
+              </button>
+
+            ) }
 
             {/* Mobile Menu Toggle */}
             <button className="md:hidden p-2 hover:bg-muted rounded-full" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>

@@ -86,7 +86,7 @@ const updateOneById = async (id, data) => {
   }
 }
 
-const getCommentByParentId = async (parentId, productId) => {
+const getCommentByParentId = async (parentId = null, productId) => {
   try {
     if (!ObjectId.isValid(productId)) {
       throw new Error('Invalid product ID')
@@ -94,7 +94,7 @@ const getCommentByParentId = async (parentId, productId) => {
 
     let comments
 
-    if (parentId) {
+    if (parentId !== 'null') {
       if (!ObjectId.isValid(parentId)) {
         throw new Error('Invalid parent comment ID')
       }

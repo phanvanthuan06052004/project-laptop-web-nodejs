@@ -50,7 +50,7 @@ const updateComment = async (id, updateData) => {
   }
 }
 
-const getCommentByParentId = async (parentId, productId) => {
+const getCommentByParentId = async (parentId = null, productId) => {
   try {
     const comments = await commentModel.getCommentByParentId(parentId, productId)
     if (!comments) {

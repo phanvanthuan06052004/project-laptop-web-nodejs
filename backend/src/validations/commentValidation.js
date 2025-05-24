@@ -14,7 +14,7 @@ export const commentValidation = {
         .required()
         .pattern(OBJECT_ID_RULE)
         .message(OBJECT_ID_RULE_MESSAGE),
-      content: Joi.string().required().trim().strict(),
+      content: Joi.string().required(),
       parentId: Joi.string()
         .pattern(OBJECT_ID_RULE)
         .message(OBJECT_ID_RULE_MESSAGE)
@@ -35,7 +35,7 @@ export const commentValidation = {
 
   updateComment: async (req, res, next) => {
     const updateSchema = Joi.object({
-      content: Joi.string().trim().strict().required()
+      content: Joi.string().required()
     })
 
     try {

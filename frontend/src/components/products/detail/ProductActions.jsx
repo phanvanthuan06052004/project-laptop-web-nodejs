@@ -18,11 +18,16 @@ const ProductActions = ({ inStock, product, quantity: maxQuantity }) => {
 
   const handleAddToCart = async () => {
     try {
+      if (!userId) {
+        toast.warn("Bạn chưa đăng nhập!!")
+        return
+      }
       const addData = await addItemApi({
         userId: userId,
         laptopId: product.id,
-        quantity: quantity,
+        quantity: quantity
       })
+
 
       if (addData?.data) {
         toast.success("Đã thêm vào giỏ hàng!")
@@ -37,13 +42,17 @@ const ProductActions = ({ inStock, product, quantity: maxQuantity }) => {
 
   const handleBuyNow = () => {
     try {
+      if (!userId) {
+        toast.warn("Bạn chưa đăng nhập!!")
+        return
+      }
       dispatch(
         addItem({
           id: product.id,
           name: product.name,
           price: product.price,
           quantity: quantity,
-          image: product.image,
+          image: product.image
         })
       )
       navigate("/checkout")
