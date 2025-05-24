@@ -6,7 +6,7 @@ import ms from 'ms'
 const originalController = {
   createNew: {
     proxyConfig: { allowedRoles: [] }, // Public access
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const newUser = await userService.createNew(req.body)
         res.status(StatusCodes.CREATED).json(newUser)
@@ -15,10 +15,9 @@ const originalController = {
       }
     }
   },
-
   signIn: {
     proxyConfig: { allowedRoles: [] }, // Public access
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const newUser = await userService.signIn(req.body, res)
         res.status(StatusCodes.OK).json(newUser)
@@ -27,10 +26,9 @@ const originalController = {
       }
     }
   },
-
   refreshToken: {
-    proxyConfig: { allowedRoles: [] }, // Authenticated users
-    async handler(req, res) {
+    proxyConfig: { allowedRoles: [] }, // Public access
+    handler: async (req, res, next) => {
       try {
         const newAccessToken = await userService.refreshToken(req.cookies['refreshToken'])
         res.cookie('accessToken', newAccessToken, {
@@ -44,27 +42,25 @@ const originalController = {
           accessToken: newAccessToken
         })
       } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Please login again' })
+        next(error)
       }
     }
   },
-
   logout: {
     proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] },
-    async handler(req, res) {
+    handler: async (req, res, next) => {
       try {
         res.clearCookie('accessToken')
         res.clearCookie('refreshToken')
-        res.status(StatusCodes.OK).json({ message: 'Logout API success!' })
+        res.status(StatusCodes.OK).json({ message: 'Logout successful' })
       } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error)
+        next(error)
       }
     }
   },
-
   getUserProfile: {
     proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] },
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.getUserById(req.userId)
         res.status(StatusCodes.OK).json(result)
@@ -73,10 +69,9 @@ const originalController = {
       }
     }
   },
-
   updateUser: {
     proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] },
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.updateUser(req.params.id, req.body)
         res.status(StatusCodes.OK).json(result)
@@ -85,10 +80,9 @@ const originalController = {
       }
     }
   },
-
   getAll: {
     proxyConfig: { allowedRoles: ['admin'] },
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.getAll(req.query)
         res.status(StatusCodes.OK).json(result)
@@ -97,10 +91,9 @@ const originalController = {
       }
     }
   },
-
   getUserById: {
     proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] },
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.getUserById(req.params.id)
         res.status(StatusCodes.OK).json(result)
@@ -109,10 +102,9 @@ const originalController = {
       }
     }
   },
-
   updateUserByUserId: {
     proxyConfig: { allowedRoles: ['admin', 'member', 'staff'] },
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.updateUser(req.userId, req.body)
         res.status(StatusCodes.OK).json(result)
@@ -121,10 +113,9 @@ const originalController = {
       }
     }
   },
-
   deleteAccount: {
     proxyConfig: { allowedRoles: ['admin'] },
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.deleteAccount(req.params.id)
         res.status(StatusCodes.OK).json(result)
@@ -133,10 +124,9 @@ const originalController = {
       }
     }
   },
-
   forgotPassword: {
     proxyConfig: { allowedRoles: [] }, // Public access
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.forgotPassword(req.body.email)
         res.status(StatusCodes.OK).json(result)
@@ -145,10 +135,9 @@ const originalController = {
       }
     }
   },
-
   confirmCode: {
     proxyConfig: { allowedRoles: [] }, // Public access
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const result = await userService.confirmCode(req.body.email, req.body.code)
         res.status(StatusCodes.OK).json(result)
@@ -157,10 +146,9 @@ const originalController = {
       }
     }
   },
-
   resetPassword: {
     proxyConfig: { allowedRoles: [] }, // Public access
-    async handler(req, res, next) {
+    handler: async (req, res, next) => {
       try {
         const { email, newPassword } = req.body
         const result = await userService.resetPassword(email, newPassword)
