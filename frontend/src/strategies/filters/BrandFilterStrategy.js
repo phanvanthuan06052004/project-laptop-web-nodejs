@@ -1,10 +1,8 @@
 import FilterStrategy from "./FilterStrategy"
 
 class BrandFilterStrategy extends FilterStrategy {
-  filter(products, filters) {
-    const brandSlugs = filters?.brands || []
-    
-    if (!brandSlugs.length) {
+  filter(products, brands) {
+    if (!brands?.length) {
       return products
     }
 
@@ -23,7 +21,7 @@ class BrandFilterStrategy extends FilterStrategy {
 
       const brandValue = brandAttribute.values.toLowerCase().trim()
       
-      return brandSlugs.some((brandSlug) => {
+      return brands.some((brandSlug) => {
         if (brandSlug === "macbook") {
           return brandValue === "apple"
         }

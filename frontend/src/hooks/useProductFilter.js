@@ -56,7 +56,7 @@ export const useProductFilter = () => {
    */
   const needsClientFiltering = useCallback(() => {
     return (
-      (filters.brands && filters.brands.length > 0) || // Any brand filter
+      (filters.brand && filters.brand.length > 0) || // Any brand filter
       (filters.cpu && filters.cpu.length > 0) || // Any CPU filter
       (filters.ram && filters.ram.length > 0) || // Any RAM filter
       (filters.storage && filters.storage.length > 0) // Any storage filter
@@ -119,8 +119,8 @@ export const useProductFilter = () => {
       }
 
       // Handle brand filters - only for regular API calls
-      if (!forAllProducts && filters.brands && filters.brands.length === 1) {
-        params.brand = filters.brands[0]
+      if (!forAllProducts && filters.brand && filters.brand.length === 1) {
+        params.brand = filters.brand[0]
       }
 
       return params
