@@ -189,7 +189,6 @@ const ManagementLaptopDetail = () => {
     try {
       const payload = { ...form, specs: transformedSpecs }
       await updateProduct({ id, data: payload }).unwrap()
-      setMessage("Cập nhật thành công!")
       setTimeout(() => navigate(-1), 1000)
     } catch (err) {
       setMessage(
