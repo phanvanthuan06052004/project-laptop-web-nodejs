@@ -6,15 +6,12 @@ import { uploadRoute } from './uploadRoute'
 
 const Router = express.Router()
 
-// API to register account
 Router.route('/auth/register')
   .post(userValidation.createNew, userController.createNew)
 
-// API to login
 Router.route('/auth/')
   .post(userValidation.signIn, userController.signIn)
 
-// API handle refresh token
 Router.route('/auth/refresh-token')
   .post(userValidation.refreshToken, userController.refreshToken)
 
@@ -29,20 +26,16 @@ Router.route('/auth/reset-password')
 
 Router.use('/upload', uploadRoute)
 
-// API get user profile, update user profile
 Router.route('/profile')
   .get(authMiddlewares.authentication, userController.getUserProfile)
   .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUserByUserId)
 
-// API to logout
 Router.route('/auth/logout')
   .delete(authMiddlewares.authentication, userController.logout)
 
-// Get all users
 Router.route('/')
   .get(authMiddlewares.authentication, userValidation.getAll, userController.getAll)
 
-// Get detail, update, and delete user
 Router.route('/:id')
   .put(authMiddlewares.authentication, userValidation.updateUser, userController.updateUser)
   .get(authMiddlewares.authentication, userValidation.getUserById, userController.getUserById)
