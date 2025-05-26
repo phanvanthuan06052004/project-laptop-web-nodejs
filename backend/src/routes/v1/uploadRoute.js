@@ -45,8 +45,8 @@ Router.post('/', (req, res) => {
     if (req.file) {
       // Construct the image path and full URL
       const imagePath = `/Uploads/avatar/${req.file.filename}`
-      const imageUrl = `http://${env.LOCAL_APP_HOST}:${env.LOCAL_APP_PORT}${imagePath}` // e.g., http://localhost:8017/Uploads/avatar/image-123456.jpg
-      // const imageUrl = `https://laptop.thuandev.id.vn${imagePath}`
+      // const imageUrl = `http://${env.LOCAL_APP_HOST}:${env.LOCAL_APP_PORT}${imagePath}` // e.g., http://localhost:8017/Uploads/avatar/image-123456.jpg
+      const imageUrl = `https://laptop.thuandev.id.vn${imagePath}`
 
       return res.status(200).send({
         message: 'Image uploaded successfully',

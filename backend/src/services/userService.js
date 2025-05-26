@@ -270,9 +270,14 @@ const resetPassword = async (email, newPassword) => {
 
     const hashedPassword = bcryptjs.hashSync(newPassword, 8)
 
-    await userModel.updateUser(user._id, {
-      'password': hashedPassword
-    })
+    await userModel.updateOneUser(user._id, {
+      $set: {
+        password: hashedPassword
+      },
+      $unset: {
+        account: ''
+      }
+    })  
 
     return {
       success: true,

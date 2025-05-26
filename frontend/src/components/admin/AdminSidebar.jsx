@@ -55,8 +55,7 @@ const AdminSidebar = () => {
       children: [
         { title: "Tất cả sản phẩm", path: "/admin/products" },
         { title: "Thêm sản phẩm", path: "/admin/products/new" },
-        { title: "Danh mục", path: "/admin/categories" },
-        { title: "Thương hiệu", path: "/admin/brand" }
+        { title: "Danh mục", path: "/admin/categories" }
       ]
     },
     {
@@ -84,7 +83,7 @@ const AdminSidebar = () => {
       adminOnly: true
     },
     {
-      title: "Chi nhánh",
+      title: "Thương hiệu",
       icon: TreePalm,
       path: "/admin/brand",
       adminOnly: true
@@ -101,8 +100,7 @@ const AdminSidebar = () => {
       children: [
         { title: "Bài viết", path: "/admin/blog" },
         { title: "Trang", path: "/admin/pages" },
-        { title: "Banner", path: "/admin/banners" },
-        { title: "Khuyến mãi", path: "/admin/promotions" }
+        { title: "Banner", path: "/admin/banners" }
       ]
     },
     {

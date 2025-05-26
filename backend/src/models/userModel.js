@@ -51,8 +51,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   codeVerify: Joi.string(),
   codeExpiry: Joi.date().default(null),
   isVerified: Joi.boolean().default(false),
-  resetPasswordToken: Joi.string().allow(null).default(null),
-  resetPasswordExpires: Joi.date().allow(null).default(null),
+  account: Joi.string().allow(null).default({}),
 
   isActive: Joi.boolean().default(true),
 
@@ -157,6 +156,23 @@ const updateUser = async (id, data) => {
   }
 }
 
+const updateOneUser = async (id, updateOps) => {
+  try {
+    const result = await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(id) },
+        updateOps,
+        { returnDocument: 'after' }
+      )
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+
 // xóa user
 const deleteOneById = async (id) => {
   try {
@@ -178,5 +194,6 @@ export const userModel = {
   findOneById,
   findOneByEmail,
   updateUser,
-  deleteOneById
+  deleteOneById,
+  updateOneUser
 }

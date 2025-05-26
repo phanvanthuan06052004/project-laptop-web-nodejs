@@ -20,6 +20,13 @@ const AuthenConfirm = () => {
   const [verifyEmail] = useVerifyEmailMutation()
   const [sendVerificationEmail] = useSendVerificationEmailMutation()
 
+  // Initialize cooldown when component mounts
+  useEffect(() => {
+    if (email) {
+      setResendCooldown(60)
+    }
+  }, [email])
+
   useEffect(() => {
     let timer
     if (resendCooldown > 0) {
@@ -29,7 +36,7 @@ const AuthenConfirm = () => {
     }
     return () => clearInterval(timer)
   }, [resendCooldown])
-
+  console.log(resendCooldown)
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
@@ -42,7 +49,11 @@ const AuthenConfirm = () => {
     }
 
     try {
-      await verifyEmail({ email, code }).unwrap()
+      const response = await verifyEmail({ email, code }).unwrap()
+      if (response.expired) {
+        setError("Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.")
+        return
+      }
       navigate("/login", {
         state: { message: "Email đã được xác nhận. Vui lòng đăng nhập." }
       })

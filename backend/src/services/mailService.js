@@ -25,7 +25,7 @@ const sendVerificationEmail = async (email) => {
     await transporter.sendMail(mailOptions)
     await userModel.updateUser(user._id, {
       codeVerify: code,
-      codeExpiry: new Date(Date.now() + 10 * 60 * 1000)
+      codeExpiry: new Date(Date.now() + 60 * 1000)
     })
     return 'Send code successfully!!'
   } catch (error) {
@@ -39,15 +39,20 @@ const verify_email = async (email, code) => {
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
     }
-    if (user?.codeVerify !== code) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid verification code')
-    }
     if (!user?.codeVerify || !user?.codeExpiry) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid verification code')
     }
+    if (user?.codeVerify !== code) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid verification code')
+    }
+    
     const isCodeExpired = new Date() > user.codeExpiry
     if (isCodeExpired) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Code has expired')
+      return { 
+        success: false, 
+        message: 'Code has expired',
+        expired: true
+      }
     }
 
     await userModel.updateUser(user._id, {
@@ -57,7 +62,10 @@ const verify_email = async (email, code) => {
     })
     return { success: true, message: 'Verified successfully' }
   } catch (error) {
-    throw error
+    if (error instanceof ApiError) {
+      throw error
+    }
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Verification failed')
   }
 }
 

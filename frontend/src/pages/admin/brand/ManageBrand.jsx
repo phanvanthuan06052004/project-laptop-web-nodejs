@@ -131,7 +131,6 @@ const BrandManagement = () => {
                   <TableRow>
                     <TableHead>Logo</TableHead>
                     <TableHead>Tên thương hiệu</TableHead>
-                    <TableHead>Slug</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Ngày tạo</TableHead>
                     <TableHead>Ngày cập nhật</TableHead>
@@ -142,7 +141,7 @@ const BrandManagement = () => {
                   {brandsData?.brands?.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
+                        colSpan={6}
                         className="text-center py-8 text-muted-foreground"
                       >
                         Không có thương hiệu nào
@@ -163,7 +162,6 @@ const BrandManagement = () => {
                         <TableCell className="font-medium">
                           {brand.name}
                         </TableCell>
-                        <TableCell>{brand.slug}</TableCell>
                         <TableCell>
                           <span
                             className={`inline-block px-2 py-1 rounded-full text-xs ${
